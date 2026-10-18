@@ -1,0 +1,1 @@
+@.ai/directrices.md
