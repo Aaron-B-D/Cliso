@@ -7,15 +7,15 @@ Este fichero tiene lo **común** a todo el repositorio. Cada proyecto tiene adem
 
 | Fichero | Se aplica a | Se carga desde |
 |---|---|---|
-| `.ai/directrices-back.md` | `Cliso.API` (Python, FastAPI) | `Cliso.API/CLAUDE.md` |
+| `.ai/directrices-back.md` | `Cliso.API` (Python, FastAPI) y `Documentation/Database` (diagrama de la base de datos) | `Cliso.API/CLAUDE.md` |
 | `.ai/directrices-front.md` | `Cliso.UI` (Angular) y `Documentation/UI` (guía de estilo y diagramas) | `Cliso.UI/CLAUDE.md` |
 
 Además, `.ai/directrices-academicas.md` resume los requisitos académicos del proyecto (entrega, criterios de
 evaluación, estructura de la memoria, defensa). Aplica a todo el repositorio: consúltalo al decidir alcance,
 funcionalidades y documentación.
 
-Antes de tocar algo de un proyecto, lee su fichero si no está ya cargado (por ejemplo, al editar `Documentation/UI`
-desde la raíz). Las normas de un proyecto **no se aplican al otro**: el back usa tabuladores, punto y coma y regiones;
+Antes de tocar algo de un proyecto, lee su fichero si no está ya cargado (por ejemplo, al editar `Documentation/UI` o
+`Documentation/Database` desde la raíz). Las normas de un proyecto **no se aplican al otro**: el back usa tabuladores, punto y coma y regiones;
 el front se rige por su `.editorconfig`.
 
 ## Cómo trabajar

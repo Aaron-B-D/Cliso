@@ -110,6 +110,6 @@ Se pueden añadir apartados al final si hace falta.
 - Las decisiones técnicas, de alcance y de planificación deben poder justificarse en la memoria. Si implementas algo
   relevante, apunta (en el README o donde corresponda) lo necesario para redactar luego la memoria: qué es, por qué
   se eligió así y qué problema resolvió.
-- El modelo relacional/diagrama de BD tiene que estar siempre actualizado.
+- El modelo relacional/diagrama de BD tiene que estar siempre actualizado (`Documentation/Database`).
 - No amplíes el alcance sin avisar: todo lo que se añada o se quite debe reflejarse en el apartado de alcance.
 - Para la defensa conviene tener a mano una demo estable y datos de ejemplo cargados por la autoinstalación.

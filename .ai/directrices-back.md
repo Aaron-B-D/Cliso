@@ -134,6 +134,20 @@ Cliso.API/app/
   bloques por código de respuesta. Excepción nueva = un handler (si hace falta) y una línea ahí.
 - Los settings se leen una vez con `SettingsManager.load()`, y `main.py` los reparte (no hay acceso global a ellos).
 
+## Diseño de la base de datos
+
+El diagrama UML está en `Documentation/Database/[Diseño] Cliso.API - Base de datos.drawio` y es la fuente del
+esquema. Si cambia el esquema (`sqlite_schema.sql`, `mysql_schema.sql`) o el diseño, se actualizan a la vez ambos
+esquemas, el diagrama y la sección "Diseño de la base de datos" del README. Normas del diseño:
+
+- Tablas y columnas en `snake_case` y en singular. `id` de tipo `long` (`BIGINT`) autoincremental.
+- Borrado lógico con `active` en las tablas principales; las tablas hijas de una composición (las piezas) se borran
+  en cascada.
+- `creation_date` obligatoria y `update_date` opcional (`NULL` hasta la primera modificación).
+- Las claves foráneas se nombran `<tabla>_id` (`user_id`, `bim_model_id`).
+- Los textos con valor opcional usan cadena vacía por defecto (`DEFAULT ''`), no `NULL`.
+- Las sesiones no se guardan en base de datos: viven en memoria de la API.
+
 ## Comprobaciones antes de dar algo por hecho
 
 1. `python -m pyright` desde `Cliso.API` (con el entorno virtual `.venv`) → 0 errores.

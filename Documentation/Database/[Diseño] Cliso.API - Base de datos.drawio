@@ -1,0 +1,221 @@
+<mxfile host="app.diagrams.net">
+  <diagram name="Base de datos" id="cliso-db">
+    <mxGraphModel dx="1400" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1300" pageHeight="900" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <mxCell id="title" value="&lt;b&gt;Cliso.API · Diagrama de base de datos&lt;/b&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;fontSize=16;" vertex="1" parent="1">
+          <mxGeometry x="40" y="0" width="700" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- role -->
+        <mxCell id="t_role" value="&amp;lt;&amp;lt;table&amp;gt;&amp;gt;&lt;br&gt;role" style="swimlane;fontStyle=1;align=center;verticalAlign=middle;childLayout=stackLayout;horizontal=1;startSize=44;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;html=1;fillColor=#1f2937;fontColor=#ffffff;strokeColor=#1f2937;swimlaneFillColor=#ffffff;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="40" y="84" width="300" height="154" as="geometry" />
+        </mxCell>
+        <mxCell id="role_0" value="PK  id : long" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=6;spacingRight=4;overflow=hidden;rotatable=0;fontSize=12;fontStyle=1;fontColor=#111827;" vertex="1" parent="t_role">
+          <mxGeometry y="44" width="300" height="22" as="geometry" />
+        </mxCell>
+        <mxCell id="role_1" value="name : string  «unique»" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=6;spacingRight=4;overflow=hidden;rotatable=0;fontSize=12;fontColor=#111827;" vertex="1" parent="t_role">
+          <mxGeometry y="66" width="300" height="22" as="geometry" />
+        </mxCell>
+        <mxCell id="role_2" value="description : string = ''" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=6;spacingRight=4;overflow=hidden;rotatable=0;fontSize=12;fontColor=#111827;" vertex="1" parent="t_role">
+          <mxGeometry y="88" width="300" height="22" as="geometry" />
+        </mxCell>
+        <mxCell id="role_3" value="observations : string = ''" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=6;spacingRight=4;overflow=hidden;rotatable=0;fontSize=12;fontColor=#111827;" vertex="1" parent="t_role">
+          <mxGeometry y="110" width="300" height="22" as="geometry" />
+        </mxCell>
+        <mxCell id="role_4" value="active : bool = true" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=6;spacingRight=4;overflow=hidden;rotatable=0;fontSize=12;fontColor=#111827;" vertex="1" parent="t_role">
+          <mxGeometry y="132" width="300" height="22" as="geometry" />
+        </mxCell>
+
+        <!-- user -->
+        <mxCell id="t_user" value="&amp;lt;&amp;lt;table&amp;gt;&amp;gt;&lt;br&gt;user" style="swimlane;fontStyle=1;align=center;verticalAlign=middle;childLayout=stackLayout;horizontal=1;startSize=44;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;html=1;fillColor=#1f2937;fontColor=#ffffff;strokeColor=#1f2937;swimlaneFillColor=#ffffff;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="460" y="40" width="300" height="242" as="geometry" />
+        </mxCell>
+        <mxCell id="user_0" value="PK  id : long" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=6;spacingRight=4;overflow=hidden;rotatable=0;fontSize=12;fontStyle=1;fontColor=#111827;" vertex="1" parent="t_user">
+          <mxGeometry y="44" width="300" height="22" as="geometry" />
+        </mxCell>
+        <mxCell id="user_1" value="nick : string  «unique entre activos»" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=6;spacingRight=4;overflow=hidden;rotatable=0;fontSize=12;fontColor=#111827;" vertex="1" parent="t_user">
+          <mxGeometry y="66" width="300" height="22" as="geometry" />
+        </mxCell>
+        <mxCell id="user_2" value="name : string" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=6;spacingRight=4;overflow=hidden;rotatable=0;fontSize=12;fontColor=#111827;" vertex="1" parent="t_user">
+          <mxGeometry y="88" width="300" height="22" as="geometry" />
+        </mxCell>
+        <mxCell id="user_3" value="surname : string" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=6;spacingRight=4;overflow=hidden;rotatable=0;fontSize=12;fontColor=#111827;" vertex="1" parent="t_user">
+          <mxGeometry y="110" width="300" height="22" as="geometry" />
+        </mxCell>
+        <mxCell id="user_4" value="password : string  (hash con sal)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=6;spacingRight=4;overflow=hidden;rotatable=0;fontSize=12;fontColor=#111827;" vertex="1" parent="t_user">
+          <mxGeometry y="132" width="300" height="22" as="geometry" />
+        </mxCell>
+        <mxCell id="user_5" value="FK  role_id : long" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=6;spacingRight=4;overflow=hidden;rotatable=0;fontSize=12;fontColor=#111827;" vertex="1" parent="t_user">
+          <mxGeometry y="154" width="300" height="22" as="geometry" />
+        </mxCell>
+        <mxCell id="user_6" value="creation_date : datetime" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=6;spacingRight=4;overflow=hidden;rotatable=0;fontSize=12;fontColor=#111827;" vertex="1" parent="t_user">
+          <mxGeometry y="176" width="300" height="22" as="geometry" />
+        </mxCell>
+        <mxCell id="user_7" value="update_date : datetime  [0..1]" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=6;spacingRight=4;overflow=hidden;rotatable=0;fontSize=12;fontStyle=2;fontColor=#4b5563;" vertex="1" parent="t_user">
+          <mxGeometry y="198" width="300" height="22" as="geometry" />
+        </mxCell>
+        <mxCell id="user_8" value="active : bool = true" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=6;spacingRight=4;overflow=hidden;rotatable=0;fontSize=12;fontColor=#111827;" vertex="1" parent="t_user">
+          <mxGeometry y="220" width="300" height="22" as="geometry" />
+        </mxCell>
+
+        <!-- application_parameter -->
+        <mxCell id="t_param" value="&amp;lt;&amp;lt;table&amp;gt;&amp;gt;&lt;br&gt;application_parameter" style="swimlane;fontStyle=1;align=center;verticalAlign=middle;childLayout=stackLayout;horizontal=1;startSize=44;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;html=1;fillColor=#1f2937;fontColor=#ffffff;strokeColor=#1f2937;swimlaneFillColor=#ffffff;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="880" y="40" width="300" height="176" as="geometry" />
+        </mxCell>
+        <mxCell id="param_0" value="PK  id : long" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=6;spacingRight=4;overflow=hidden;rotatable=0;fontSize=12;fontStyle=1;fontColor=#111827;" vertex="1" parent="t_param">
+          <mxGeometry y="44" width="300" height="22" as="geometry" />
+        </mxCell>
+        <mxCell id="param_1" value="name : string  «unique»" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=6;spacingRight=4;overflow=hidden;rotatable=0;fontSize=12;fontColor=#111827;" vertex="1" parent="t_param">
+          <mxGeometry y="66" width="300" height="22" as="geometry" />
+        </mxCell>
+        <mxCell id="param_2" value="description : string = ''" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=6;spacingRight=4;overflow=hidden;rotatable=0;fontSize=12;fontColor=#111827;" vertex="1" parent="t_param">
+          <mxGeometry y="88" width="300" height="22" as="geometry" />
+        </mxCell>
+        <mxCell id="param_3" value="observations : string = ''" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=6;spacingRight=4;overflow=hidden;rotatable=0;fontSize=12;fontColor=#111827;" vertex="1" parent="t_param">
+          <mxGeometry y="110" width="300" height="22" as="geometry" />
+        </mxCell>
+        <mxCell id="param_4" value="default_value : string" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=6;spacingRight=4;overflow=hidden;rotatable=0;fontSize=12;fontColor=#111827;" vertex="1" parent="t_param">
+          <mxGeometry y="132" width="300" height="22" as="geometry" />
+        </mxCell>
+        <mxCell id="param_5" value="current_value : string" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=6;spacingRight=4;overflow=hidden;rotatable=0;fontSize=12;fontColor=#111827;" vertex="1" parent="t_param">
+          <mxGeometry y="154" width="300" height="22" as="geometry" />
+        </mxCell>
+
+        <!-- bim_model -->
+        <mxCell id="t_model" value="&amp;lt;&amp;lt;table&amp;gt;&amp;gt;&lt;br&gt;bim_model" style="swimlane;fontStyle=1;align=center;verticalAlign=middle;childLayout=stackLayout;horizontal=1;startSize=44;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;html=1;fillColor=#1f2937;fontColor=#ffffff;strokeColor=#1f2937;swimlaneFillColor=#ffffff;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="40" y="371" width="300" height="242" as="geometry" />
+        </mxCell>
+        <mxCell id="model_0" value="PK  id : long" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=6;spacingRight=4;overflow=hidden;rotatable=0;fontSize=12;fontStyle=1;fontColor=#111827;" vertex="1" parent="t_model">
+          <mxGeometry y="44" width="300" height="22" as="geometry" />
+        </mxCell>
+        <mxCell id="model_1" value="name : string  (no vacío)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=6;spacingRight=4;overflow=hidden;rotatable=0;fontSize=12;fontColor=#111827;" vertex="1" parent="t_model">
+          <mxGeometry y="66" width="300" height="22" as="geometry" />
+        </mxCell>
+        <mxCell id="model_2" value="description : string = ''" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=6;spacingRight=4;overflow=hidden;rotatable=0;fontSize=12;fontColor=#111827;" vertex="1" parent="t_model">
+          <mxGeometry y="88" width="300" height="22" as="geometry" />
+        </mxCell>
+        <mxCell id="model_3" value="observations : string = ''" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=6;spacingRight=4;overflow=hidden;rotatable=0;fontSize=12;fontColor=#111827;" vertex="1" parent="t_model">
+          <mxGeometry y="110" width="300" height="22" as="geometry" />
+        </mxCell>
+        <mxCell id="model_4" value="file_name : string  (nombre original)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=6;spacingRight=4;overflow=hidden;rotatable=0;fontSize=12;fontColor=#111827;" vertex="1" parent="t_model">
+          <mxGeometry y="132" width="300" height="22" as="geometry" />
+        </mxCell>
+        <mxCell id="model_5" value="stored_file_name : string  «unique»" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=6;spacingRight=4;overflow=hidden;rotatable=0;fontSize=12;fontColor=#111827;" vertex="1" parent="t_model">
+          <mxGeometry y="154" width="300" height="22" as="geometry" />
+        </mxCell>
+        <mxCell id="model_6" value="creation_date : datetime" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=6;spacingRight=4;overflow=hidden;rotatable=0;fontSize=12;fontColor=#111827;" vertex="1" parent="t_model">
+          <mxGeometry y="176" width="300" height="22" as="geometry" />
+        </mxCell>
+        <mxCell id="model_7" value="update_date : datetime  [0..1]" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=6;spacingRight=4;overflow=hidden;rotatable=0;fontSize=12;fontStyle=2;fontColor=#4b5563;" vertex="1" parent="t_model">
+          <mxGeometry y="198" width="300" height="22" as="geometry" />
+        </mxCell>
+        <mxCell id="model_8" value="active : bool = true" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=6;spacingRight=4;overflow=hidden;rotatable=0;fontSize=12;fontColor=#111827;" vertex="1" parent="t_model">
+          <mxGeometry y="220" width="300" height="22" as="geometry" />
+        </mxCell>
+
+        <!-- visualization -->
+        <mxCell id="t_vis" value="&amp;lt;&amp;lt;table&amp;gt;&amp;gt;&lt;br&gt;visualization" style="swimlane;fontStyle=1;align=center;verticalAlign=middle;childLayout=stackLayout;horizontal=1;startSize=44;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;html=1;fillColor=#1f2937;fontColor=#ffffff;strokeColor=#1f2937;swimlaneFillColor=#ffffff;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="460" y="360" width="300" height="264" as="geometry" />
+        </mxCell>
+        <mxCell id="vis_0" value="PK  id : long" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=6;spacingRight=4;overflow=hidden;rotatable=0;fontSize=12;fontStyle=1;fontColor=#111827;" vertex="1" parent="t_vis">
+          <mxGeometry y="44" width="300" height="22" as="geometry" />
+        </mxCell>
+        <mxCell id="vis_1" value="FK  user_id : long  (propietario)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=6;spacingRight=4;overflow=hidden;rotatable=0;fontSize=12;fontColor=#111827;" vertex="1" parent="t_vis">
+          <mxGeometry y="66" width="300" height="22" as="geometry" />
+        </mxCell>
+        <mxCell id="vis_2" value="FK  bim_model_id : long" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=6;spacingRight=4;overflow=hidden;rotatable=0;fontSize=12;fontColor=#111827;" vertex="1" parent="t_vis">
+          <mxGeometry y="88" width="300" height="22" as="geometry" />
+        </mxCell>
+        <mxCell id="vis_3" value="name : string  (no vacío)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=6;spacingRight=4;overflow=hidden;rotatable=0;fontSize=12;fontColor=#111827;" vertex="1" parent="t_vis">
+          <mxGeometry y="110" width="300" height="22" as="geometry" />
+        </mxCell>
+        <mxCell id="vis_4" value="description : string = ''" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=6;spacingRight=4;overflow=hidden;rotatable=0;fontSize=12;fontColor=#111827;" vertex="1" parent="t_vis">
+          <mxGeometry y="132" width="300" height="22" as="geometry" />
+        </mxCell>
+        <mxCell id="vis_5" value="observations : string = ''" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=6;spacingRight=4;overflow=hidden;rotatable=0;fontSize=12;fontColor=#111827;" vertex="1" parent="t_vis">
+          <mxGeometry y="154" width="300" height="22" as="geometry" />
+        </mxCell>
+        <mxCell id="vis_6" value="is_public : bool = false" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=6;spacingRight=4;overflow=hidden;rotatable=0;fontSize=12;fontColor=#111827;" vertex="1" parent="t_vis">
+          <mxGeometry y="176" width="300" height="22" as="geometry" />
+        </mxCell>
+        <mxCell id="vis_7" value="creation_date : datetime" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=6;spacingRight=4;overflow=hidden;rotatable=0;fontSize=12;fontColor=#111827;" vertex="1" parent="t_vis">
+          <mxGeometry y="198" width="300" height="22" as="geometry" />
+        </mxCell>
+        <mxCell id="vis_8" value="update_date : datetime  [0..1]" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=6;spacingRight=4;overflow=hidden;rotatable=0;fontSize=12;fontStyle=2;fontColor=#4b5563;" vertex="1" parent="t_vis">
+          <mxGeometry y="220" width="300" height="22" as="geometry" />
+        </mxCell>
+        <mxCell id="vis_9" value="active : bool = true" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=6;spacingRight=4;overflow=hidden;rotatable=0;fontSize=12;fontColor=#111827;" vertex="1" parent="t_vis">
+          <mxGeometry y="242" width="300" height="22" as="geometry" />
+        </mxCell>
+
+        <!-- visualization_piece -->
+        <mxCell id="t_piece" value="&amp;lt;&amp;lt;table&amp;gt;&amp;gt;&lt;br&gt;visualization_piece" style="swimlane;fontStyle=1;align=center;verticalAlign=middle;childLayout=stackLayout;horizontal=1;startSize=44;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;html=1;fillColor=#1f2937;fontColor=#ffffff;strokeColor=#1f2937;swimlaneFillColor=#ffffff;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="880" y="437" width="300" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="piece_0" value="PK  id : long" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=6;spacingRight=4;overflow=hidden;rotatable=0;fontSize=12;fontStyle=1;fontColor=#111827;" vertex="1" parent="t_piece">
+          <mxGeometry y="44" width="300" height="22" as="geometry" />
+        </mxCell>
+        <mxCell id="piece_1" value="FK  visualization_id : long" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=6;spacingRight=4;overflow=hidden;rotatable=0;fontSize=12;fontColor=#111827;" vertex="1" parent="t_piece">
+          <mxGeometry y="66" width="300" height="22" as="geometry" />
+        </mxCell>
+        <mxCell id="piece_2" value="content : json  (tipo de pieza + datos)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=6;spacingRight=4;overflow=hidden;rotatable=0;fontSize=12;fontColor=#111827;" vertex="1" parent="t_piece">
+          <mxGeometry y="88" width="300" height="22" as="geometry" />
+        </mxCell>
+
+        <!-- Relaciones -->
+        <mxCell id="e_role_user" value="asignado a" style="endArrow=none;html=1;edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#9ca3af;fontSize=11;fontColor=#111827;labelBackgroundColor=#ffffff;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="t_role" target="t_user">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_role_user_s" value="1" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=12;" vertex="1" connectable="0" parent="e_role_user">
+          <mxGeometry x="-0.8" relative="1" as="geometry"><mxPoint y="-12" as="offset" /></mxGeometry>
+        </mxCell>
+        <mxCell id="e_role_user_t" value="0..*" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=12;" vertex="1" connectable="0" parent="e_role_user">
+          <mxGeometry x="0.8" relative="1" as="geometry"><mxPoint y="-12" as="offset" /></mxGeometry>
+        </mxCell>
+
+        <mxCell id="e_user_vis" value="propietario de" style="endArrow=none;html=1;edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#9ca3af;fontSize=11;fontColor=#111827;labelBackgroundColor=#ffffff;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="t_user" target="t_vis">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_user_vis_s" value="1" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=12;" vertex="1" connectable="0" parent="e_user_vis">
+          <mxGeometry x="-0.75" relative="1" as="geometry"><mxPoint x="14" as="offset" /></mxGeometry>
+        </mxCell>
+        <mxCell id="e_user_vis_t" value="0..*" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=12;" vertex="1" connectable="0" parent="e_user_vis">
+          <mxGeometry x="0.75" relative="1" as="geometry"><mxPoint x="16" as="offset" /></mxGeometry>
+        </mxCell>
+
+        <mxCell id="e_model_vis" value="base de" style="endArrow=none;html=1;edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#9ca3af;fontSize=11;fontColor=#111827;labelBackgroundColor=#ffffff;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="t_model" target="t_vis">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_model_vis_s" value="1" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=12;" vertex="1" connectable="0" parent="e_model_vis">
+          <mxGeometry x="-0.8" relative="1" as="geometry"><mxPoint y="-12" as="offset" /></mxGeometry>
+        </mxCell>
+        <mxCell id="e_model_vis_t" value="0..*" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=12;" vertex="1" connectable="0" parent="e_model_vis">
+          <mxGeometry x="0.8" relative="1" as="geometry"><mxPoint y="-12" as="offset" /></mxGeometry>
+        </mxCell>
+
+        <mxCell id="e_vis_piece" value="compuesta por" style="startArrow=diamond;startFill=1;startSize=12;endArrow=none;html=1;edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#9ca3af;fontSize=11;fontColor=#111827;labelBackgroundColor=#ffffff;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="t_vis" target="t_piece">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_vis_piece_s" value="1" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=12;" vertex="1" connectable="0" parent="e_vis_piece">
+          <mxGeometry x="-0.8" relative="1" as="geometry"><mxPoint y="-12" as="offset" /></mxGeometry>
+        </mxCell>
+        <mxCell id="e_vis_piece_t" value="0..*" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=12;" vertex="1" connectable="0" parent="e_vis_piece">
+          <mxGeometry x="0.8" relative="1" as="geometry"><mxPoint y="-12" as="offset" /></mxGeometry>
+        </mxCell>
+
+        <!-- Leyenda -->
+        <mxCell id="legend" value="&lt;b&gt;Leyenda&lt;/b&gt;&lt;br&gt;&lt;font color=&quot;#1f2937&quot;&gt;■&lt;/font&gt; Tabla obligatoria (todas en esta versión)&lt;br&gt;&lt;font color=&quot;#9ca3af&quot;&gt;┅&lt;/font&gt; Tabla opcional (ninguna por ahora)&lt;br&gt;&lt;i&gt;&lt;font color=&quot;#6b7280&quot;&gt;cursiva gris [0..1]&lt;/font&gt;&lt;/i&gt; Columna opcional (admite NULL)&lt;br&gt;&lt;b&gt;PK&lt;/b&gt; clave primaria · FK clave foránea&lt;br&gt;◆ Composición: al borrar la visualización se borran sus piezas&lt;br&gt;1 · 0..* Cardinalidad (un lado · muchos)" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacingLeft=8;spacingTop=4;fillColor=#f9fafb;strokeColor=#9ca3af;fontSize=12;fontColor=#111827;" vertex="1" parent="1">
+          <mxGeometry x="880" y="240" width="300" height="160" as="geometry" />
+        </mxCell>
+
+        <!-- Notas -->
+        <mxCell id="notes" value="&lt;b&gt;Notas de diseño&lt;/b&gt;&lt;br&gt;• Todos los id son long (BIGINT) autoincrementales. Fechas: ISO en texto (SQLite) y DATETIME (MySQL).&lt;br&gt;• Borrado lógico con active en role, user, bim_model y visualization. visualization_piece se borra físicamente, en cascada.&lt;br&gt;• user.nick es único solo entre usuarios activos (índice único parcial en SQLite, índice funcional en MySQL; lo comprueba también el caso de uso).&lt;br&gt;• Solo el propietario (visualization.user_id) puede modificar una visualización; si is_public es true, el resto de usuarios solo puede verla.&lt;br&gt;• bim_model.file_name es el nombre original; stored_file_name es el nombre aleatorio único con el que se guarda el fichero en disco.&lt;br&gt;• visualization_piece.content es un JSON cuya base indica el tipo de pieza.&lt;br&gt;• application_parameter no tiene relaciones: los valores son texto y la aplicación los interpreta según el parámetro. Los parámetros de arranque siguen en settings.json.&lt;br&gt;• Role: por defecto admin y user. Las sesiones no se guardan en base de datos: viven en memoria de la API." style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacingLeft=8;spacingTop=4;fillColor=#f9fafb;strokeColor=#9ca3af;fontSize=12;fontColor=#111827;" vertex="1" parent="1">
+          <mxGeometry x="40" y="660" width="1140" height="170" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

@@ -97,6 +97,7 @@ Proyecto/
 │       ├── styles.scss   # Estilos globales (importa src/styles/)
 │       └── styles/       # Tokens de diseño, base y clases provisionales
 ├── Documentation/ # Documentación del proyecto
+│   ├── Database/  # Diseño de la base de datos: diagrama UML .drawio
 │   └── UI/        # Diseño de la interfaz: guía de estilo y diagramas .drawio
 └── README.md
 ```
@@ -179,6 +180,59 @@ visualización pertenece a un único usuario y a un único modelo.
 ```
 User 1 ───< Visualization >─── 1 BIMModel
 ```
+
+### Diseño de la base de datos
+
+El diagrama UML está en [`Documentation/Database/[Diseño] Cliso.API - Base de datos.drawio`](<Documentation/Database/[Diseño] Cliso.API - Base de datos.drawio>)
+(se abre con drawio). Distingue las tablas obligatorias de las opcionales (en esta versión todas son obligatorias) y
+marca en cursiva gris las columnas que admiten `NULL`.
+
+> Es el **diseño objetivo**. Los esquemas SQL, los objetos de dominio y `demo_data.json` descritos arriba todavía no
+> lo reflejan por completo. Diferencias pendientes de implementar: `visualization.owner_id` y `model_id` pasan a
+> `user_id` y `bim_model_id`; `user` gana `role_id` y `update_date`; `bim_model` gana `observations`,
+> `stored_file_name` y `update_date`; `visualization` gana `creation_date` y `update_date`; y las tablas `role`,
+> `visualization_piece` y `application_parameter` son nuevas.
+
+| Tabla | Qué guarda |
+|---|---|
+| `role` | Perfiles de usuario. Por defecto `admin` y `user`. |
+| `user` | Usuarios, con su rol (`role_id`). |
+| `bim_model` | Modelos BIM y el fichero asociado. |
+| `visualization` | Visualización de un usuario (`user_id`) sobre un modelo (`bim_model_id`). |
+| `visualization_piece` | Piezas de una visualización (marcadores, colores, cámaras...), en JSON. |
+| `application_parameter` | Parámetros propios de la aplicación, editables en caliente. |
+
+Decisiones de diseño (para la memoria):
+
+- Nombres en `snake_case` y singular. Todos los `id` son `long` (`BIGINT`) autoincrementales. Las fechas son ISO en
+  texto en SQLite y `DATETIME` en MySQL; `update_date` es opcional (`NULL` hasta la primera modificación).
+- **Borrado lógico** con `active` en `role`, `user`, `bim_model` y `visualization`. Las piezas se borran
+  físicamente, en cascada, al borrar su visualización.
+- `user.nick` es único **solo entre usuarios activos**: un nick de un usuario borrado se puede reutilizar. Un
+  `UNIQUE` normal no lo permite, así que se usa un índice único parcial en SQLite
+  (`WHERE active = 1`) y un índice funcional en MySQL 8 (`UNIQUE ((CASE WHEN active = 1 THEN nick END))`); además lo
+  comprueba el caso de uso.
+- `user.password` guarda el segundo hash con su sal dentro del mismo texto, sin columna aparte.
+- **Visualizaciones compartidas:** `visualization.is_public` indica si la ven todos. Solo su propietario
+  (`user_id`) puede modificarla; los demás, si es pública, solo pueden verla.
+- `bim_model.file_name` es el nombre original del fichero (el que verá el usuario) y `stored_file_name` el nombre
+  aleatorio único con el que se guarda en disco, para evitar colisiones y rutas adivinables.
+- `visualization_piece.content` es un JSON cuya clase base indica el tipo de pieza; el tipo no es una columna.
+- `application_parameter` guarda `default_value` y `current_value` como texto, sin tipo: la aplicación los parsea
+  según el parámetro. Los parámetros de arranque (`is_demo`, `database_provider`, MySQL) siguen en `settings.json`
+  porque deciden qué base de datos se abre.
+- **Las sesiones no se guardan en base de datos:** viven en memoria de la API, en un gestor. Si la API se reinicia,
+  todos los usuarios se desconectan; tampoco funcionaría con varios procesos (`--workers`), porque cada uno tendría
+  su propia memoria. El tiempo de caducidad sale de `application_parameter`.
+- La tabla `role` cubre el criterio académico de perfiles o roles de usuario.
+
+Parámetros iniciales de `application_parameter` (los que carga la autoinstalación):
+
+| Parámetro | Qué es | Valor por defecto |
+|---|---|---|
+| `language` | Idioma de la aplicación, con código internacional (por ejemplo, `es-ES`). | `en-US` (inglés) |
+| `session_timeout_ms` | Tiempo de inactividad, en milisegundos, tras el cual caduca una sesión. | `1800000` (30 minutos) |
+| `models_path` | Ruta, relativa o absoluta, de la carpeta donde se guardan los ficheros `.ifc` de los modelos BIM. Si es relativa, lo es a `Cliso.API`, como `data/` y `logs/`. | `models` |
 
 ## Arquitectura hexagonal del back
 
@@ -359,6 +413,10 @@ El servicio de configuración (`SettingsService`) no conoce `Settings`: `Setting
 parámetros públicos a objetos `ApplicationSetting` y `main.py` se los entrega al servicio. Para hacer público un
 parámetro nuevo: un valor en `ApplicationSettingParameter` y una entrada en `SettingsMapper`. Los parámetros solo se
 cambian editando el fichero de settings y reiniciando la API.
+
+> Según el [diseño de la base de datos](#diseño-de-la-base-de-datos), los parámetros propios de la aplicación que se
+> puedan editar en caliente (caducidad de sesión, idioma, ruta de los modelos...) pasarán a la tabla
+> `application_parameter`; en `settings.json` quedarán los de arranque. Aún no está implementado.
 
 ### Servicio de usuarios
 
