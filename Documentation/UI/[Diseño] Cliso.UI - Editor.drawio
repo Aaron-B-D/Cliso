@@ -1,0 +1,990 @@
+<mxfile host="app.diagrams.net">
+  <diagram name="Usuarios" id="editor-selector-visible">
+    <mxGraphModel background="#000000" dx="1178" dy="654" grid="1" gridSize="4" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1500" pageHeight="827" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- Fondo oscurecido (backdrop del mat-dialog) -->
+        <mxCell id="backdrop" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#000000;opacity=32;strokeColor=none;" value="" vertex="1">
+          <mxGeometry x="80" y="20" width="1000" height="760" as="geometry" />
+        </mxCell>
+
+        <!-- Modal -->
+        <mxCell id="dialog" parent="1" style="rounded=1;arcSize=16;absoluteArcSize=1;whiteSpace=wrap;html=1;fillColor=#16181C;strokeColor=#2F3336;" value="" vertex="1">
+          <mxGeometry x="120" y="60" width="920" height="680" as="geometry" />
+        </mxCell>
+
+        <!-- Cabecera -->
+        <mxCell id="title" parent="1" style="text;html=1;align=left;verticalAlign=middle;fontSize=20;fontColor=#E7E9EA;" value="Editar usuarios" vertex="1">
+          <mxGeometry x="144" y="72" width="300" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="btn-maximize" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=none;strokeColor=none;fontSize=16;fontColor=#71767B;" value="☐" vertex="1">
+          <mxGeometry x="956" y="76" width="32" height="32" as="geometry" />
+        </mxCell>
+        <mxCell id="btn-close" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=none;strokeColor=none;fontSize=16;fontColor=#71767B;" value="✕" vertex="1">
+          <mxGeometry x="992" y="76" width="32" height="32" as="geometry" />
+        </mxCell>
+        <mxCell id="header-line" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#2F3336;strokeColor=none;" value="" vertex="1">
+          <mxGeometry x="120" y="124" width="920" height="1" as="geometry" />
+        </mxCell>
+
+        <!-- Selector: buscador y botón Nuevo -->
+        <mxCell id="search" parent="1" style="rounded=1;arcSize=50;whiteSpace=wrap;html=1;fillColor=#000000;strokeColor=#2F3336;align=left;spacingLeft=12;fontSize=14;fontColor=#71767B;" value="⌕&amp;nbsp;&amp;nbsp;Buscar..." vertex="1">
+          <mxGeometry x="136" y="141" width="180" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="btn-new" parent="1" style="rounded=1;arcSize=50;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=none;fontSize=14;fontStyle=1;fontColor=#000000;" value="+ Nuevo" vertex="1">
+          <mxGeometry x="324" y="141" width="64" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- Selector: fichas -->
+        <mxCell id="card-1" parent="1" style="rounded=1;arcSize=16;absoluteArcSize=1;whiteSpace=wrap;html=1;fillColor=#16181C;strokeColor=#2F3336;" value="" vertex="1">
+          <mxGeometry x="136" y="197" width="252" height="64" as="geometry" />
+        </mxCell>
+        <mxCell id="card-1-avatar" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#2F3336;strokeColor=none;fontColor=#E7E9EA;fontStyle=1;" value="AG" vertex="1">
+          <mxGeometry x="148" y="209" width="40" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="card-1-name" parent="1" style="text;html=1;align=left;verticalAlign=middle;fontSize=14;fontStyle=1;fontColor=#E7E9EA;" value="Ana García" vertex="1">
+          <mxGeometry x="196" y="209" width="180" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="card-1-sub" parent="1" style="text;html=1;align=left;verticalAlign=middle;fontSize=12;fontColor=#71767B;" value="Administrador" vertex="1">
+          <mxGeometry x="196" y="229" width="180" height="20" as="geometry" />
+        </mxCell>
+
+        <mxCell id="card-2" parent="1" style="rounded=1;arcSize=16;absoluteArcSize=1;whiteSpace=wrap;html=1;fillColor=#1D1F23;strokeColor=#FFFFFF;strokeWidth=2;" value="" vertex="1">
+          <mxGeometry x="136" y="269" width="252" height="64" as="geometry" />
+        </mxCell>
+        <mxCell id="card-2-avatar" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=none;fontColor=#000000;fontStyle=1;" value="LP" vertex="1">
+          <mxGeometry x="148" y="281" width="40" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="card-2-name" parent="1" style="text;html=1;align=left;verticalAlign=middle;fontSize=14;fontStyle=1;fontColor=#E7E9EA;" value="Luis Pérez" vertex="1">
+          <mxGeometry x="196" y="281" width="180" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="card-2-sub" parent="1" style="text;html=1;align=left;verticalAlign=middle;fontSize=12;fontColor=#71767B;" value="Editor" vertex="1">
+          <mxGeometry x="196" y="301" width="180" height="20" as="geometry" />
+        </mxCell>
+
+        <mxCell id="card-3" parent="1" style="rounded=1;arcSize=16;absoluteArcSize=1;whiteSpace=wrap;html=1;fillColor=#16181C;strokeColor=#2F3336;" value="" vertex="1">
+          <mxGeometry x="136" y="341" width="252" height="64" as="geometry" />
+        </mxCell>
+        <mxCell id="card-3-avatar" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#2F3336;strokeColor=none;fontColor=#E7E9EA;fontStyle=1;" value="ML" vertex="1">
+          <mxGeometry x="148" y="353" width="40" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="card-3-name" parent="1" style="text;html=1;align=left;verticalAlign=middle;fontSize=14;fontStyle=1;fontColor=#E7E9EA;" value="Marta López" vertex="1">
+          <mxGeometry x="196" y="353" width="180" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="card-3-sub" parent="1" style="text;html=1;align=left;verticalAlign=middle;fontSize=12;fontColor=#71767B;" value="Lector" vertex="1">
+          <mxGeometry x="196" y="373" width="180" height="20" as="geometry" />
+        </mxCell>
+
+        <mxCell id="card-4" parent="1" style="rounded=1;arcSize=16;absoluteArcSize=1;whiteSpace=wrap;html=1;fillColor=#16181C;strokeColor=#2F3336;" value="" vertex="1">
+          <mxGeometry x="136" y="413" width="252" height="64" as="geometry" />
+        </mxCell>
+        <mxCell id="card-4-avatar" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#2F3336;strokeColor=none;fontColor=#E7E9EA;fontStyle=1;" value="CR" vertex="1">
+          <mxGeometry x="148" y="425" width="40" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="card-4-name" parent="1" style="text;html=1;align=left;verticalAlign=middle;fontSize=14;fontStyle=1;fontColor=#E7E9EA;" value="Carlos Ruiz" vertex="1">
+          <mxGeometry x="196" y="425" width="180" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="card-4-sub" parent="1" style="text;html=1;align=left;verticalAlign=middle;fontSize=12;fontColor=#71767B;" value="Editor" vertex="1">
+          <mxGeometry x="196" y="445" width="180" height="20" as="geometry" />
+        </mxCell>
+
+        <mxCell id="card-5" parent="1" style="rounded=1;arcSize=16;absoluteArcSize=1;whiteSpace=wrap;html=1;fillColor=#16181C;strokeColor=#2F3336;" value="" vertex="1">
+          <mxGeometry x="136" y="485" width="252" height="64" as="geometry" />
+        </mxCell>
+        <mxCell id="card-5-avatar" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#2F3336;strokeColor=none;fontColor=#E7E9EA;fontStyle=1;" value="ED" vertex="1">
+          <mxGeometry x="148" y="497" width="40" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="card-5-name" parent="1" style="text;html=1;align=left;verticalAlign=middle;fontSize=14;fontStyle=1;fontColor=#E7E9EA;" value="Elena Díaz" vertex="1">
+          <mxGeometry x="196" y="497" width="180" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="card-5-sub" parent="1" style="text;html=1;align=left;verticalAlign=middle;fontSize=12;fontColor=#71767B;" value="Lector" vertex="1">
+          <mxGeometry x="196" y="517" width="180" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- Splitter con botón para ocultar el selector -->
+        <mxCell id="splitter" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#1D1F23;strokeColor=#2F3336;" value="" vertex="1">
+          <mxGeometry x="400" y="125" width="8" height="551" as="geometry" />
+        </mxCell>
+        <mxCell id="splitter-grip" parent="1" style="text;html=1;align=center;verticalAlign=middle;fontSize=14;fontColor=#71767B;" value="⋮" vertex="1">
+          <mxGeometry x="396" y="440" width="16" height="24" as="geometry" />
+        </mxCell>
+        <mxCell id="btn-collapse" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#16181C;strokeColor=#2F3336;fontSize=14;fontStyle=1;fontColor=#71767B;" value="«" vertex="1">
+          <mxGeometry x="392" y="140" width="24" height="24" as="geometry" />
+        </mxCell>
+
+        <!-- Detalle: pestañas -->
+        <mxCell id="tab-general" parent="1" style="text;html=1;align=center;verticalAlign=middle;fontSize=14;fontStyle=1;fontColor=#FFFFFF;" value="General" vertex="1">
+          <mxGeometry x="424" y="125" width="120" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="tab-general-ink" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=none;" value="" vertex="1">
+          <mxGeometry x="424" y="170" width="120" height="3" as="geometry" />
+        </mxCell>
+        <mxCell id="tab-permissions" parent="1" style="text;html=1;align=center;verticalAlign=middle;fontSize=14;fontColor=#71767B;" value="Permisos" vertex="1">
+          <mxGeometry x="544" y="125" width="120" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="tabs-line" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#2F3336;strokeColor=none;" value="" vertex="1">
+          <mxGeometry x="408" y="173" width="632" height="1" as="geometry" />
+        </mxCell>
+
+        <!-- Detalle: formulario (mat-form-field outline) -->
+        <mxCell id="field-name" parent="1" style="rounded=1;arcSize=50;whiteSpace=wrap;html=1;fillColor=#000000;strokeColor=#2F3336;align=left;spacingLeft=14;fontSize=15;fontColor=#E7E9EA;" value="Luis" vertex="1">
+          <mxGeometry x="432" y="205" width="284" height="52" as="geometry" />
+        </mxCell>
+        <mxCell id="field-name-label" parent="1" style="text;html=1;fillColor=#000000;align=center;verticalAlign=middle;fontSize=11;fontColor=#71767B;" value="Nombre" vertex="1">
+          <mxGeometry x="444" y="197" width="56" height="16" as="geometry" />
+        </mxCell>
+        <mxCell id="field-surname" parent="1" style="rounded=1;arcSize=50;whiteSpace=wrap;html=1;fillColor=#000000;strokeColor=#2F3336;align=left;spacingLeft=14;fontSize=15;fontColor=#E7E9EA;" value="Pérez" vertex="1">
+          <mxGeometry x="732" y="205" width="284" height="52" as="geometry" />
+        </mxCell>
+        <mxCell id="field-surname-label" parent="1" style="text;html=1;fillColor=#000000;align=center;verticalAlign=middle;fontSize=11;fontColor=#71767B;" value="Apellidos" vertex="1">
+          <mxGeometry x="744" y="197" width="64" height="16" as="geometry" />
+        </mxCell>
+        <mxCell id="field-email" parent="1" style="rounded=1;arcSize=50;whiteSpace=wrap;html=1;fillColor=#000000;strokeColor=#2F3336;align=left;spacingLeft=14;fontSize=15;fontColor=#E7E9EA;" value="luis.perez@ejemplo.com" vertex="1">
+          <mxGeometry x="432" y="281" width="584" height="52" as="geometry" />
+        </mxCell>
+        <mxCell id="field-email-label" parent="1" style="text;html=1;fillColor=#000000;align=center;verticalAlign=middle;fontSize=11;fontColor=#71767B;" value="Correo electrónico" vertex="1">
+          <mxGeometry x="444" y="273" width="112" height="16" as="geometry" />
+        </mxCell>
+        <mxCell id="field-username" parent="1" style="rounded=1;arcSize=50;whiteSpace=wrap;html=1;fillColor=#000000;strokeColor=#2F3336;align=left;spacingLeft=14;fontSize=15;fontColor=#E7E9EA;" value="lperez" vertex="1">
+          <mxGeometry x="432" y="357" width="284" height="52" as="geometry" />
+        </mxCell>
+        <mxCell id="field-username-label" parent="1" style="text;html=1;fillColor=#000000;align=center;verticalAlign=middle;fontSize=11;fontColor=#71767B;" value="Usuario" vertex="1">
+          <mxGeometry x="444" y="349" width="56" height="16" as="geometry" />
+        </mxCell>
+        <mxCell id="field-role" parent="1" style="rounded=1;arcSize=50;whiteSpace=wrap;html=1;fillColor=#000000;strokeColor=#2F3336;align=left;spacingLeft=14;fontSize=15;fontColor=#E7E9EA;" value="Editor" vertex="1">
+          <mxGeometry x="732" y="357" width="284" height="52" as="geometry" />
+        </mxCell>
+        <mxCell id="field-role-label" parent="1" style="text;html=1;fillColor=#000000;align=center;verticalAlign=middle;fontSize=11;fontColor=#71767B;" value="Rol" vertex="1">
+          <mxGeometry x="744" y="349" width="32" height="16" as="geometry" />
+        </mxCell>
+        <mxCell id="field-role-arrow" parent="1" style="text;html=1;align=center;verticalAlign=middle;fontSize=14;fontColor=#71767B;" value="▾" vertex="1">
+          <mxGeometry x="984" y="371" width="24" height="24" as="geometry" />
+        </mxCell>
+        <mxCell id="toggle-track" parent="1" style="rounded=1;arcSize=50;whiteSpace=wrap;html=1;fillColor=#71767B;strokeColor=none;" value="" vertex="1">
+          <mxGeometry x="432" y="443" width="36" height="16" as="geometry" />
+        </mxCell>
+        <mxCell id="toggle-thumb" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=none;" value="" vertex="1">
+          <mxGeometry x="452" y="439" width="24" height="24" as="geometry" />
+        </mxCell>
+        <mxCell id="toggle-label" parent="1" style="text;html=1;align=left;verticalAlign=middle;fontSize=14;fontColor=#E7E9EA;" value="Activo" vertex="1">
+          <mxGeometry x="484" y="436" width="100" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- Pie -->
+        <mxCell id="footer-line" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#2F3336;strokeColor=none;" value="" vertex="1">
+          <mxGeometry x="120" y="676" width="920" height="1" as="geometry" />
+        </mxCell>
+        <mxCell id="btn-cancel" parent="1" style="rounded=1;arcSize=50;whiteSpace=wrap;html=1;fillColor=none;strokeColor=none;fontSize=14;fontStyle=1;fontColor=#FFFFFF;" value="Cancelar" vertex="1">
+          <mxGeometry x="828" y="692" width="96" height="36" as="geometry" />
+        </mxCell>
+        <mxCell id="btn-save" parent="1" style="rounded=1;arcSize=50;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=none;fontSize=14;fontStyle=1;fontColor=#000000;" value="Guardar" vertex="1">
+          <mxGeometry x="932" y="692" width="88" height="36" as="geometry" />
+        </mxCell>
+        <mxCell id="resize-grip" parent="1" style="text;html=1;align=center;verticalAlign=middle;fontSize=12;fontColor=#71767B;" value="◢" vertex="1">
+          <mxGeometry x="1022" y="722" width="16" height="16" as="geometry" />
+        </mxCell>
+
+        <!-- Notas de comportamiento -->
+        <mxCell id="notes" parent="1" style="shape=note;size=16;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=12;fontSize=13;fillColor=#16181C;strokeColor=#2F3336;fontColor=#E7E9EA;" value="&lt;b&gt;Comportamiento&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;b&gt;Modal&lt;/b&gt; (MatDialog): se abre desde Edición &amp;gt; Usuarios, Modelos o Visualizaciones; el título y las fichas dependen del tipo. Redimensionable desde la esquina (◢); ☐ maximiza / restaura; ✕ cierra.&lt;br&gt;&lt;br&gt;&lt;b&gt;Selector&lt;/b&gt; (izquierda): el buscador filtra las fichas; &lt;i&gt;+ Nuevo&lt;/i&gt; deja el detalle en blanco para crear; clic en una ficha carga su detalle (la seleccionada va resaltada).&lt;br&gt;&lt;br&gt;&lt;b&gt;Splitter&lt;/b&gt;: arrastrar cambia el ancho del selector (con mínimo y máximo); « oculta el selector (ver página «Usuarios (selector oculto)»; igual en los tres editores).&lt;br&gt;&lt;br&gt;&lt;b&gt;Detalle&lt;/b&gt; (derecha): formulario en pestañas (mat-tab-group); las pestañas dependen del tipo.&lt;br&gt;&lt;br&gt;&lt;b&gt;Pie&lt;/b&gt;: Cancelar descarta los cambios; Guardar los persiste." vertex="1">
+          <mxGeometry x="1120" y="60" width="340" height="420" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram name="Usuarios (selector oculto)" id="editor-selector-oculto">
+    <mxGraphModel background="#000000" dx="1178" dy="654" grid="1" gridSize="4" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1500" pageHeight="827" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- Fondo oscurecido (backdrop del mat-dialog) -->
+        <mxCell id="p2-backdrop" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#000000;opacity=32;strokeColor=none;" value="" vertex="1">
+          <mxGeometry x="80" y="20" width="1000" height="760" as="geometry" />
+        </mxCell>
+
+        <!-- Modal -->
+        <mxCell id="p2-dialog" parent="1" style="rounded=1;arcSize=16;absoluteArcSize=1;whiteSpace=wrap;html=1;fillColor=#16181C;strokeColor=#2F3336;" value="" vertex="1">
+          <mxGeometry x="120" y="60" width="920" height="680" as="geometry" />
+        </mxCell>
+
+        <!-- Cabecera -->
+        <mxCell id="p2-title" parent="1" style="text;html=1;align=left;verticalAlign=middle;fontSize=20;fontColor=#E7E9EA;" value="Editar usuarios" vertex="1">
+          <mxGeometry x="144" y="72" width="300" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="p2-btn-maximize" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=none;strokeColor=none;fontSize=16;fontColor=#71767B;" value="☐" vertex="1">
+          <mxGeometry x="956" y="76" width="32" height="32" as="geometry" />
+        </mxCell>
+        <mxCell id="p2-btn-close" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=none;strokeColor=none;fontSize=16;fontColor=#71767B;" value="✕" vertex="1">
+          <mxGeometry x="992" y="76" width="32" height="32" as="geometry" />
+        </mxCell>
+        <mxCell id="p2-header-line" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#2F3336;strokeColor=none;" value="" vertex="1">
+          <mxGeometry x="120" y="124" width="920" height="1" as="geometry" />
+        </mxCell>
+
+        <!-- Selector oculto: franja con botón para mostrarlo -->
+        <mxCell id="p2-strip" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#1D1F23;strokeColor=#2F3336;" value="" vertex="1">
+          <mxGeometry x="120" y="125" width="40" height="551" as="geometry" />
+        </mxCell>
+        <mxCell id="p2-btn-expand" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#16181C;strokeColor=#2F3336;fontSize=14;fontStyle=1;fontColor=#71767B;" value="»" vertex="1">
+          <mxGeometry x="128" y="140" width="24" height="24" as="geometry" />
+        </mxCell>
+        <mxCell id="p2-strip-label" parent="1" style="text;html=1;align=center;verticalAlign=middle;fontSize=13;fontColor=#71767B;horizontal=0;" value="Usuarios" vertex="1">
+          <mxGeometry x="120" y="180" width="40" height="100" as="geometry" />
+        </mxCell>
+
+        <!-- Detalle: pestañas -->
+        <mxCell id="p2-tab-general" parent="1" style="text;html=1;align=center;verticalAlign=middle;fontSize=14;fontStyle=1;fontColor=#FFFFFF;" value="General" vertex="1">
+          <mxGeometry x="176" y="125" width="120" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="p2-tab-general-ink" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=none;" value="" vertex="1">
+          <mxGeometry x="176" y="170" width="120" height="3" as="geometry" />
+        </mxCell>
+        <mxCell id="p2-tab-permissions" parent="1" style="text;html=1;align=center;verticalAlign=middle;fontSize=14;fontColor=#71767B;" value="Permisos" vertex="1">
+          <mxGeometry x="296" y="125" width="120" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="p2-tabs-line" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#2F3336;strokeColor=none;" value="" vertex="1">
+          <mxGeometry x="160" y="173" width="880" height="1" as="geometry" />
+        </mxCell>
+
+        <!-- Detalle: formulario (mat-form-field outline), ocupa todo el ancho -->
+        <mxCell id="p2-field-name" parent="1" style="rounded=1;arcSize=50;whiteSpace=wrap;html=1;fillColor=#000000;strokeColor=#2F3336;align=left;spacingLeft=14;fontSize=15;fontColor=#E7E9EA;" value="Luis" vertex="1">
+          <mxGeometry x="184" y="205" width="408" height="52" as="geometry" />
+        </mxCell>
+        <mxCell id="p2-field-name-label" parent="1" style="text;html=1;fillColor=#000000;align=center;verticalAlign=middle;fontSize=11;fontColor=#71767B;" value="Nombre" vertex="1">
+          <mxGeometry x="196" y="197" width="56" height="16" as="geometry" />
+        </mxCell>
+        <mxCell id="p2-field-surname" parent="1" style="rounded=1;arcSize=50;whiteSpace=wrap;html=1;fillColor=#000000;strokeColor=#2F3336;align=left;spacingLeft=14;fontSize=15;fontColor=#E7E9EA;" value="Pérez" vertex="1">
+          <mxGeometry x="608" y="205" width="408" height="52" as="geometry" />
+        </mxCell>
+        <mxCell id="p2-field-surname-label" parent="1" style="text;html=1;fillColor=#000000;align=center;verticalAlign=middle;fontSize=11;fontColor=#71767B;" value="Apellidos" vertex="1">
+          <mxGeometry x="620" y="197" width="64" height="16" as="geometry" />
+        </mxCell>
+        <mxCell id="p2-field-email" parent="1" style="rounded=1;arcSize=50;whiteSpace=wrap;html=1;fillColor=#000000;strokeColor=#2F3336;align=left;spacingLeft=14;fontSize=15;fontColor=#E7E9EA;" value="luis.perez@ejemplo.com" vertex="1">
+          <mxGeometry x="184" y="281" width="832" height="52" as="geometry" />
+        </mxCell>
+        <mxCell id="p2-field-email-label" parent="1" style="text;html=1;fillColor=#000000;align=center;verticalAlign=middle;fontSize=11;fontColor=#71767B;" value="Correo electrónico" vertex="1">
+          <mxGeometry x="196" y="273" width="112" height="16" as="geometry" />
+        </mxCell>
+        <mxCell id="p2-field-username" parent="1" style="rounded=1;arcSize=50;whiteSpace=wrap;html=1;fillColor=#000000;strokeColor=#2F3336;align=left;spacingLeft=14;fontSize=15;fontColor=#E7E9EA;" value="lperez" vertex="1">
+          <mxGeometry x="184" y="357" width="408" height="52" as="geometry" />
+        </mxCell>
+        <mxCell id="p2-field-username-label" parent="1" style="text;html=1;fillColor=#000000;align=center;verticalAlign=middle;fontSize=11;fontColor=#71767B;" value="Usuario" vertex="1">
+          <mxGeometry x="196" y="349" width="56" height="16" as="geometry" />
+        </mxCell>
+        <mxCell id="p2-field-role" parent="1" style="rounded=1;arcSize=50;whiteSpace=wrap;html=1;fillColor=#000000;strokeColor=#2F3336;align=left;spacingLeft=14;fontSize=15;fontColor=#E7E9EA;" value="Editor" vertex="1">
+          <mxGeometry x="608" y="357" width="408" height="52" as="geometry" />
+        </mxCell>
+        <mxCell id="p2-field-role-label" parent="1" style="text;html=1;fillColor=#000000;align=center;verticalAlign=middle;fontSize=11;fontColor=#71767B;" value="Rol" vertex="1">
+          <mxGeometry x="620" y="349" width="32" height="16" as="geometry" />
+        </mxCell>
+        <mxCell id="p2-field-role-arrow" parent="1" style="text;html=1;align=center;verticalAlign=middle;fontSize=14;fontColor=#71767B;" value="▾" vertex="1">
+          <mxGeometry x="984" y="371" width="24" height="24" as="geometry" />
+        </mxCell>
+        <mxCell id="p2-toggle-track" parent="1" style="rounded=1;arcSize=50;whiteSpace=wrap;html=1;fillColor=#71767B;strokeColor=none;" value="" vertex="1">
+          <mxGeometry x="184" y="443" width="36" height="16" as="geometry" />
+        </mxCell>
+        <mxCell id="p2-toggle-thumb" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=none;" value="" vertex="1">
+          <mxGeometry x="204" y="439" width="24" height="24" as="geometry" />
+        </mxCell>
+        <mxCell id="p2-toggle-label" parent="1" style="text;html=1;align=left;verticalAlign=middle;fontSize=14;fontColor=#E7E9EA;" value="Activo" vertex="1">
+          <mxGeometry x="236" y="436" width="100" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- Pie -->
+        <mxCell id="p2-footer-line" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#2F3336;strokeColor=none;" value="" vertex="1">
+          <mxGeometry x="120" y="676" width="920" height="1" as="geometry" />
+        </mxCell>
+        <mxCell id="p2-btn-cancel" parent="1" style="rounded=1;arcSize=50;whiteSpace=wrap;html=1;fillColor=none;strokeColor=none;fontSize=14;fontStyle=1;fontColor=#FFFFFF;" value="Cancelar" vertex="1">
+          <mxGeometry x="828" y="692" width="96" height="36" as="geometry" />
+        </mxCell>
+        <mxCell id="p2-btn-save" parent="1" style="rounded=1;arcSize=50;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=none;fontSize=14;fontStyle=1;fontColor=#000000;" value="Guardar" vertex="1">
+          <mxGeometry x="932" y="692" width="88" height="36" as="geometry" />
+        </mxCell>
+        <mxCell id="p2-resize-grip" parent="1" style="text;html=1;align=center;verticalAlign=middle;fontSize=12;fontColor=#71767B;" value="◢" vertex="1">
+          <mxGeometry x="1022" y="722" width="16" height="16" as="geometry" />
+        </mxCell>
+
+        <!-- Nota -->
+        <mxCell id="p2-notes" parent="1" style="shape=note;size=16;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=12;fontSize=13;fillColor=#16181C;strokeColor=#2F3336;fontColor=#E7E9EA;" value="&lt;b&gt;Selector oculto&lt;/b&gt;&lt;br&gt;&lt;br&gt;Al pulsar « el selector se pliega a una franja estrecha con el nombre del tipo, y el detalle ocupa todo el ancho.&lt;br&gt;&lt;br&gt;» vuelve a mostrar el selector con el ancho que tenía antes de ocultarlo." vertex="1">
+          <mxGeometry x="1120" y="60" width="340" height="180" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram name="Modelos - General" id="editor-modelos">
+    <mxGraphModel background="#000000" dx="1178" dy="654" grid="1" gridSize="4" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1500" pageHeight="827" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- Fondo oscurecido (backdrop del mat-dialog) -->
+        <mxCell id="m-backdrop" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#000000;opacity=32;strokeColor=none;" value="" vertex="1">
+          <mxGeometry x="80" y="20" width="1000" height="760" as="geometry" />
+        </mxCell>
+
+        <!-- Modal -->
+        <mxCell id="m-dialog" parent="1" style="rounded=1;arcSize=16;absoluteArcSize=1;whiteSpace=wrap;html=1;fillColor=#16181C;strokeColor=#2F3336;" value="" vertex="1">
+          <mxGeometry x="120" y="60" width="920" height="680" as="geometry" />
+        </mxCell>
+
+        <!-- Cabecera -->
+        <mxCell id="m-title" parent="1" style="text;html=1;align=left;verticalAlign=middle;fontSize=20;fontColor=#E7E9EA;" value="Editar modelos" vertex="1">
+          <mxGeometry x="144" y="72" width="300" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="m-btn-maximize" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=none;strokeColor=none;fontSize=16;fontColor=#71767B;" value="☐" vertex="1">
+          <mxGeometry x="956" y="76" width="32" height="32" as="geometry" />
+        </mxCell>
+        <mxCell id="m-btn-close" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=none;strokeColor=none;fontSize=16;fontColor=#71767B;" value="✕" vertex="1">
+          <mxGeometry x="992" y="76" width="32" height="32" as="geometry" />
+        </mxCell>
+        <mxCell id="m-header-line" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#2F3336;strokeColor=none;" value="" vertex="1">
+          <mxGeometry x="120" y="124" width="920" height="1" as="geometry" />
+        </mxCell>
+
+        <!-- Selector: buscador y botón Nuevo -->
+        <mxCell id="m-search" parent="1" style="rounded=1;arcSize=50;whiteSpace=wrap;html=1;fillColor=#000000;strokeColor=#2F3336;align=left;spacingLeft=12;fontSize=14;fontColor=#71767B;" value="⌕&amp;nbsp;&amp;nbsp;Buscar..." vertex="1">
+          <mxGeometry x="136" y="141" width="180" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="m-btn-new" parent="1" style="rounded=1;arcSize=50;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=none;fontSize=14;fontStyle=1;fontColor=#000000;" value="+ Nuevo" vertex="1">
+          <mxGeometry x="324" y="141" width="64" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- Selector: fichas (miniatura, nombre y fichero) -->
+        <mxCell id="m-card-1" parent="1" style="rounded=1;arcSize=16;absoluteArcSize=1;whiteSpace=wrap;html=1;fillColor=#16181C;strokeColor=#2F3336;" value="" vertex="1">
+          <mxGeometry x="136" y="197" width="252" height="64" as="geometry" />
+        </mxCell>
+        <mxCell id="m-card-1-thumb" parent="1" style="rounded=1;arcSize=8;absoluteArcSize=1;whiteSpace=wrap;html=1;fillColor=#1D1F23;strokeColor=none;fontSize=18;fontColor=#71767B;" value="◆" vertex="1">
+          <mxGeometry x="148" y="209" width="40" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="m-card-1-name" parent="1" style="text;html=1;align=left;verticalAlign=middle;fontSize=14;fontStyle=1;fontColor=#E7E9EA;" value="Edificio principal" vertex="1">
+          <mxGeometry x="196" y="209" width="180" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="m-card-1-sub" parent="1" style="text;html=1;align=left;verticalAlign=middle;fontSize=12;fontColor=#71767B;" value="edificio_principal.glb" vertex="1">
+          <mxGeometry x="196" y="229" width="180" height="20" as="geometry" />
+        </mxCell>
+
+        <mxCell id="m-card-2" parent="1" style="rounded=1;arcSize=16;absoluteArcSize=1;whiteSpace=wrap;html=1;fillColor=#1D1F23;strokeColor=#FFFFFF;strokeWidth=2;" value="" vertex="1">
+          <mxGeometry x="136" y="269" width="252" height="64" as="geometry" />
+        </mxCell>
+        <mxCell id="m-card-2-thumb" parent="1" style="rounded=1;arcSize=8;absoluteArcSize=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=none;fontSize=18;fontColor=#000000;" value="◆" vertex="1">
+          <mxGeometry x="148" y="281" width="40" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="m-card-2-name" parent="1" style="text;html=1;align=left;verticalAlign=middle;fontSize=14;fontStyle=1;fontColor=#E7E9EA;" value="Nave industrial" vertex="1">
+          <mxGeometry x="196" y="281" width="180" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="m-card-2-sub" parent="1" style="text;html=1;align=left;verticalAlign=middle;fontSize=12;fontColor=#71767B;" value="nave_industrial.glb" vertex="1">
+          <mxGeometry x="196" y="301" width="180" height="20" as="geometry" />
+        </mxCell>
+
+        <mxCell id="m-card-3" parent="1" style="rounded=1;arcSize=16;absoluteArcSize=1;whiteSpace=wrap;html=1;fillColor=#16181C;strokeColor=#2F3336;" value="" vertex="1">
+          <mxGeometry x="136" y="341" width="252" height="64" as="geometry" />
+        </mxCell>
+        <mxCell id="m-card-3-thumb" parent="1" style="rounded=1;arcSize=8;absoluteArcSize=1;whiteSpace=wrap;html=1;fillColor=#1D1F23;strokeColor=none;fontSize=18;fontColor=#71767B;" value="◆" vertex="1">
+          <mxGeometry x="148" y="353" width="40" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="m-card-3-name" parent="1" style="text;html=1;align=left;verticalAlign=middle;fontSize=14;fontStyle=1;fontColor=#E7E9EA;" value="Puente peatonal" vertex="1">
+          <mxGeometry x="196" y="353" width="180" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="m-card-3-sub" parent="1" style="text;html=1;align=left;verticalAlign=middle;fontSize=12;fontColor=#71767B;" value="puente_peatonal.gltf" vertex="1">
+          <mxGeometry x="196" y="373" width="180" height="20" as="geometry" />
+        </mxCell>
+
+        <mxCell id="m-card-4" parent="1" style="rounded=1;arcSize=16;absoluteArcSize=1;whiteSpace=wrap;html=1;fillColor=#16181C;strokeColor=#2F3336;" value="" vertex="1">
+          <mxGeometry x="136" y="413" width="252" height="64" as="geometry" />
+        </mxCell>
+        <mxCell id="m-card-4-thumb" parent="1" style="rounded=1;arcSize=8;absoluteArcSize=1;whiteSpace=wrap;html=1;fillColor=#1D1F23;strokeColor=none;fontSize=18;fontColor=#71767B;" value="◆" vertex="1">
+          <mxGeometry x="148" y="425" width="40" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="m-card-4-name" parent="1" style="text;html=1;align=left;verticalAlign=middle;fontSize=14;fontStyle=1;fontColor=#E7E9EA;" value="Torre de control" vertex="1">
+          <mxGeometry x="196" y="425" width="180" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="m-card-4-sub" parent="1" style="text;html=1;align=left;verticalAlign=middle;fontSize=12;fontColor=#71767B;" value="torre_control.obj" vertex="1">
+          <mxGeometry x="196" y="445" width="180" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- Splitter con botón para ocultar el selector -->
+        <mxCell id="m-splitter" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#1D1F23;strokeColor=#2F3336;" value="" vertex="1">
+          <mxGeometry x="400" y="125" width="8" height="551" as="geometry" />
+        </mxCell>
+        <mxCell id="m-splitter-grip" parent="1" style="text;html=1;align=center;verticalAlign=middle;fontSize=14;fontColor=#71767B;" value="⋮" vertex="1">
+          <mxGeometry x="396" y="440" width="16" height="24" as="geometry" />
+        </mxCell>
+        <mxCell id="m-btn-collapse" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#16181C;strokeColor=#2F3336;fontSize=14;fontStyle=1;fontColor=#71767B;" value="«" vertex="1">
+          <mxGeometry x="392" y="140" width="24" height="24" as="geometry" />
+        </mxCell>
+
+        <!-- Detalle: pestañas (activa: General) -->
+        <mxCell id="m-tab-general" parent="1" style="text;html=1;align=center;verticalAlign=middle;fontSize=14;fontStyle=1;fontColor=#FFFFFF;" value="General" vertex="1">
+          <mxGeometry x="424" y="125" width="120" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="m-tab-general-ink" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=none;" value="" vertex="1">
+          <mxGeometry x="424" y="170" width="120" height="3" as="geometry" />
+        </mxCell>
+        <mxCell id="m-tab-preview" parent="1" style="text;html=1;align=center;verticalAlign=middle;fontSize=14;fontColor=#71767B;" value="Previsualización" vertex="1">
+          <mxGeometry x="544" y="125" width="140" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="m-tabs-line" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#2F3336;strokeColor=none;" value="" vertex="1">
+          <mxGeometry x="408" y="173" width="632" height="1" as="geometry" />
+        </mxCell>
+
+        <!-- Detalle, pestaña General: datos y fichero -->
+        <mxCell id="m-field-name" parent="1" style="rounded=1;arcSize=50;whiteSpace=wrap;html=1;fillColor=#000000;strokeColor=#2F3336;align=left;spacingLeft=14;fontSize=15;fontColor=#E7E9EA;" value="Nave industrial" vertex="1">
+          <mxGeometry x="432" y="205" width="584" height="52" as="geometry" />
+        </mxCell>
+        <mxCell id="m-field-name-label" parent="1" style="text;html=1;fillColor=#000000;align=center;verticalAlign=middle;fontSize=11;fontColor=#71767B;" value="Nombre" vertex="1">
+          <mxGeometry x="444" y="197" width="56" height="16" as="geometry" />
+        </mxCell>
+        <mxCell id="m-field-description" parent="1" style="rounded=1;arcSize=16;absoluteArcSize=1;whiteSpace=wrap;html=1;fillColor=#000000;strokeColor=#2F3336;align=left;verticalAlign=top;spacingLeft=14;spacingRight=14;spacingTop=14;fontSize=14;fontColor=#E7E9EA;" value="Nave de producción con estructura metálica y cubierta a dos aguas." vertex="1">
+          <mxGeometry x="432" y="281" width="584" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="m-field-description-label" parent="1" style="text;html=1;fillColor=#000000;align=center;verticalAlign=middle;fontSize=11;fontColor=#71767B;" value="Descripción" vertex="1">
+          <mxGeometry x="444" y="273" width="76" height="16" as="geometry" />
+        </mxCell>
+        <mxCell id="m-file-label" parent="1" style="text;html=1;align=left;verticalAlign=middle;fontSize=12;fontColor=#71767B;" value="Fichero del modelo 3D" vertex="1">
+          <mxGeometry x="432" y="417" width="584" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="m-file-drop" parent="1" style="rounded=1;arcSize=8;absoluteArcSize=1;whiteSpace=wrap;html=1;fillColor=#000000;strokeColor=#2F3336;dashed=1;dashPattern=6 4;fontSize=13;fontColor=#71767B;" value="&lt;span style=&quot;font-size:20px&quot;&gt;⇪&lt;/span&gt;&lt;br&gt;Arrastra el modelo 3D aquí o haz clic para seleccionarlo&lt;br&gt;&lt;span style=&quot;font-size:11px;color:#71767B&quot;&gt;.glb · .gltf · .obj&lt;/span&gt;" vertex="1">
+          <mxGeometry x="432" y="441" width="584" height="96" as="geometry" />
+        </mxCell>
+        <mxCell id="m-file-chip" parent="1" style="rounded=1;arcSize=8;absoluteArcSize=1;whiteSpace=wrap;html=1;fillColor=#1D1F23;strokeColor=none;align=left;spacingLeft=12;fontSize=13;fontColor=#E7E9EA;" value="◆&amp;nbsp;&amp;nbsp;nave_industrial.glb&amp;nbsp;&amp;nbsp;&lt;span style=&quot;color:#71767B&quot;&gt;12,4 MB&lt;/span&gt;" vertex="1">
+          <mxGeometry x="432" y="549" width="584" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="m-file-chip-remove" parent="1" style="text;html=1;align=center;verticalAlign=middle;fontSize=13;fontColor=#71767B;" value="✕" vertex="1">
+          <mxGeometry x="984" y="557" width="24" height="24" as="geometry" />
+        </mxCell>
+
+        <!-- Pie -->
+        <mxCell id="m-footer-line" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#2F3336;strokeColor=none;" value="" vertex="1">
+          <mxGeometry x="120" y="676" width="920" height="1" as="geometry" />
+        </mxCell>
+        <mxCell id="m-btn-cancel" parent="1" style="rounded=1;arcSize=50;whiteSpace=wrap;html=1;fillColor=none;strokeColor=none;fontSize=14;fontStyle=1;fontColor=#FFFFFF;" value="Cancelar" vertex="1">
+          <mxGeometry x="828" y="692" width="96" height="36" as="geometry" />
+        </mxCell>
+        <mxCell id="m-btn-save" parent="1" style="rounded=1;arcSize=50;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=none;fontSize=14;fontStyle=1;fontColor=#000000;" value="Guardar" vertex="1">
+          <mxGeometry x="932" y="692" width="88" height="36" as="geometry" />
+        </mxCell>
+        <mxCell id="m-resize-grip" parent="1" style="text;html=1;align=center;verticalAlign=middle;fontSize=12;fontColor=#71767B;" value="◢" vertex="1">
+          <mxGeometry x="1022" y="722" width="16" height="16" as="geometry" />
+        </mxCell>
+
+        <!-- Notas de comportamiento -->
+        <mxCell id="m-notes" parent="1" style="shape=note;size=16;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=12;fontSize=13;fillColor=#16181C;strokeColor=#2F3336;fontColor=#E7E9EA;" value="&lt;b&gt;Editor de modelos: pestaña General&lt;/b&gt;&lt;br&gt;&lt;br&gt;Mismo esquema que el de usuarios (modal, selector, splitter, pie), con dos pestañas: General y Previsualización.&lt;br&gt;&lt;br&gt;&lt;b&gt;Fichas&lt;/b&gt;: miniatura del modelo, nombre y fichero.&lt;br&gt;&lt;br&gt;&lt;b&gt;Fichero&lt;/b&gt;: arrastrar o hacer clic en la zona discontinua para cargar el modelo 3D. Una vez cargado se muestra su nombre y tamaño; ✕ lo quita para cargar otro.&lt;br&gt;&lt;br&gt;El visor está en la pestaña Previsualización (ver página «Modelos - Previsualización»)." vertex="1">
+          <mxGeometry x="1120" y="60" width="340" height="300" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram name="Modelos - Previsualización" id="editor-modelos-preview">
+    <mxGraphModel background="#000000" dx="1178" dy="654" grid="1" gridSize="4" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1500" pageHeight="827" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- Fondo oscurecido (backdrop del mat-dialog) -->
+        <mxCell id="mp-backdrop" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#000000;opacity=32;strokeColor=none;" value="" vertex="1">
+          <mxGeometry x="80" y="20" width="1000" height="760" as="geometry" />
+        </mxCell>
+
+        <!-- Modal -->
+        <mxCell id="mp-dialog" parent="1" style="rounded=1;arcSize=16;absoluteArcSize=1;whiteSpace=wrap;html=1;fillColor=#16181C;strokeColor=#2F3336;" value="" vertex="1">
+          <mxGeometry x="120" y="60" width="920" height="680" as="geometry" />
+        </mxCell>
+
+        <!-- Cabecera -->
+        <mxCell id="mp-title" parent="1" style="text;html=1;align=left;verticalAlign=middle;fontSize=20;fontColor=#E7E9EA;" value="Editar modelos" vertex="1">
+          <mxGeometry x="144" y="72" width="300" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="mp-btn-maximize" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=none;strokeColor=none;fontSize=16;fontColor=#71767B;" value="☐" vertex="1">
+          <mxGeometry x="956" y="76" width="32" height="32" as="geometry" />
+        </mxCell>
+        <mxCell id="mp-btn-close" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=none;strokeColor=none;fontSize=16;fontColor=#71767B;" value="✕" vertex="1">
+          <mxGeometry x="992" y="76" width="32" height="32" as="geometry" />
+        </mxCell>
+        <mxCell id="mp-header-line" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#2F3336;strokeColor=none;" value="" vertex="1">
+          <mxGeometry x="120" y="124" width="920" height="1" as="geometry" />
+        </mxCell>
+
+        <!-- Selector: buscador y botón Nuevo -->
+        <mxCell id="mp-search" parent="1" style="rounded=1;arcSize=50;whiteSpace=wrap;html=1;fillColor=#000000;strokeColor=#2F3336;align=left;spacingLeft=12;fontSize=14;fontColor=#71767B;" value="⌕&amp;nbsp;&amp;nbsp;Buscar..." vertex="1">
+          <mxGeometry x="136" y="141" width="180" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="mp-btn-new" parent="1" style="rounded=1;arcSize=50;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=none;fontSize=14;fontStyle=1;fontColor=#000000;" value="+ Nuevo" vertex="1">
+          <mxGeometry x="324" y="141" width="64" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- Selector: fichas (miniatura, nombre y fichero) -->
+        <mxCell id="mp-card-1" parent="1" style="rounded=1;arcSize=16;absoluteArcSize=1;whiteSpace=wrap;html=1;fillColor=#16181C;strokeColor=#2F3336;" value="" vertex="1">
+          <mxGeometry x="136" y="197" width="252" height="64" as="geometry" />
+        </mxCell>
+        <mxCell id="mp-card-1-thumb" parent="1" style="rounded=1;arcSize=8;absoluteArcSize=1;whiteSpace=wrap;html=1;fillColor=#1D1F23;strokeColor=none;fontSize=18;fontColor=#71767B;" value="◆" vertex="1">
+          <mxGeometry x="148" y="209" width="40" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="mp-card-1-name" parent="1" style="text;html=1;align=left;verticalAlign=middle;fontSize=14;fontStyle=1;fontColor=#E7E9EA;" value="Edificio principal" vertex="1">
+          <mxGeometry x="196" y="209" width="180" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="mp-card-1-sub" parent="1" style="text;html=1;align=left;verticalAlign=middle;fontSize=12;fontColor=#71767B;" value="edificio_principal.glb" vertex="1">
+          <mxGeometry x="196" y="229" width="180" height="20" as="geometry" />
+        </mxCell>
+
+        <mxCell id="mp-card-2" parent="1" style="rounded=1;arcSize=16;absoluteArcSize=1;whiteSpace=wrap;html=1;fillColor=#1D1F23;strokeColor=#FFFFFF;strokeWidth=2;" value="" vertex="1">
+          <mxGeometry x="136" y="269" width="252" height="64" as="geometry" />
+        </mxCell>
+        <mxCell id="mp-card-2-thumb" parent="1" style="rounded=1;arcSize=8;absoluteArcSize=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=none;fontSize=18;fontColor=#000000;" value="◆" vertex="1">
+          <mxGeometry x="148" y="281" width="40" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="mp-card-2-name" parent="1" style="text;html=1;align=left;verticalAlign=middle;fontSize=14;fontStyle=1;fontColor=#E7E9EA;" value="Nave industrial" vertex="1">
+          <mxGeometry x="196" y="281" width="180" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="mp-card-2-sub" parent="1" style="text;html=1;align=left;verticalAlign=middle;fontSize=12;fontColor=#71767B;" value="nave_industrial.glb" vertex="1">
+          <mxGeometry x="196" y="301" width="180" height="20" as="geometry" />
+        </mxCell>
+
+        <mxCell id="mp-card-3" parent="1" style="rounded=1;arcSize=16;absoluteArcSize=1;whiteSpace=wrap;html=1;fillColor=#16181C;strokeColor=#2F3336;" value="" vertex="1">
+          <mxGeometry x="136" y="341" width="252" height="64" as="geometry" />
+        </mxCell>
+        <mxCell id="mp-card-3-thumb" parent="1" style="rounded=1;arcSize=8;absoluteArcSize=1;whiteSpace=wrap;html=1;fillColor=#1D1F23;strokeColor=none;fontSize=18;fontColor=#71767B;" value="◆" vertex="1">
+          <mxGeometry x="148" y="353" width="40" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="mp-card-3-name" parent="1" style="text;html=1;align=left;verticalAlign=middle;fontSize=14;fontStyle=1;fontColor=#E7E9EA;" value="Puente peatonal" vertex="1">
+          <mxGeometry x="196" y="353" width="180" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="mp-card-3-sub" parent="1" style="text;html=1;align=left;verticalAlign=middle;fontSize=12;fontColor=#71767B;" value="puente_peatonal.gltf" vertex="1">
+          <mxGeometry x="196" y="373" width="180" height="20" as="geometry" />
+        </mxCell>
+
+        <mxCell id="mp-card-4" parent="1" style="rounded=1;arcSize=16;absoluteArcSize=1;whiteSpace=wrap;html=1;fillColor=#16181C;strokeColor=#2F3336;" value="" vertex="1">
+          <mxGeometry x="136" y="413" width="252" height="64" as="geometry" />
+        </mxCell>
+        <mxCell id="mp-card-4-thumb" parent="1" style="rounded=1;arcSize=8;absoluteArcSize=1;whiteSpace=wrap;html=1;fillColor=#1D1F23;strokeColor=none;fontSize=18;fontColor=#71767B;" value="◆" vertex="1">
+          <mxGeometry x="148" y="425" width="40" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="mp-card-4-name" parent="1" style="text;html=1;align=left;verticalAlign=middle;fontSize=14;fontStyle=1;fontColor=#E7E9EA;" value="Torre de control" vertex="1">
+          <mxGeometry x="196" y="425" width="180" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="mp-card-4-sub" parent="1" style="text;html=1;align=left;verticalAlign=middle;fontSize=12;fontColor=#71767B;" value="torre_control.obj" vertex="1">
+          <mxGeometry x="196" y="445" width="180" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- Splitter con botón para ocultar el selector -->
+        <mxCell id="mp-splitter" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#1D1F23;strokeColor=#2F3336;" value="" vertex="1">
+          <mxGeometry x="400" y="125" width="8" height="551" as="geometry" />
+        </mxCell>
+        <mxCell id="mp-splitter-grip" parent="1" style="text;html=1;align=center;verticalAlign=middle;fontSize=14;fontColor=#71767B;" value="⋮" vertex="1">
+          <mxGeometry x="396" y="440" width="16" height="24" as="geometry" />
+        </mxCell>
+        <mxCell id="mp-btn-collapse" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#16181C;strokeColor=#2F3336;fontSize=14;fontStyle=1;fontColor=#71767B;" value="«" vertex="1">
+          <mxGeometry x="392" y="140" width="24" height="24" as="geometry" />
+        </mxCell>
+
+        <!-- Detalle: pestañas (activa: Previsualización) -->
+        <mxCell id="mp-tab-general" parent="1" style="text;html=1;align=center;verticalAlign=middle;fontSize=14;fontColor=#71767B;" value="General" vertex="1">
+          <mxGeometry x="424" y="125" width="120" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="mp-tab-preview" parent="1" style="text;html=1;align=center;verticalAlign=middle;fontSize=14;fontStyle=1;fontColor=#FFFFFF;" value="Previsualización" vertex="1">
+          <mxGeometry x="544" y="125" width="140" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="mp-tab-preview-ink" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=none;" value="" vertex="1">
+          <mxGeometry x="544" y="170" width="140" height="3" as="geometry" />
+        </mxCell>
+        <mxCell id="mp-tabs-line" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#2F3336;strokeColor=none;" value="" vertex="1">
+          <mxGeometry x="408" y="173" width="632" height="1" as="geometry" />
+        </mxCell>
+
+        <!-- Detalle, pestaña Previsualización: visor 3D a todo el espacio -->
+        <mxCell id="mp-viewer" parent="1" style="rounded=1;arcSize=8;absoluteArcSize=1;whiteSpace=wrap;html=1;fillColor=#000000;strokeColor=#2F3336;" value="" vertex="1">
+          <mxGeometry x="424" y="189" width="600" height="471" as="geometry" />
+        </mxCell>
+        <mxCell id="mp-viewer-model" parent="1" style="shape=cube;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;darkOpacity=0.15;darkOpacity2=0.3;size=36;fillColor=#2F3336;strokeColor=#71767B;" value="" vertex="1">
+          <mxGeometry x="644" y="324" width="160" height="150" as="geometry" />
+        </mxCell>
+        <mxCell id="mp-viewer-controls" parent="1" style="rounded=1;arcSize=16;absoluteArcSize=1;whiteSpace=wrap;html=1;fillColor=#16181C;strokeColor=#2F3336;fontSize=12;fontColor=#E7E9EA;" value="⟲ Girar&amp;nbsp;&amp;nbsp;&amp;nbsp;✥ Mover&amp;nbsp;&amp;nbsp;&amp;nbsp;⊕ Zoom&amp;nbsp;&amp;nbsp;&amp;nbsp;⌖ Centrar" vertex="1">
+          <mxGeometry x="574" y="612" width="300" height="32" as="geometry" />
+        </mxCell>
+
+        <!-- Pie -->
+        <mxCell id="mp-footer-line" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#2F3336;strokeColor=none;" value="" vertex="1">
+          <mxGeometry x="120" y="676" width="920" height="1" as="geometry" />
+        </mxCell>
+        <mxCell id="mp-btn-cancel" parent="1" style="rounded=1;arcSize=50;whiteSpace=wrap;html=1;fillColor=none;strokeColor=none;fontSize=14;fontStyle=1;fontColor=#FFFFFF;" value="Cancelar" vertex="1">
+          <mxGeometry x="828" y="692" width="96" height="36" as="geometry" />
+        </mxCell>
+        <mxCell id="mp-btn-save" parent="1" style="rounded=1;arcSize=50;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=none;fontSize=14;fontStyle=1;fontColor=#000000;" value="Guardar" vertex="1">
+          <mxGeometry x="932" y="692" width="88" height="36" as="geometry" />
+        </mxCell>
+        <mxCell id="mp-resize-grip" parent="1" style="text;html=1;align=center;verticalAlign=middle;fontSize=12;fontColor=#71767B;" value="◢" vertex="1">
+          <mxGeometry x="1022" y="722" width="16" height="16" as="geometry" />
+        </mxCell>
+
+        <!-- Notas de comportamiento -->
+        <mxCell id="mp-notes" parent="1" style="shape=note;size=16;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=12;fontSize=13;fillColor=#16181C;strokeColor=#2F3336;fontColor=#E7E9EA;" value="&lt;b&gt;Editor de modelos: pestaña Previsualización&lt;/b&gt;&lt;br&gt;&lt;br&gt;El visor 3D ocupa todo el panel de detalle (girar, mover, zoom, centrar).&lt;br&gt;&lt;br&gt;Muestra el fichero cargado en la pestaña General, también antes de guardar.&lt;br&gt;&lt;br&gt;Sin fichero cargado, el visor muestra «Carga un modelo en la pestaña General».&lt;br&gt;&lt;br&gt;Para ganar espacio: ocultar el selector («) o maximizar el modal (☐)." vertex="1">
+          <mxGeometry x="1120" y="60" width="340" height="260" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram name="Visualizaciones - General" id="editor-visualizaciones">
+    <mxGraphModel background="#000000" dx="1178" dy="654" grid="1" gridSize="4" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1500" pageHeight="827" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- Fondo oscurecido (backdrop del mat-dialog) -->
+        <mxCell id="v-backdrop" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#000000;opacity=32;strokeColor=none;" value="" vertex="1">
+          <mxGeometry x="80" y="20" width="1000" height="760" as="geometry" />
+        </mxCell>
+
+        <!-- Modal -->
+        <mxCell id="v-dialog" parent="1" style="rounded=1;arcSize=16;absoluteArcSize=1;whiteSpace=wrap;html=1;fillColor=#16181C;strokeColor=#2F3336;" value="" vertex="1">
+          <mxGeometry x="120" y="60" width="920" height="680" as="geometry" />
+        </mxCell>
+
+        <!-- Cabecera -->
+        <mxCell id="v-title" parent="1" style="text;html=1;align=left;verticalAlign=middle;fontSize=20;fontColor=#E7E9EA;" value="Editar visualizaciones" vertex="1">
+          <mxGeometry x="144" y="72" width="300" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="v-btn-maximize" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=none;strokeColor=none;fontSize=16;fontColor=#71767B;" value="☐" vertex="1">
+          <mxGeometry x="956" y="76" width="32" height="32" as="geometry" />
+        </mxCell>
+        <mxCell id="v-btn-close" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=none;strokeColor=none;fontSize=16;fontColor=#71767B;" value="✕" vertex="1">
+          <mxGeometry x="992" y="76" width="32" height="32" as="geometry" />
+        </mxCell>
+        <mxCell id="v-header-line" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#2F3336;strokeColor=none;" value="" vertex="1">
+          <mxGeometry x="120" y="124" width="920" height="1" as="geometry" />
+        </mxCell>
+
+        <!-- Selector: buscador y botón Nuevo -->
+        <mxCell id="v-search" parent="1" style="rounded=1;arcSize=50;whiteSpace=wrap;html=1;fillColor=#000000;strokeColor=#2F3336;align=left;spacingLeft=12;fontSize=14;fontColor=#71767B;" value="⌕&amp;nbsp;&amp;nbsp;Buscar..." vertex="1">
+          <mxGeometry x="136" y="141" width="180" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="v-btn-new" parent="1" style="rounded=1;arcSize=50;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=none;fontSize=14;fontStyle=1;fontColor=#000000;" value="+ Nuevo" vertex="1">
+          <mxGeometry x="324" y="141" width="64" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- Selector: fichas (miniatura, nombre y modelo asociado) -->
+        <mxCell id="v-card-1" parent="1" style="rounded=1;arcSize=16;absoluteArcSize=1;whiteSpace=wrap;html=1;fillColor=#16181C;strokeColor=#2F3336;" value="" vertex="1">
+          <mxGeometry x="136" y="197" width="252" height="64" as="geometry" />
+        </mxCell>
+        <mxCell id="v-card-1-thumb" parent="1" style="rounded=1;arcSize=8;absoluteArcSize=1;whiteSpace=wrap;html=1;fillColor=#1D1F23;strokeColor=none;fontSize=18;fontColor=#71767B;" value="◉" vertex="1">
+          <mxGeometry x="148" y="209" width="40" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="v-card-1-name" parent="1" style="text;html=1;align=left;verticalAlign=middle;fontSize=14;fontStyle=1;fontColor=#E7E9EA;" value="Revisión de cubierta" vertex="1">
+          <mxGeometry x="196" y="209" width="180" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="v-card-1-sub" parent="1" style="text;html=1;align=left;verticalAlign=middle;fontSize=12;fontColor=#71767B;" value="Edificio principal" vertex="1">
+          <mxGeometry x="196" y="229" width="180" height="20" as="geometry" />
+        </mxCell>
+
+        <mxCell id="v-card-2" parent="1" style="rounded=1;arcSize=16;absoluteArcSize=1;whiteSpace=wrap;html=1;fillColor=#1D1F23;strokeColor=#FFFFFF;strokeWidth=2;" value="" vertex="1">
+          <mxGeometry x="136" y="269" width="252" height="64" as="geometry" />
+        </mxCell>
+        <mxCell id="v-card-2-thumb" parent="1" style="rounded=1;arcSize=8;absoluteArcSize=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=none;fontSize=18;fontColor=#000000;" value="◉" vertex="1">
+          <mxGeometry x="148" y="281" width="40" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="v-card-2-name" parent="1" style="text;html=1;align=left;verticalAlign=middle;fontSize=14;fontStyle=1;fontColor=#E7E9EA;" value="Incidencias planta baja" vertex="1">
+          <mxGeometry x="196" y="281" width="180" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="v-card-2-sub" parent="1" style="text;html=1;align=left;verticalAlign=middle;fontSize=12;fontColor=#71767B;" value="Nave industrial" vertex="1">
+          <mxGeometry x="196" y="301" width="180" height="20" as="geometry" />
+        </mxCell>
+
+        <mxCell id="v-card-3" parent="1" style="rounded=1;arcSize=16;absoluteArcSize=1;whiteSpace=wrap;html=1;fillColor=#16181C;strokeColor=#2F3336;" value="" vertex="1">
+          <mxGeometry x="136" y="341" width="252" height="64" as="geometry" />
+        </mxCell>
+        <mxCell id="v-card-3-thumb" parent="1" style="rounded=1;arcSize=8;absoluteArcSize=1;whiteSpace=wrap;html=1;fillColor=#1D1F23;strokeColor=none;fontSize=18;fontColor=#71767B;" value="◉" vertex="1">
+          <mxGeometry x="148" y="353" width="40" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="v-card-3-name" parent="1" style="text;html=1;align=left;verticalAlign=middle;fontSize=14;fontStyle=1;fontColor=#E7E9EA;" value="Recorrido de seguridad" vertex="1">
+          <mxGeometry x="196" y="353" width="180" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="v-card-3-sub" parent="1" style="text;html=1;align=left;verticalAlign=middle;fontSize=12;fontColor=#71767B;" value="Nave industrial" vertex="1">
+          <mxGeometry x="196" y="373" width="180" height="20" as="geometry" />
+        </mxCell>
+
+        <mxCell id="v-card-4" parent="1" style="rounded=1;arcSize=16;absoluteArcSize=1;whiteSpace=wrap;html=1;fillColor=#16181C;strokeColor=#2F3336;" value="" vertex="1">
+          <mxGeometry x="136" y="413" width="252" height="64" as="geometry" />
+        </mxCell>
+        <mxCell id="v-card-4-thumb" parent="1" style="rounded=1;arcSize=8;absoluteArcSize=1;whiteSpace=wrap;html=1;fillColor=#1D1F23;strokeColor=none;fontSize=18;fontColor=#71767B;" value="◉" vertex="1">
+          <mxGeometry x="148" y="425" width="40" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="v-card-4-name" parent="1" style="text;html=1;align=left;verticalAlign=middle;fontSize=14;fontStyle=1;fontColor=#E7E9EA;" value="Estado del puente" vertex="1">
+          <mxGeometry x="196" y="425" width="180" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="v-card-4-sub" parent="1" style="text;html=1;align=left;verticalAlign=middle;fontSize=12;fontColor=#71767B;" value="Puente peatonal" vertex="1">
+          <mxGeometry x="196" y="445" width="180" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- Splitter con botón para ocultar el selector -->
+        <mxCell id="v-splitter" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#1D1F23;strokeColor=#2F3336;" value="" vertex="1">
+          <mxGeometry x="400" y="125" width="8" height="551" as="geometry" />
+        </mxCell>
+        <mxCell id="v-splitter-grip" parent="1" style="text;html=1;align=center;verticalAlign=middle;fontSize=14;fontColor=#71767B;" value="⋮" vertex="1">
+          <mxGeometry x="396" y="440" width="16" height="24" as="geometry" />
+        </mxCell>
+        <mxCell id="v-btn-collapse" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#16181C;strokeColor=#2F3336;fontSize=14;fontStyle=1;fontColor=#71767B;" value="«" vertex="1">
+          <mxGeometry x="392" y="140" width="24" height="24" as="geometry" />
+        </mxCell>
+
+        <!-- Detalle: pestañas (activa: General) -->
+        <mxCell id="v-tab-general" parent="1" style="text;html=1;align=center;verticalAlign=middle;fontSize=14;fontStyle=1;fontColor=#FFFFFF;" value="General" vertex="1">
+          <mxGeometry x="424" y="125" width="120" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="v-tab-general-ink" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=none;" value="" vertex="1">
+          <mxGeometry x="424" y="170" width="120" height="3" as="geometry" />
+        </mxCell>
+        <mxCell id="v-tab-preview" parent="1" style="text;html=1;align=center;verticalAlign=middle;fontSize=14;fontColor=#71767B;" value="Previsualización" vertex="1">
+          <mxGeometry x="544" y="125" width="140" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="v-tabs-line" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#2F3336;strokeColor=none;" value="" vertex="1">
+          <mxGeometry x="408" y="173" width="632" height="1" as="geometry" />
+        </mxCell>
+
+        <!-- Detalle, pestaña General: datos -->
+        <mxCell id="v-field-model" parent="1" style="rounded=1;arcSize=50;whiteSpace=wrap;html=1;fillColor=#000000;strokeColor=#2F3336;align=left;spacingLeft=14;fontSize=15;fontColor=#E7E9EA;" value="Nave industrial" vertex="1">
+          <mxGeometry x="432" y="205" width="284" height="52" as="geometry" />
+        </mxCell>
+        <mxCell id="v-field-model-label" parent="1" style="text;html=1;fillColor=#000000;align=center;verticalAlign=middle;fontSize=11;fontColor=#71767B;" value="Modelo" vertex="1">
+          <mxGeometry x="444" y="197" width="52" height="16" as="geometry" />
+        </mxCell>
+        <mxCell id="v-field-model-arrow" parent="1" style="text;html=1;align=center;verticalAlign=middle;fontSize=14;fontColor=#71767B;" value="▾" vertex="1">
+          <mxGeometry x="684" y="219" width="24" height="24" as="geometry" />
+        </mxCell>
+        <mxCell id="v-field-name" parent="1" style="rounded=1;arcSize=50;whiteSpace=wrap;html=1;fillColor=#000000;strokeColor=#2F3336;align=left;spacingLeft=14;fontSize=15;fontColor=#E7E9EA;" value="Incidencias planta baja" vertex="1">
+          <mxGeometry x="732" y="205" width="284" height="52" as="geometry" />
+        </mxCell>
+        <mxCell id="v-field-name-label" parent="1" style="text;html=1;fillColor=#000000;align=center;verticalAlign=middle;fontSize=11;fontColor=#71767B;" value="Nombre" vertex="1">
+          <mxGeometry x="744" y="197" width="56" height="16" as="geometry" />
+        </mxCell>
+        <mxCell id="v-field-description" parent="1" style="rounded=1;arcSize=16;absoluteArcSize=1;whiteSpace=wrap;html=1;fillColor=#000000;strokeColor=#2F3336;align=left;verticalAlign=top;spacingLeft=14;spacingRight=14;spacingTop=14;fontSize=14;fontColor=#E7E9EA;" value="Incidencias detectadas en la revisión de marzo." vertex="1">
+          <mxGeometry x="432" y="281" width="584" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="v-field-description-label" parent="1" style="text;html=1;fillColor=#000000;align=center;verticalAlign=middle;fontSize=11;fontColor=#71767B;" value="Descripción" vertex="1">
+          <mxGeometry x="444" y="273" width="76" height="16" as="geometry" />
+        </mxCell>
+        <mxCell id="v-field-notes" parent="1" style="rounded=1;arcSize=16;absoluteArcSize=1;whiteSpace=wrap;html=1;fillColor=#000000;strokeColor=#2F3336;align=left;verticalAlign=top;spacingLeft=14;spacingRight=14;spacingTop=14;fontSize=14;fontColor=#E7E9EA;" value="Pendiente de validar por el responsable de mantenimiento." vertex="1">
+          <mxGeometry x="432" y="425" width="584" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="v-field-notes-label" parent="1" style="text;html=1;fillColor=#000000;align=center;verticalAlign=middle;fontSize=11;fontColor=#71767B;" value="Observaciones" vertex="1">
+          <mxGeometry x="444" y="417" width="88" height="16" as="geometry" />
+        </mxCell>
+
+        <!-- Pie -->
+        <mxCell id="v-footer-line" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#2F3336;strokeColor=none;" value="" vertex="1">
+          <mxGeometry x="120" y="676" width="920" height="1" as="geometry" />
+        </mxCell>
+        <mxCell id="v-btn-cancel" parent="1" style="rounded=1;arcSize=50;whiteSpace=wrap;html=1;fillColor=none;strokeColor=none;fontSize=14;fontStyle=1;fontColor=#FFFFFF;" value="Cancelar" vertex="1">
+          <mxGeometry x="828" y="692" width="96" height="36" as="geometry" />
+        </mxCell>
+        <mxCell id="v-btn-save" parent="1" style="rounded=1;arcSize=50;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=none;fontSize=14;fontStyle=1;fontColor=#000000;" value="Guardar" vertex="1">
+          <mxGeometry x="932" y="692" width="88" height="36" as="geometry" />
+        </mxCell>
+        <mxCell id="v-resize-grip" parent="1" style="text;html=1;align=center;verticalAlign=middle;fontSize=12;fontColor=#71767B;" value="◢" vertex="1">
+          <mxGeometry x="1022" y="722" width="16" height="16" as="geometry" />
+        </mxCell>
+
+        <!-- Notas de comportamiento -->
+        <mxCell id="v-notes" parent="1" style="shape=note;size=16;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=12;fontSize=13;fillColor=#16181C;strokeColor=#2F3336;fontColor=#E7E9EA;" value="&lt;b&gt;Editor de visualizaciones: pestaña General&lt;/b&gt;&lt;br&gt;&lt;br&gt;Mismo esquema que los demás editores (modal, selector, splitter, pie), con dos pestañas: General y Previsualización.&lt;br&gt;&lt;br&gt;&lt;b&gt;Fichas&lt;/b&gt;: nombre de la visualización y modelo al que está asociada.&lt;br&gt;&lt;br&gt;&lt;b&gt;Datos&lt;/b&gt;: el desplegable Modelo elige el modelo 3D asociado; Nombre, Descripción y Observaciones son texto libre.&lt;br&gt;&lt;br&gt;El visor con los marcadores está en la pestaña Previsualización (ver página «Visualizaciones - Previsualización»)." vertex="1">
+          <mxGeometry x="1120" y="60" width="340" height="300" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram name="Visualizaciones - Previsualización" id="editor-visualizaciones-preview">
+    <mxGraphModel background="#000000" dx="1178" dy="654" grid="1" gridSize="4" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1500" pageHeight="827" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- Fondo oscurecido (backdrop del mat-dialog) -->
+        <mxCell id="vp-backdrop" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#000000;opacity=32;strokeColor=none;" value="" vertex="1">
+          <mxGeometry x="80" y="20" width="1000" height="760" as="geometry" />
+        </mxCell>
+
+        <!-- Modal -->
+        <mxCell id="vp-dialog" parent="1" style="rounded=1;arcSize=16;absoluteArcSize=1;whiteSpace=wrap;html=1;fillColor=#16181C;strokeColor=#2F3336;" value="" vertex="1">
+          <mxGeometry x="120" y="60" width="920" height="680" as="geometry" />
+        </mxCell>
+
+        <!-- Cabecera -->
+        <mxCell id="vp-title" parent="1" style="text;html=1;align=left;verticalAlign=middle;fontSize=20;fontColor=#E7E9EA;" value="Editar visualizaciones" vertex="1">
+          <mxGeometry x="144" y="72" width="300" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="vp-btn-maximize" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=none;strokeColor=none;fontSize=16;fontColor=#71767B;" value="☐" vertex="1">
+          <mxGeometry x="956" y="76" width="32" height="32" as="geometry" />
+        </mxCell>
+        <mxCell id="vp-btn-close" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=none;strokeColor=none;fontSize=16;fontColor=#71767B;" value="✕" vertex="1">
+          <mxGeometry x="992" y="76" width="32" height="32" as="geometry" />
+        </mxCell>
+        <mxCell id="vp-header-line" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#2F3336;strokeColor=none;" value="" vertex="1">
+          <mxGeometry x="120" y="124" width="920" height="1" as="geometry" />
+        </mxCell>
+
+        <!-- Selector: buscador y botón Nuevo -->
+        <mxCell id="vp-search" parent="1" style="rounded=1;arcSize=50;whiteSpace=wrap;html=1;fillColor=#000000;strokeColor=#2F3336;align=left;spacingLeft=12;fontSize=14;fontColor=#71767B;" value="⌕&amp;nbsp;&amp;nbsp;Buscar..." vertex="1">
+          <mxGeometry x="136" y="141" width="180" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="vp-btn-new" parent="1" style="rounded=1;arcSize=50;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=none;fontSize=14;fontStyle=1;fontColor=#000000;" value="+ Nuevo" vertex="1">
+          <mxGeometry x="324" y="141" width="64" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- Selector: fichas (miniatura, nombre y modelo asociado) -->
+        <mxCell id="vp-card-1" parent="1" style="rounded=1;arcSize=16;absoluteArcSize=1;whiteSpace=wrap;html=1;fillColor=#16181C;strokeColor=#2F3336;" value="" vertex="1">
+          <mxGeometry x="136" y="197" width="252" height="64" as="geometry" />
+        </mxCell>
+        <mxCell id="vp-card-1-thumb" parent="1" style="rounded=1;arcSize=8;absoluteArcSize=1;whiteSpace=wrap;html=1;fillColor=#1D1F23;strokeColor=none;fontSize=18;fontColor=#71767B;" value="◉" vertex="1">
+          <mxGeometry x="148" y="209" width="40" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="vp-card-1-name" parent="1" style="text;html=1;align=left;verticalAlign=middle;fontSize=14;fontStyle=1;fontColor=#E7E9EA;" value="Revisión de cubierta" vertex="1">
+          <mxGeometry x="196" y="209" width="180" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="vp-card-1-sub" parent="1" style="text;html=1;align=left;verticalAlign=middle;fontSize=12;fontColor=#71767B;" value="Edificio principal" vertex="1">
+          <mxGeometry x="196" y="229" width="180" height="20" as="geometry" />
+        </mxCell>
+
+        <mxCell id="vp-card-2" parent="1" style="rounded=1;arcSize=16;absoluteArcSize=1;whiteSpace=wrap;html=1;fillColor=#1D1F23;strokeColor=#FFFFFF;strokeWidth=2;" value="" vertex="1">
+          <mxGeometry x="136" y="269" width="252" height="64" as="geometry" />
+        </mxCell>
+        <mxCell id="vp-card-2-thumb" parent="1" style="rounded=1;arcSize=8;absoluteArcSize=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=none;fontSize=18;fontColor=#000000;" value="◉" vertex="1">
+          <mxGeometry x="148" y="281" width="40" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="vp-card-2-name" parent="1" style="text;html=1;align=left;verticalAlign=middle;fontSize=14;fontStyle=1;fontColor=#E7E9EA;" value="Incidencias planta baja" vertex="1">
+          <mxGeometry x="196" y="281" width="180" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="vp-card-2-sub" parent="1" style="text;html=1;align=left;verticalAlign=middle;fontSize=12;fontColor=#71767B;" value="Nave industrial" vertex="1">
+          <mxGeometry x="196" y="301" width="180" height="20" as="geometry" />
+        </mxCell>
+
+        <mxCell id="vp-card-3" parent="1" style="rounded=1;arcSize=16;absoluteArcSize=1;whiteSpace=wrap;html=1;fillColor=#16181C;strokeColor=#2F3336;" value="" vertex="1">
+          <mxGeometry x="136" y="341" width="252" height="64" as="geometry" />
+        </mxCell>
+        <mxCell id="vp-card-3-thumb" parent="1" style="rounded=1;arcSize=8;absoluteArcSize=1;whiteSpace=wrap;html=1;fillColor=#1D1F23;strokeColor=none;fontSize=18;fontColor=#71767B;" value="◉" vertex="1">
+          <mxGeometry x="148" y="353" width="40" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="vp-card-3-name" parent="1" style="text;html=1;align=left;verticalAlign=middle;fontSize=14;fontStyle=1;fontColor=#E7E9EA;" value="Recorrido de seguridad" vertex="1">
+          <mxGeometry x="196" y="353" width="180" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="vp-card-3-sub" parent="1" style="text;html=1;align=left;verticalAlign=middle;fontSize=12;fontColor=#71767B;" value="Nave industrial" vertex="1">
+          <mxGeometry x="196" y="373" width="180" height="20" as="geometry" />
+        </mxCell>
+
+        <mxCell id="vp-card-4" parent="1" style="rounded=1;arcSize=16;absoluteArcSize=1;whiteSpace=wrap;html=1;fillColor=#16181C;strokeColor=#2F3336;" value="" vertex="1">
+          <mxGeometry x="136" y="413" width="252" height="64" as="geometry" />
+        </mxCell>
+        <mxCell id="vp-card-4-thumb" parent="1" style="rounded=1;arcSize=8;absoluteArcSize=1;whiteSpace=wrap;html=1;fillColor=#1D1F23;strokeColor=none;fontSize=18;fontColor=#71767B;" value="◉" vertex="1">
+          <mxGeometry x="148" y="425" width="40" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="vp-card-4-name" parent="1" style="text;html=1;align=left;verticalAlign=middle;fontSize=14;fontStyle=1;fontColor=#E7E9EA;" value="Estado del puente" vertex="1">
+          <mxGeometry x="196" y="425" width="180" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="vp-card-4-sub" parent="1" style="text;html=1;align=left;verticalAlign=middle;fontSize=12;fontColor=#71767B;" value="Puente peatonal" vertex="1">
+          <mxGeometry x="196" y="445" width="180" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- Splitter con botón para ocultar el selector -->
+        <mxCell id="vp-splitter" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#1D1F23;strokeColor=#2F3336;" value="" vertex="1">
+          <mxGeometry x="400" y="125" width="8" height="551" as="geometry" />
+        </mxCell>
+        <mxCell id="vp-splitter-grip" parent="1" style="text;html=1;align=center;verticalAlign=middle;fontSize=14;fontColor=#71767B;" value="⋮" vertex="1">
+          <mxGeometry x="396" y="440" width="16" height="24" as="geometry" />
+        </mxCell>
+        <mxCell id="vp-btn-collapse" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#16181C;strokeColor=#2F3336;fontSize=14;fontStyle=1;fontColor=#71767B;" value="«" vertex="1">
+          <mxGeometry x="392" y="140" width="24" height="24" as="geometry" />
+        </mxCell>
+
+        <!-- Detalle: pestañas (activa: Previsualización) -->
+        <mxCell id="vp-tab-general" parent="1" style="text;html=1;align=center;verticalAlign=middle;fontSize=14;fontColor=#71767B;" value="General" vertex="1">
+          <mxGeometry x="424" y="125" width="120" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="vp-tab-preview" parent="1" style="text;html=1;align=center;verticalAlign=middle;fontSize=14;fontStyle=1;fontColor=#FFFFFF;" value="Previsualización" vertex="1">
+          <mxGeometry x="544" y="125" width="140" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="vp-tab-preview-ink" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=none;" value="" vertex="1">
+          <mxGeometry x="544" y="170" width="140" height="3" as="geometry" />
+        </mxCell>
+        <mxCell id="vp-tabs-line" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#2F3336;strokeColor=none;" value="" vertex="1">
+          <mxGeometry x="408" y="173" width="632" height="1" as="geometry" />
+        </mxCell>
+
+        <!-- Detalle, pestaña Previsualización: barra de herramientas -->
+        <mxCell id="vp-btn-add-marker" parent="1" style="rounded=1;arcSize=50;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#2F3336;fontSize=13;fontStyle=1;fontColor=#FFFFFF;" value="+ Marcador" vertex="1">
+          <mxGeometry x="424" y="189" width="108" height="32" as="geometry" />
+        </mxCell>
+
+        <!-- Detalle, pestaña Previsualización: visor con marcadores -->
+        <mxCell id="vp-viewer" parent="1" style="rounded=1;arcSize=8;absoluteArcSize=1;whiteSpace=wrap;html=1;fillColor=#000000;strokeColor=#2F3336;" value="" vertex="1">
+          <mxGeometry x="424" y="229" width="600" height="303" as="geometry" />
+        </mxCell>
+        <mxCell id="vp-viewer-model" parent="1" style="shape=cube;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;darkOpacity=0.15;darkOpacity2=0.3;size=34;fillColor=#2F3336;strokeColor=#71767B;" value="" vertex="1">
+          <mxGeometry x="644" y="300" width="160" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="vp-marker-1" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;fontSize=11;fontStyle=1;fontColor=#000000;" value="1" vertex="1">
+          <mxGeometry x="668" y="344" width="22" height="22" as="geometry" />
+        </mxCell>
+        <mxCell id="vp-marker-2" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#71767B;strokeWidth=3;fontSize=12;fontStyle=1;fontColor=#000000;" value="2" vertex="1">
+          <mxGeometry x="748" y="368" width="26" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="vp-marker-2-tooltip" parent="1" style="rounded=1;arcSize=6;absoluteArcSize=1;whiteSpace=wrap;html=1;fillColor=#16181C;strokeColor=#2F3336;fontSize=11;fontColor=#E7E9EA;" value="Fisura en pilar" vertex="1">
+          <mxGeometry x="782" y="369" width="104" height="24" as="geometry" />
+        </mxCell>
+        <mxCell id="vp-marker-3" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;fontSize=11;fontStyle=1;fontColor=#000000;" value="3" vertex="1">
+          <mxGeometry x="696" y="404" width="22" height="22" as="geometry" />
+        </mxCell>
+        <mxCell id="vp-viewer-controls" parent="1" style="rounded=1;arcSize=16;absoluteArcSize=1;whiteSpace=wrap;html=1;fillColor=#16181C;strokeColor=#2F3336;fontSize=12;fontColor=#E7E9EA;" value="⟲ Girar&amp;nbsp;&amp;nbsp;&amp;nbsp;✥ Mover&amp;nbsp;&amp;nbsp;&amp;nbsp;⊕ Zoom&amp;nbsp;&amp;nbsp;&amp;nbsp;⌖ Centrar" vertex="1">
+          <mxGeometry x="574" y="492" width="300" height="32" as="geometry" />
+        </mxCell>
+
+        <!-- Detalle, pestaña Previsualización: lista de marcadores -->
+        <mxCell id="vp-markers-title" parent="1" style="text;html=1;align=left;verticalAlign=middle;fontSize=13;fontStyle=1;fontColor=#E7E9EA;" value="Marcadores (3)" vertex="1">
+          <mxGeometry x="424" y="540" width="200" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="vp-marker-row-1" parent="1" style="rounded=1;arcSize=6;absoluteArcSize=1;whiteSpace=wrap;html=1;fillColor=none;strokeColor=none;align=left;spacingLeft=36;fontSize=13;fontColor=#E7E9EA;" value="Humedad en muro" vertex="1">
+          <mxGeometry x="424" y="564" width="600" height="32" as="geometry" />
+        </mxCell>
+        <mxCell id="vp-marker-row-1-num" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=none;fontSize=11;fontStyle=1;fontColor=#000000;" value="1" vertex="1">
+          <mxGeometry x="434" y="570" width="20" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="vp-marker-row-1-actions" parent="1" style="text;html=1;align=right;verticalAlign=middle;fontSize=13;fontColor=#71767B;" value="✎&amp;nbsp;&amp;nbsp;&amp;nbsp;✕" vertex="1">
+          <mxGeometry x="960" y="568" width="56" height="24" as="geometry" />
+        </mxCell>
+        <mxCell id="vp-marker-row-2" parent="1" style="rounded=1;arcSize=6;absoluteArcSize=1;whiteSpace=wrap;html=1;fillColor=#1D1F23;strokeColor=none;align=left;spacingLeft=36;fontSize=13;fontStyle=1;fontColor=#E7E9EA;" value="Fisura en pilar" vertex="1">
+          <mxGeometry x="424" y="598" width="600" height="32" as="geometry" />
+        </mxCell>
+        <mxCell id="vp-marker-row-2-num" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=none;fontSize=11;fontStyle=1;fontColor=#000000;" value="2" vertex="1">
+          <mxGeometry x="434" y="604" width="20" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="vp-marker-row-2-actions" parent="1" style="text;html=1;align=right;verticalAlign=middle;fontSize=13;fontColor=#71767B;" value="✎&amp;nbsp;&amp;nbsp;&amp;nbsp;✕" vertex="1">
+          <mxGeometry x="960" y="602" width="56" height="24" as="geometry" />
+        </mxCell>
+        <mxCell id="vp-marker-row-3" parent="1" style="rounded=1;arcSize=6;absoluteArcSize=1;whiteSpace=wrap;html=1;fillColor=none;strokeColor=none;align=left;spacingLeft=36;fontSize=13;fontColor=#E7E9EA;" value="Falta señalización" vertex="1">
+          <mxGeometry x="424" y="632" width="600" height="32" as="geometry" />
+        </mxCell>
+        <mxCell id="vp-marker-row-3-num" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=none;fontSize=11;fontStyle=1;fontColor=#000000;" value="3" vertex="1">
+          <mxGeometry x="434" y="638" width="20" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="vp-marker-row-3-actions" parent="1" style="text;html=1;align=right;verticalAlign=middle;fontSize=13;fontColor=#71767B;" value="✎&amp;nbsp;&amp;nbsp;&amp;nbsp;✕" vertex="1">
+          <mxGeometry x="960" y="636" width="56" height="24" as="geometry" />
+        </mxCell>
+
+        <!-- Pie -->
+        <mxCell id="vp-footer-line" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#2F3336;strokeColor=none;" value="" vertex="1">
+          <mxGeometry x="120" y="676" width="920" height="1" as="geometry" />
+        </mxCell>
+        <mxCell id="vp-btn-cancel" parent="1" style="rounded=1;arcSize=50;whiteSpace=wrap;html=1;fillColor=none;strokeColor=none;fontSize=14;fontStyle=1;fontColor=#FFFFFF;" value="Cancelar" vertex="1">
+          <mxGeometry x="828" y="692" width="96" height="36" as="geometry" />
+        </mxCell>
+        <mxCell id="vp-btn-save" parent="1" style="rounded=1;arcSize=50;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=none;fontSize=14;fontStyle=1;fontColor=#000000;" value="Guardar" vertex="1">
+          <mxGeometry x="932" y="692" width="88" height="36" as="geometry" />
+        </mxCell>
+        <mxCell id="vp-resize-grip" parent="1" style="text;html=1;align=center;verticalAlign=middle;fontSize=12;fontColor=#71767B;" value="◢" vertex="1">
+          <mxGeometry x="1022" y="722" width="16" height="16" as="geometry" />
+        </mxCell>
+
+        <!-- Notas de comportamiento -->
+        <mxCell id="vp-notes" parent="1" style="shape=note;size=16;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=12;fontSize=13;fillColor=#16181C;strokeColor=#2F3336;fontColor=#E7E9EA;" value="&lt;b&gt;Editor de visualizaciones: pestaña Previsualización&lt;/b&gt;&lt;br&gt;&lt;br&gt;El visor ocupa todo el ancho del panel de detalle y muestra el modelo elegido en la pestaña General.&lt;br&gt;&lt;br&gt;&lt;b&gt;Marcadores&lt;/b&gt;: con &lt;i&gt;+ Marcador&lt;/i&gt; activo, un clic sobre el modelo coloca un marcador numerado. Al pasar el ratón muestra su título.&lt;br&gt;&lt;br&gt;La lista de abajo los enumera: clic selecciona y resalta el marcador en el visor, ✎ edita su título y texto, ✕ lo elimina.&lt;br&gt;&lt;br&gt;Para ganar espacio: ocultar el selector («) o maximizar el modal (☐).&lt;br&gt;&lt;br&gt;Todo se guarda con &lt;i&gt;Guardar&lt;/i&gt; del pie." vertex="1">
+          <mxGeometry x="1120" y="60" width="340" height="340" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

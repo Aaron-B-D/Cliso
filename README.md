@@ -10,20 +10,30 @@ posiciones de cámara...) mediante un editor web, **sin alterar el modelo origin
 > versión funcional y básica que demuestra la viabilidad de la arquitectura, no el alcance completo previsto
 > para producción.
 
+| Dato | Valor |
+|---|---|
+| Autor | Aarón Barreira Diz |
+| Ciclo | Desarrollo de Aplicaciones Web (grado superior, régimen a distancia) |
+| Módulo | MP0374 · Proyecto de Desarrollo de Aplicaciones Web |
+| Centro | I.E.S. Fernando Wirtz Suárez (A Coruña) |
+| Curso | 2026-2027 |
+| Tutores | Eva Naveira Domínguez y Fernando Prado Espiñeira |
+
 ## Índice
 
 1. [Descripción](#descripción)
 2. [Alcance de la versión entregada](#alcance-de-la-versión-entregada)
 3. [Arquitectura y tecnología](#arquitectura-y-tecnología)
 4. [Estructura del repositorio](#estructura-del-repositorio)
-5. [Clases: objetos de dominio y DTO](#clases-objetos-de-dominio-y-dto)
-6. [Arquitectura hexagonal del back](#arquitectura-hexagonal-del-back)
-7. [Puesta en marcha](#puesta-en-marcha)
-8. [Configuración y modo demo](#configuración-y-modo-demo)
-9. [Estado del proyecto y hoja de ruta](#estado-del-proyecto-y-hoja-de-ruta)
-10. [Convenciones](#convenciones)
-11. [Planificación y medios](#planificación-y-medios)
-12. [Control de versiones del documento](#control-de-versiones-del-documento)
+5. [Diseño de la interfaz (front)](#diseño-de-la-interfaz-front)
+6. [Clases: objetos de dominio y DTO](#clases-objetos-de-dominio-y-dto)
+7. [Arquitectura hexagonal del back](#arquitectura-hexagonal-del-back)
+8. [Puesta en marcha](#puesta-en-marcha)
+9. [Configuración y modo demo](#configuración-y-modo-demo)
+10. [Estado del proyecto y hoja de ruta](#estado-del-proyecto-y-hoja-de-ruta)
+11. [Convenciones](#convenciones)
+12. [Planificación y medios](#planificación-y-medios)
+13. [Control de versiones del documento](#control-de-versiones-del-documento)
 
 ## Descripción
 
@@ -84,10 +94,27 @@ Proyecto/
 │   └── test/      # Tests
 ├── Cliso.UI/      # Front web (Angular)
 │   └── src/
+│       ├── styles.scss   # Estilos globales (importa src/styles/)
+│       └── styles/       # Tokens de diseño, base y clases provisionales
+├── Documentation/ # Documentación del proyecto
+│   └── UI/        # Diseño de la interfaz: guía de estilo y diagramas .drawio
 └── README.md
 ```
 
-La documentación del proyecto (memoria y notas) se encuentra en la carpeta `Documentación`, junto a este repositorio.
+La memoria del proyecto (formato `.odt`) se encuentra en la carpeta `Documentation`.
+
+## Diseño de la interfaz (front)
+
+La guía completa está en [`Documentation/UI/[Diseño] Cliso.UI - Guía de estilo.md`](<Documentation/UI/[Diseño] Cliso.UI - Guía de estilo.md>). Lo esencial:
+
+- **Estilo inspirado en X:** fondo negro, texto blanco y grises; el blanco es el único acento y los colores solo se
+  usan para estados (error, éxito). Bordes finos en lugar de sombras, botones y campos en píldora.
+- **Solo tema oscuro.** Tipografía del sistema, tamaño base de 15 px.
+- **Angular Material** será la librería de componentes (aún no instalada). Se adaptará al estilo anterior
+  mediante los tokens `--mat-sys-*`, sin elevaciones, con densidad compacta en el editor.
+- **Tokens de diseño** (colores, espaciado, formas) como propiedades CSS en `Cliso.UI/src/styles/_variables.scss`;
+  los componentes los leen con `var(--color-...)` y no llevan valores sueltos.
+- El diseño de pantallas está en los diagramas `.drawio` de `Documentation/UI/` (barra de herramientas, editor y home).
 
 ## Clases: objetos de dominio y DTO
 
@@ -410,7 +437,8 @@ Estado actual: estructura inicial de ambos proyectos y entidades de dominio `BIM
 - **Gestión de tareas**: Trello.
 - **Control de versiones**: GitHub.
 
-El detalle de tareas, tiempos y presupuesto se recoge en la memoria del proyecto (carpeta `Documentación`).
+El detalle de tareas, tiempos y presupuesto se recoge en la memoria del proyecto (carpeta `Documentation`). En la memoria actual (V1) los apartados de planificación,
+presupuesto y ejecución aún están por completar.
 
 ## Control de versiones del documento
 

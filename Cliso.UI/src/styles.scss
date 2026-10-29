@@ -1,1 +1,4 @@
-/* You can add global styles to this file, and also import other style files */
+// Estilos globales. Ver "Documentation/UI/[Diseño] Cliso.UI - Guía de estilo.md" para la guía de estilo.
+@use "styles/variables";
+@use "styles/base";
+@use "styles/components";
