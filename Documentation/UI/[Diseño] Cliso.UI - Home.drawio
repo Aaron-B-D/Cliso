@@ -434,4 +434,335 @@
       </root>
     </mxGraphModel>
   </diagram>
+
+  <diagram name="Home - Catálogo (móvil)" id="home-catalogo-movil">
+    <mxGraphModel background="#000000" dx="1704" dy="946" grid="1" gridSize="4" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="900" pageHeight="827" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- Marco del móvil y barra superior -->
+        <mxCell id="cm-frame" parent="1" style="rounded=1;arcSize=24;absoluteArcSize=1;whiteSpace=wrap;html=1;fillColor=#000000;strokeColor=#2F3336;strokeWidth=2;" value="" vertex="1">
+          <mxGeometry x="40" y="40" width="360" height="720" as="geometry" />
+        </mxCell>
+        <mxCell id="cm-menu" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#2F3336;fontSize=18;fontColor=#E7E9EA;" value="☰" vertex="1">
+          <mxGeometry x="56" y="56" width="40" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="cm-logo" parent="1" style="text;html=1;align=left;verticalAlign=middle;fontSize=22;fontStyle=1;fontColor=#FFFFFF;" value="Cliso" vertex="1">
+          <mxGeometry x="108" y="56" width="160" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="cm-line" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#2F3336;strokeColor=none;" value="" vertex="1">
+          <mxGeometry x="41" y="108" width="358" height="1" as="geometry" />
+        </mxCell>
+
+        <!-- Cabecera y buscador -->
+        <mxCell id="cm-title" parent="1" style="text;html=1;align=left;verticalAlign=middle;fontSize=23;fontStyle=1;fontColor=#E7E9EA;" value="Home" vertex="1">
+          <mxGeometry x="56" y="120" width="328" height="36" as="geometry" />
+        </mxCell>
+        <mxCell id="cm-search" parent="1" style="rounded=1;arcSize=50;whiteSpace=wrap;html=1;fillColor=#000000;strokeColor=#2F3336;align=left;spacingLeft=16;fontSize=15;fontColor=#71767B;" value="⌕&amp;nbsp;&amp;nbsp;Buscar modelo o visualización..." vertex="1">
+          <mxGeometry x="56" y="164" width="328" height="44" as="geometry" />
+        </mxCell>
+        <mxCell id="cm-label" parent="1" style="text;html=1;align=left;verticalAlign=middle;fontSize=13;fontStyle=1;fontColor=#71767B;" value="MODELOS (4)" vertex="1">
+          <mxGeometry x="56" y="216" width="200" height="24" as="geometry" />
+        </mxCell>
+
+        <!-- Ficha 1: Edificio principal -->
+        <mxCell id="cm-card-1" parent="1" style="rounded=1;arcSize=16;absoluteArcSize=1;whiteSpace=wrap;html=1;fillColor=#16181C;strokeColor=#2F3336;" value="" vertex="1">
+          <mxGeometry x="56" y="248" width="328" height="204" as="geometry" />
+        </mxCell>
+        <mxCell id="cm-card-1-thumb" parent="1" style="rounded=1;arcSize=8;absoluteArcSize=1;whiteSpace=wrap;html=1;fillColor=#1D1F23;strokeColor=none;fontSize=32;fontColor=#71767B;" value="◆" vertex="1">
+          <mxGeometry x="68" y="260" width="304" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="cm-card-1-name" parent="1" style="text;html=1;align=left;verticalAlign=middle;fontSize=15;fontStyle=1;fontColor=#E7E9EA;" value="Edificio principal" vertex="1">
+          <mxGeometry x="68" y="368" width="304" height="22" as="geometry" />
+        </mxCell>
+        <mxCell id="cm-card-1-sub" parent="1" style="text;html=1;align=left;verticalAlign=middle;fontSize=12;fontColor=#71767B;" value="3 visualizaciones" vertex="1">
+          <mxGeometry x="68" y="390" width="304" height="18" as="geometry" />
+        </mxCell>
+        <mxCell id="cm-card-1-chip-1" parent="1" style="rounded=1;arcSize=50;whiteSpace=wrap;html=1;fillColor=#000000;strokeColor=#2F3336;fontSize=12;fontColor=#E7E9EA;" value="Planta" vertex="1">
+          <mxGeometry x="68" y="414" width="72" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="cm-card-1-chip-2" parent="1" style="rounded=1;arcSize=50;whiteSpace=wrap;html=1;fillColor=#000000;strokeColor=#2F3336;fontSize=12;fontColor=#E7E9EA;" value="Alzado" vertex="1">
+          <mxGeometry x="148" y="414" width="72" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="cm-card-1-chip-3" parent="1" style="rounded=1;arcSize=50;whiteSpace=wrap;html=1;fillColor=#000000;strokeColor=#2F3336;fontSize=12;fontColor=#E7E9EA;" value="Sección" vertex="1">
+          <mxGeometry x="228" y="414" width="72" height="28" as="geometry" />
+        </mxCell>
+
+        <!-- Ficha 2: Nave industrial -->
+        <mxCell id="cm-card-2" parent="1" style="rounded=1;arcSize=16;absoluteArcSize=1;whiteSpace=wrap;html=1;fillColor=#16181C;strokeColor=#2F3336;" value="" vertex="1">
+          <mxGeometry x="56" y="464" width="328" height="204" as="geometry" />
+        </mxCell>
+        <mxCell id="cm-card-2-thumb" parent="1" style="rounded=1;arcSize=8;absoluteArcSize=1;whiteSpace=wrap;html=1;fillColor=#1D1F23;strokeColor=none;fontSize=32;fontColor=#71767B;" value="◆" vertex="1">
+          <mxGeometry x="68" y="476" width="304" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="cm-card-2-name" parent="1" style="text;html=1;align=left;verticalAlign=middle;fontSize=15;fontStyle=1;fontColor=#E7E9EA;" value="Nave industrial" vertex="1">
+          <mxGeometry x="68" y="584" width="304" height="22" as="geometry" />
+        </mxCell>
+        <mxCell id="cm-card-2-sub" parent="1" style="text;html=1;align=left;verticalAlign=middle;fontSize=12;fontColor=#71767B;" value="3 visualizaciones" vertex="1">
+          <mxGeometry x="68" y="606" width="304" height="18" as="geometry" />
+        </mxCell>
+        <mxCell id="cm-card-2-chip-1" parent="1" style="rounded=1;arcSize=50;whiteSpace=wrap;html=1;fillColor=#000000;strokeColor=#2F3336;fontSize=12;fontColor=#E7E9EA;" value="Planta" vertex="1">
+          <mxGeometry x="68" y="630" width="72" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="cm-card-2-chip-2" parent="1" style="rounded=1;arcSize=50;whiteSpace=wrap;html=1;fillColor=#000000;strokeColor=#2F3336;fontSize=12;fontColor=#E7E9EA;" value="Alzado" vertex="1">
+          <mxGeometry x="148" y="630" width="72" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="cm-card-2-chip-3" parent="1" style="rounded=1;arcSize=50;whiteSpace=wrap;html=1;fillColor=#000000;strokeColor=#2F3336;fontSize=12;fontColor=#E7E9EA;" value="Térmico" vertex="1">
+          <mxGeometry x="228" y="630" width="72" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="cm-more" parent="1" style="text;html=1;align=center;verticalAlign=middle;fontSize=13;fontColor=#71767B;" value="↓ Desplazar para ver más modelos" vertex="1">
+          <mxGeometry x="56" y="684" width="328" height="24" as="geometry" />
+        </mxCell>
+
+        <!-- Nota -->
+        <mxCell id="cm-notes" parent="1" style="shape=note;size=16;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=12;fontSize=13;fillColor=#16181C;strokeColor=#2F3336;fontColor=#E7E9EA;" value="&lt;b&gt;Home: catálogo (móvil)&lt;/b&gt;&lt;br&gt;&lt;br&gt;Misma pantalla que en escritorio con la barra lateral convertida en barra superior (ver «Barra de herramientas (móvil)»).&lt;br&gt;&lt;br&gt;&lt;b&gt;Fichas en una columna&lt;/b&gt; a ancho completo (col-12); desde 576 px pasan a dos (col-sm-6), como en escritorio. La página se desplaza en vertical.&lt;br&gt;&lt;br&gt;Las etiquetas de cada ficha pasan a la línea siguiente si no caben (flex wrap).&lt;br&gt;&lt;br&gt;Clic en la ficha, en una etiqueta o en el buscador: igual que en escritorio.&lt;br&gt;&lt;br&gt;&lt;i&gt;Sin estado «ratón encima»: en táctil solo hay estado pulsado.&lt;/i&gt;" vertex="1">
+          <mxGeometry x="440" y="40" width="320" height="340" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+
+  <diagram name="Home - Búsqueda (móvil)" id="home-busqueda-movil">
+    <mxGraphModel background="#000000" dx="1704" dy="946" grid="1" gridSize="4" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="900" pageHeight="827" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- Marco del móvil y barra superior -->
+        <mxCell id="sm-frame" parent="1" style="rounded=1;arcSize=24;absoluteArcSize=1;whiteSpace=wrap;html=1;fillColor=#000000;strokeColor=#2F3336;strokeWidth=2;" value="" vertex="1">
+          <mxGeometry x="40" y="40" width="360" height="720" as="geometry" />
+        </mxCell>
+        <mxCell id="sm-menu" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#2F3336;fontSize=18;fontColor=#E7E9EA;" value="☰" vertex="1">
+          <mxGeometry x="56" y="56" width="40" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="sm-logo" parent="1" style="text;html=1;align=left;verticalAlign=middle;fontSize=22;fontStyle=1;fontColor=#FFFFFF;" value="Cliso" vertex="1">
+          <mxGeometry x="108" y="56" width="160" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="sm-line" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#2F3336;strokeColor=none;" value="" vertex="1">
+          <mxGeometry x="41" y="108" width="358" height="1" as="geometry" />
+        </mxCell>
+
+        <!-- Cabecera y buscador (en uso) -->
+        <mxCell id="sm-title" parent="1" style="text;html=1;align=left;verticalAlign=middle;fontSize=23;fontStyle=1;fontColor=#E7E9EA;" value="Home" vertex="1">
+          <mxGeometry x="56" y="120" width="328" height="36" as="geometry" />
+        </mxCell>
+        <mxCell id="sm-search" parent="1" style="rounded=1;arcSize=50;whiteSpace=wrap;html=1;fillColor=#000000;strokeColor=#FFFFFF;strokeWidth=2;align=left;spacingLeft=16;fontSize=15;fontColor=#E7E9EA;" value="⌕&amp;nbsp;&amp;nbsp;al" vertex="1">
+          <mxGeometry x="56" y="164" width="328" height="44" as="geometry" />
+        </mxCell>
+        <mxCell id="sm-clear" parent="1" style="text;html=1;align=center;verticalAlign=middle;fontSize=16;fontColor=#71767B;" value="✕" vertex="1">
+          <mxGeometry x="344" y="174" width="32" height="24" as="geometry" />
+        </mxCell>
+
+        <!-- Lista de resultados -->
+        <mxCell id="sm-panel" parent="1" style="rounded=1;arcSize=16;absoluteArcSize=1;whiteSpace=wrap;html=1;fillColor=#16181C;strokeColor=#2F3336;" value="" vertex="1">
+          <mxGeometry x="56" y="216" width="328" height="400" as="geometry" />
+        </mxCell>
+        <mxCell id="sm-group-models" parent="1" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=16;fontSize=12;fontStyle=1;fontColor=#71767B;" value="MODELOS" vertex="1">
+          <mxGeometry x="56" y="224" width="328" height="24" as="geometry" />
+        </mxCell>
+        <mxCell id="sm-m1-icon" parent="1" style="rounded=1;arcSize=8;absoluteArcSize=1;whiteSpace=wrap;html=1;fillColor=#1D1F23;strokeColor=none;fontSize=16;fontColor=#71767B;" value="◆" vertex="1">
+          <mxGeometry x="72" y="260" width="32" height="32" as="geometry" />
+        </mxCell>
+        <mxCell id="sm-m1-text" parent="1" style="text;html=1;align=left;verticalAlign=middle;fontSize=15;fontColor=#E7E9EA;" value="Edificio princip&lt;b&gt;al&lt;/b&gt;" vertex="1">
+          <mxGeometry x="116" y="252" width="256" height="24" as="geometry" />
+        </mxCell>
+        <mxCell id="sm-m1-sub" parent="1" style="text;html=1;align=left;verticalAlign=middle;fontSize=12;fontColor=#71767B;" value="3 visualizaciones" vertex="1">
+          <mxGeometry x="116" y="276" width="256" height="18" as="geometry" />
+        </mxCell>
+        <mxCell id="sm-m2-hover" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#1D1F23;strokeColor=none;" value="" vertex="1">
+          <mxGeometry x="56" y="304" width="328" height="52" as="geometry" />
+        </mxCell>
+        <mxCell id="sm-m2-icon" parent="1" style="rounded=1;arcSize=8;absoluteArcSize=1;whiteSpace=wrap;html=1;fillColor=#1D1F23;strokeColor=none;fontSize=16;fontColor=#71767B;" value="◆" vertex="1">
+          <mxGeometry x="72" y="314" width="32" height="32" as="geometry" />
+        </mxCell>
+        <mxCell id="sm-m2-text" parent="1" style="text;html=1;align=left;verticalAlign=middle;fontSize=15;fontColor=#E7E9EA;" value="Puente peaton&lt;b&gt;al&lt;/b&gt;" vertex="1">
+          <mxGeometry x="116" y="306" width="256" height="24" as="geometry" />
+        </mxCell>
+        <mxCell id="sm-m2-sub" parent="1" style="text;html=1;align=left;verticalAlign=middle;fontSize=12;fontColor=#71767B;" value="2 visualizaciones" vertex="1">
+          <mxGeometry x="116" y="330" width="256" height="18" as="geometry" />
+        </mxCell>
+        <mxCell id="sm-sep" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#2F3336;strokeColor=none;" value="" vertex="1">
+          <mxGeometry x="56" y="368" width="328" height="1" as="geometry" />
+        </mxCell>
+        <mxCell id="sm-group-views" parent="1" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=16;fontSize=12;fontStyle=1;fontColor=#71767B;" value="VISUALIZACIONES" vertex="1">
+          <mxGeometry x="56" y="376" width="328" height="24" as="geometry" />
+        </mxCell>
+        <mxCell id="sm-v1-icon" parent="1" style="rounded=1;arcSize=50;whiteSpace=wrap;html=1;fillColor=#000000;strokeColor=#2F3336;fontSize=12;fontColor=#E7E9EA;" value="&lt;b&gt;Al&lt;/b&gt;zado" vertex="1">
+          <mxGeometry x="72" y="414" width="72" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="sm-v1-text" parent="1" style="text;html=1;align=left;verticalAlign=middle;fontSize=14;fontColor=#71767B;" value="en Edificio principal" vertex="1">
+          <mxGeometry x="156" y="412" width="216" height="32" as="geometry" />
+        </mxCell>
+        <mxCell id="sm-v2-icon" parent="1" style="rounded=1;arcSize=50;whiteSpace=wrap;html=1;fillColor=#000000;strokeColor=#2F3336;fontSize=12;fontColor=#E7E9EA;" value="&lt;b&gt;Al&lt;/b&gt;zado" vertex="1">
+          <mxGeometry x="72" y="462" width="72" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="sm-v2-text" parent="1" style="text;html=1;align=left;verticalAlign=middle;fontSize=14;fontColor=#71767B;" value="en Nave industrial" vertex="1">
+          <mxGeometry x="156" y="460" width="216" height="32" as="geometry" />
+        </mxCell>
+        <mxCell id="sm-v3-icon" parent="1" style="rounded=1;arcSize=50;whiteSpace=wrap;html=1;fillColor=#000000;strokeColor=#2F3336;fontSize=12;fontColor=#E7E9EA;" value="&lt;b&gt;Al&lt;/b&gt;zado" vertex="1">
+          <mxGeometry x="72" y="510" width="72" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="sm-v3-text" parent="1" style="text;html=1;align=left;verticalAlign=middle;fontSize=14;fontColor=#71767B;" value="en Puente peatonal" vertex="1">
+          <mxGeometry x="156" y="508" width="216" height="32" as="geometry" />
+        </mxCell>
+
+        <!-- Nota -->
+        <mxCell id="sm-notes" parent="1" style="shape=note;size=16;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=12;fontSize=13;fillColor=#16181C;strokeColor=#2F3336;fontColor=#E7E9EA;" value="&lt;b&gt;Home: búsqueda (móvil)&lt;/b&gt;&lt;br&gt;&lt;br&gt;Mismo comportamiento que en escritorio: un único buscador con los grupos «Modelos» y «Visualizaciones».&lt;br&gt;&lt;br&gt;La lista ocupa todo el ancho y cada fila mide al menos 48 px de alto (objetivo táctil). En los modelos, el número de visualizaciones pasa debajo del nombre en lugar de ir a la derecha.&lt;br&gt;&lt;br&gt;Si la lista no cabe, se desplaza dentro del panel. ✕ borra la búsqueda.&lt;br&gt;&lt;br&gt;&lt;i&gt;La fila con fondo gris es la pulsada.&lt;/i&gt;" vertex="1">
+          <mxGeometry x="440" y="40" width="320" height="340" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+
+  <diagram name="Home - Modelo abierto (móvil)" id="home-modelo-movil">
+    <mxGraphModel background="#000000" dx="1704" dy="946" grid="1" gridSize="4" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="900" pageHeight="827" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- Marco del móvil y barra superior -->
+        <mxCell id="mm-frame" parent="1" style="rounded=1;arcSize=24;absoluteArcSize=1;whiteSpace=wrap;html=1;fillColor=#000000;strokeColor=#2F3336;strokeWidth=2;" value="" vertex="1">
+          <mxGeometry x="40" y="40" width="360" height="720" as="geometry" />
+        </mxCell>
+        <mxCell id="mm-menu" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#2F3336;fontSize=18;fontColor=#E7E9EA;" value="☰" vertex="1">
+          <mxGeometry x="56" y="56" width="40" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="mm-logo" parent="1" style="text;html=1;align=left;verticalAlign=middle;fontSize=22;fontStyle=1;fontColor=#FFFFFF;" value="Cliso" vertex="1">
+          <mxGeometry x="108" y="56" width="160" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="mm-line" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#2F3336;strokeColor=none;" value="" vertex="1">
+          <mxGeometry x="41" y="108" width="358" height="1" as="geometry" />
+        </mxCell>
+
+        <!-- Cabecera del modelo -->
+        <mxCell id="mm-back" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#2F3336;fontSize=18;fontColor=#E7E9EA;" value="←" vertex="1">
+          <mxGeometry x="56" y="120" width="40" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="mm-title" parent="1" style="text;html=1;align=left;verticalAlign=middle;fontSize=23;fontStyle=1;fontColor=#E7E9EA;" value="Nave industrial" vertex="1">
+          <mxGeometry x="108" y="120" width="276" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- Barra de visualizaciones (con salto de línea) -->
+        <mxCell id="mm-views-label" parent="1" style="text;html=1;align=left;verticalAlign=middle;fontSize=13;fontStyle=1;fontColor=#71767B;" value="VISUALIZACIONES" vertex="1">
+          <mxGeometry x="56" y="172" width="200" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="mm-chip-1" parent="1" style="rounded=1;arcSize=50;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=none;fontSize=13;fontStyle=1;fontColor=#000000;" value="◉&amp;nbsp;&amp;nbsp;Planta" vertex="1">
+          <mxGeometry x="56" y="196" width="96" height="32" as="geometry" />
+        </mxCell>
+        <mxCell id="mm-chip-2" parent="1" style="rounded=1;arcSize=50;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=none;fontSize=13;fontStyle=1;fontColor=#000000;" value="◉&amp;nbsp;&amp;nbsp;Alzado" vertex="1">
+          <mxGeometry x="160" y="196" width="96" height="32" as="geometry" />
+        </mxCell>
+        <mxCell id="mm-chip-3" parent="1" style="rounded=1;arcSize=50;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=none;fontSize=13;fontStyle=1;fontColor=#000000;" value="◉&amp;nbsp;&amp;nbsp;Térmico" vertex="1">
+          <mxGeometry x="264" y="196" width="104" height="32" as="geometry" />
+        </mxCell>
+        <mxCell id="mm-chip-4" parent="1" style="rounded=1;arcSize=50;whiteSpace=wrap;html=1;fillColor=#000000;strokeColor=#2F3336;fontSize=13;fontColor=#71767B;" value="○&amp;nbsp;&amp;nbsp;Sección" vertex="1">
+          <mxGeometry x="56" y="236" width="104" height="32" as="geometry" />
+        </mxCell>
+
+        <!-- Panel: Planta -->
+        <mxCell id="mm-p1" parent="1" style="rounded=1;arcSize=16;absoluteArcSize=1;whiteSpace=wrap;html=1;fillColor=#16181C;strokeColor=#2F3336;" value="" vertex="1">
+          <mxGeometry x="56" y="284" width="328" height="212" as="geometry" />
+        </mxCell>
+        <mxCell id="mm-p1-title" parent="1" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=4;fontSize=14;fontStyle=1;fontColor=#E7E9EA;" value="Planta" vertex="1">
+          <mxGeometry x="68" y="292" width="248" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="mm-p1-close" parent="1" style="text;html=1;align=center;verticalAlign=middle;fontSize=14;fontColor=#71767B;" value="✕" vertex="1">
+          <mxGeometry x="340" y="292" width="32" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="mm-p1-body" parent="1" style="rounded=1;arcSize=4;absoluteArcSize=1;whiteSpace=wrap;html=1;fillColor=#1D1F23;strokeColor=none;fontSize=13;fontColor=#71767B;" value="Vista en planta" vertex="1">
+          <mxGeometry x="68" y="328" width="304" height="156" as="geometry" />
+        </mxCell>
+
+        <!-- Panel: Alzado -->
+        <mxCell id="mm-p2" parent="1" style="rounded=1;arcSize=16;absoluteArcSize=1;whiteSpace=wrap;html=1;fillColor=#16181C;strokeColor=#2F3336;" value="" vertex="1">
+          <mxGeometry x="56" y="508" width="328" height="212" as="geometry" />
+        </mxCell>
+        <mxCell id="mm-p2-title" parent="1" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=4;fontSize=14;fontStyle=1;fontColor=#E7E9EA;" value="Alzado" vertex="1">
+          <mxGeometry x="68" y="516" width="248" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="mm-p2-close" parent="1" style="text;html=1;align=center;verticalAlign=middle;fontSize=14;fontColor=#71767B;" value="✕" vertex="1">
+          <mxGeometry x="340" y="516" width="32" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="mm-p2-body" parent="1" style="rounded=1;arcSize=4;absoluteArcSize=1;whiteSpace=wrap;html=1;fillColor=#1D1F23;strokeColor=none;fontSize=13;fontColor=#71767B;" value="Vista de alzado" vertex="1">
+          <mxGeometry x="68" y="552" width="304" height="156" as="geometry" />
+        </mxCell>
+        <mxCell id="mm-more" parent="1" style="text;html=1;align=center;verticalAlign=middle;fontSize=13;fontColor=#71767B;" value="↓ Térmico" vertex="1">
+          <mxGeometry x="56" y="728" width="328" height="24" as="geometry" />
+        </mxCell>
+
+        <!-- Nota -->
+        <mxCell id="mm-notes" parent="1" style="shape=note;size=16;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=12;fontSize=13;fillColor=#16181C;strokeColor=#2F3336;fontColor=#E7E9EA;" value="&lt;b&gt;Home: modelo abierto (móvil)&lt;/b&gt;&lt;br&gt;&lt;br&gt;Mismas reglas que en escritorio: todas las visualizaciones empiezan visibles, la etiqueta alterna (◉ / ○) y la ✕ del panel la oculta. ← vuelve al catálogo.&lt;br&gt;&lt;br&gt;&lt;b&gt;Barra de visualizaciones&lt;/b&gt;: las etiquetas pasan a la línea siguiente si no caben (flex wrap).&lt;br&gt;&lt;br&gt;&lt;b&gt;Paneles apilados&lt;/b&gt;: uno bajo otro, a ancho completo y con una altura mínima. La pantalla se desplaza en vertical para ver los siguientes (aquí, Térmico). Desde 768 px se vuelven a repartir el espacio en columnas.&lt;br&gt;&lt;br&gt;&lt;i&gt;La ✕ y las etiquetas miden al menos 32 px de alto; el área táctil es de 48 px.&lt;/i&gt;" vertex="1">
+          <mxGeometry x="440" y="40" width="320" height="380" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+
+  <diagram name="Home - Una visualización (móvil)" id="home-una-vista-movil">
+    <mxGraphModel background="#000000" dx="1704" dy="946" grid="1" gridSize="4" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="900" pageHeight="827" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- Marco del móvil y barra superior -->
+        <mxCell id="vm-frame" parent="1" style="rounded=1;arcSize=24;absoluteArcSize=1;whiteSpace=wrap;html=1;fillColor=#000000;strokeColor=#2F3336;strokeWidth=2;" value="" vertex="1">
+          <mxGeometry x="40" y="40" width="360" height="720" as="geometry" />
+        </mxCell>
+        <mxCell id="vm-menu" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#2F3336;fontSize=18;fontColor=#E7E9EA;" value="☰" vertex="1">
+          <mxGeometry x="56" y="56" width="40" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="vm-logo" parent="1" style="text;html=1;align=left;verticalAlign=middle;fontSize=22;fontStyle=1;fontColor=#FFFFFF;" value="Cliso" vertex="1">
+          <mxGeometry x="108" y="56" width="160" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="vm-line" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#2F3336;strokeColor=none;" value="" vertex="1">
+          <mxGeometry x="41" y="108" width="358" height="1" as="geometry" />
+        </mxCell>
+
+        <!-- Cabecera del modelo -->
+        <mxCell id="vm-back" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#2F3336;fontSize=18;fontColor=#E7E9EA;" value="←" vertex="1">
+          <mxGeometry x="56" y="120" width="40" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="vm-title" parent="1" style="text;html=1;align=left;verticalAlign=middle;fontSize=23;fontStyle=1;fontColor=#E7E9EA;" value="Nave industrial" vertex="1">
+          <mxGeometry x="108" y="120" width="276" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- Barra de visualizaciones: solo Planta activa -->
+        <mxCell id="vm-views-label" parent="1" style="text;html=1;align=left;verticalAlign=middle;fontSize=13;fontStyle=1;fontColor=#71767B;" value="VISUALIZACIONES" vertex="1">
+          <mxGeometry x="56" y="172" width="200" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="vm-chip-1" parent="1" style="rounded=1;arcSize=50;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=none;fontSize=13;fontStyle=1;fontColor=#000000;" value="◉&amp;nbsp;&amp;nbsp;Planta" vertex="1">
+          <mxGeometry x="56" y="196" width="96" height="32" as="geometry" />
+        </mxCell>
+        <mxCell id="vm-chip-2" parent="1" style="rounded=1;arcSize=50;whiteSpace=wrap;html=1;fillColor=#000000;strokeColor=#2F3336;fontSize=13;fontColor=#71767B;" value="○&amp;nbsp;&amp;nbsp;Alzado" vertex="1">
+          <mxGeometry x="160" y="196" width="96" height="32" as="geometry" />
+        </mxCell>
+        <mxCell id="vm-chip-3" parent="1" style="rounded=1;arcSize=50;whiteSpace=wrap;html=1;fillColor=#000000;strokeColor=#2F3336;fontSize=13;fontColor=#71767B;" value="○&amp;nbsp;&amp;nbsp;Térmico" vertex="1">
+          <mxGeometry x="264" y="196" width="104" height="32" as="geometry" />
+        </mxCell>
+        <mxCell id="vm-chip-4" parent="1" style="rounded=1;arcSize=50;whiteSpace=wrap;html=1;fillColor=#000000;strokeColor=#2F3336;fontSize=13;fontColor=#71767B;" value="○&amp;nbsp;&amp;nbsp;Sección" vertex="1">
+          <mxGeometry x="56" y="236" width="104" height="32" as="geometry" />
+        </mxCell>
+
+        <!-- Panel único, a todo el espacio -->
+        <mxCell id="vm-p1" parent="1" style="rounded=1;arcSize=16;absoluteArcSize=1;whiteSpace=wrap;html=1;fillColor=#16181C;strokeColor=#2F3336;" value="" vertex="1">
+          <mxGeometry x="56" y="284" width="328" height="460" as="geometry" />
+        </mxCell>
+        <mxCell id="vm-p1-title" parent="1" style="text;html=1;align=left;verticalAlign=middle;spacingLeft=4;fontSize=14;fontStyle=1;fontColor=#E7E9EA;" value="Planta" vertex="1">
+          <mxGeometry x="68" y="292" width="248" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="vm-p1-close" parent="1" style="text;html=1;align=center;verticalAlign=middle;fontSize=14;fontColor=#71767B;" value="✕" vertex="1">
+          <mxGeometry x="340" y="292" width="32" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="vm-p1-body" parent="1" style="rounded=1;arcSize=2;absoluteArcSize=1;whiteSpace=wrap;html=1;fillColor=#1D1F23;strokeColor=none;fontSize=13;fontColor=#71767B;" value="Vista en planta" vertex="1">
+          <mxGeometry x="68" y="328" width="304" height="404" as="geometry" />
+        </mxCell>
+
+        <!-- Nota -->
+        <mxCell id="vm-notes" parent="1" style="shape=note;size=16;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacingLeft=12;spacing=12;fontSize=13;fillColor=#16181C;strokeColor=#2F3336;fontColor=#E7E9EA;" value="&lt;b&gt;Home: una visualización (móvil)&lt;/b&gt;&lt;br&gt;&lt;br&gt;Misma pantalla que «Modelo abierto (móvil)» con solo una etiqueta encendida: el panel ocupa todo el ancho y el alto restante.&lt;br&gt;&lt;br&gt;Las demás visualizaciones siguen en la barra, apagadas: un clic en una la añade, y el panel pasa a apilarse con las demás.&lt;br&gt;&lt;br&gt;Se llega desde una etiqueta del catálogo o desde un resultado de visualización del buscador." vertex="1">
+          <mxGeometry x="440" y="40" width="320" height="320" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
 </mxfile>

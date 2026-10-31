@@ -67,4 +67,96 @@
       </root>
     </mxGraphModel>
   </diagram>
+  <diagram name="Barra de herramientas (móvil)" id="toolbar-movil">
+    <mxGraphModel background="#000000" dx="1704" dy="946" grid="1" gridSize="4" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1300" pageHeight="827" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- Móvil A: menú cerrado -->
+        <mxCell id="a-label" parent="1" style="text;html=1;align=left;verticalAlign=middle;fontSize=13;fontStyle=1;fontColor=#71767B;" value="MENÚ CERRADO (&lt; 768 px)" vertex="1">
+          <mxGeometry x="40" y="12" width="360" height="24" as="geometry" />
+        </mxCell>
+        <mxCell id="a-frame" parent="1" style="rounded=1;arcSize=24;absoluteArcSize=1;whiteSpace=wrap;html=1;fillColor=#000000;strokeColor=#2F3336;strokeWidth=2;" value="" vertex="1">
+          <mxGeometry x="40" y="40" width="360" height="720" as="geometry" />
+        </mxCell>
+        <mxCell id="a-menu" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#2F3336;fontSize=18;fontColor=#E7E9EA;" value="☰" vertex="1">
+          <mxGeometry x="56" y="56" width="40" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="a-logo" parent="1" style="text;html=1;align=left;verticalAlign=middle;fontSize=22;fontStyle=1;fontColor=#FFFFFF;" value="Cliso" vertex="1">
+          <mxGeometry x="108" y="56" width="160" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="a-line" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#2F3336;strokeColor=none;" value="" vertex="1">
+          <mxGeometry x="41" y="108" width="358" height="1" as="geometry" />
+        </mxCell>
+        <mxCell id="a-content" parent="1" style="rounded=1;arcSize=16;absoluteArcSize=1;whiteSpace=wrap;html=1;fillColor=#16181C;strokeColor=#2F3336;fontSize=13;fontColor=#71767B;" value="Contenido de la pantalla" vertex="1">
+          <mxGeometry x="56" y="124" width="328" height="612" as="geometry" />
+        </mxCell>
+
+        <!-- Móvil B: menú abierto con Edición desplegada -->
+        <mxCell id="b-label" parent="1" style="text;html=1;align=left;verticalAlign=middle;fontSize=13;fontStyle=1;fontColor=#71767B;" value="MENÚ ABIERTO, EDICIÓN DESPLEGADA" vertex="1">
+          <mxGeometry x="440" y="12" width="360" height="24" as="geometry" />
+        </mxCell>
+        <mxCell id="b-frame" parent="1" style="rounded=1;arcSize=24;absoluteArcSize=1;whiteSpace=wrap;html=1;fillColor=#000000;strokeColor=#2F3336;strokeWidth=2;" value="" vertex="1">
+          <mxGeometry x="440" y="40" width="360" height="720" as="geometry" />
+        </mxCell>
+        <mxCell id="b-menu" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#1D1F23;strokeColor=#FFFFFF;strokeWidth=2;fontSize=18;fontColor=#E7E9EA;" value="✕" vertex="1">
+          <mxGeometry x="456" y="56" width="40" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="b-logo" parent="1" style="text;html=1;align=left;verticalAlign=middle;fontSize=22;fontStyle=1;fontColor=#FFFFFF;" value="Cliso" vertex="1">
+          <mxGeometry x="508" y="56" width="160" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="b-line" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#2F3336;strokeColor=none;" value="" vertex="1">
+          <mxGeometry x="441" y="108" width="358" height="1" as="geometry" />
+        </mxCell>
+        <mxCell id="b-panel" parent="1" style="rounded=1;arcSize=16;absoluteArcSize=1;whiteSpace=wrap;html=1;fillColor=#16181C;strokeColor=#2F3336;" value="" vertex="1">
+          <mxGeometry x="456" y="120" width="328" height="416" as="geometry" />
+        </mxCell>
+        <mxCell id="b-home" parent="1" style="rounded=1;arcSize=50;whiteSpace=wrap;html=1;fillColor=#1D1F23;strokeColor=none;align=left;spacingLeft=16;fontSize=16;fontStyle=1;fontColor=#E7E9EA;" value="⌂&amp;nbsp;&amp;nbsp;&amp;nbsp;Inicio" vertex="1">
+          <mxGeometry x="464" y="128" width="312" height="48" as="geometry" />
+        </mxCell>
+        <mxCell id="b-edit" parent="1" style="rounded=1;arcSize=50;whiteSpace=wrap;html=1;fillColor=none;strokeColor=none;align=left;spacingLeft=16;fontSize=16;fontStyle=1;fontColor=#E7E9EA;" value="✎&amp;nbsp;&amp;nbsp;&amp;nbsp;Edición" vertex="1">
+          <mxGeometry x="464" y="180" width="312" height="48" as="geometry" />
+        </mxCell>
+        <mxCell id="b-edit-chevron" parent="1" style="text;html=1;align=center;verticalAlign=middle;fontSize=18;fontColor=#71767B;" value="⌄" vertex="1">
+          <mxGeometry x="740" y="192" width="24" height="24" as="geometry" />
+        </mxCell>
+        <mxCell id="b-sub-models" parent="1" style="rounded=1;arcSize=50;whiteSpace=wrap;html=1;fillColor=none;strokeColor=none;align=left;spacingLeft=52;fontSize=15;fontColor=#E7E9EA;" value="Modelos" vertex="1">
+          <mxGeometry x="464" y="232" width="312" height="44" as="geometry" />
+        </mxCell>
+        <mxCell id="b-sub-views" parent="1" style="rounded=1;arcSize=50;whiteSpace=wrap;html=1;fillColor=none;strokeColor=none;align=left;spacingLeft=52;fontSize=15;fontColor=#E7E9EA;" value="Visualizaciones" vertex="1">
+          <mxGeometry x="464" y="280" width="312" height="44" as="geometry" />
+        </mxCell>
+        <mxCell id="b-sub-users" parent="1" style="rounded=1;arcSize=50;whiteSpace=wrap;html=1;fillColor=none;strokeColor=none;align=left;spacingLeft=52;fontSize=15;fontColor=#E7E9EA;" value="Usuarios" vertex="1">
+          <mxGeometry x="464" y="328" width="312" height="44" as="geometry" />
+        </mxCell>
+        <mxCell id="b-settings" parent="1" style="rounded=1;arcSize=50;whiteSpace=wrap;html=1;fillColor=none;strokeColor=none;align=left;spacingLeft=16;fontSize=16;fontColor=#E7E9EA;" value="⚙&amp;nbsp;&amp;nbsp;&amp;nbsp;Configuración" vertex="1">
+          <mxGeometry x="464" y="376" width="312" height="48" as="geometry" />
+        </mxCell>
+        <mxCell id="b-sep" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#2F3336;strokeColor=none;" value="" vertex="1">
+          <mxGeometry x="456" y="432" width="328" height="1" as="geometry" />
+        </mxCell>
+        <mxCell id="b-user-avatar" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=none;fontColor=#000000;fontSize=16;fontStyle=1;" value="U" vertex="1">
+          <mxGeometry x="472" y="444" width="40" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="b-user-name" parent="1" style="text;html=1;align=left;verticalAlign=middle;fontSize=15;fontStyle=1;fontColor=#E7E9EA;" value="Nombre usuario" vertex="1">
+          <mxGeometry x="524" y="444" width="200" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="b-user-handle" parent="1" style="text;html=1;align=left;verticalAlign=middle;fontSize=14;fontColor=#71767B;" value="@usuario" vertex="1">
+          <mxGeometry x="524" y="464" width="200" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="b-logout" parent="1" style="rounded=1;arcSize=50;whiteSpace=wrap;html=1;fillColor=none;strokeColor=none;align=left;spacingLeft=52;fontSize=15;fontColor=#E7E9EA;" value="Cerrar sesión" vertex="1">
+          <mxGeometry x="464" y="488" width="312" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="b-content" parent="1" style="rounded=1;arcSize=16;absoluteArcSize=1;whiteSpace=wrap;html=1;fillColor=#000000;strokeColor=#2F3336;dashed=1;fontSize=13;fontColor=#71767B;" value="Contenido de la pantalla (cubierto por el menú)" vertex="1">
+          <mxGeometry x="456" y="548" width="328" height="196" as="geometry" />
+        </mxCell>
+
+        <!-- Nota -->
+        <mxCell id="notes" parent="1" style="shape=note;size=16;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=12;fontSize=13;fillColor=#16181C;strokeColor=#2F3336;fontColor=#E7E9EA;" value="&lt;b&gt;Comportamiento (móvil, &amp;lt; 768 px)&lt;/b&gt;&lt;br&gt;&lt;br&gt;La barra lateral pasa a ser una &lt;b&gt;barra superior&lt;/b&gt; (mat-toolbar) con el botón ☰ y el logo. ☰ despliega un menú (mat-menu) con el mismo contenido que la barra lateral; ✕ (o clic fuera) lo cierra.&lt;br&gt;&lt;br&gt;&lt;b&gt;Edición&lt;/b&gt; no abre un panel a la derecha: se expande dentro del menú (acordeón) con Modelos, Visualizaciones y Usuarios, y su flecha ⌄ pasa a ⌃. Cada opción abre su editor a pantalla completa.&lt;br&gt;&lt;br&gt;&lt;b&gt;Usuario&lt;/b&gt; (al final del menú): nombre y «Cerrar sesión» a continuación.&lt;br&gt;&lt;br&gt;&lt;i&gt;El fondo gris marca la opción activa. Las opciones miden 48 px de alto como mínimo (objetivo táctil).&lt;/i&gt;" vertex="1">
+          <mxGeometry x="840" y="40" width="340" height="400" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
 </mxfile>

@@ -89,18 +89,24 @@ Como mínimo, la versión entregada incluye:
 
 ```
 Proyecto/
+├── .ai/           # Directrices de trabajo con el asistente (comunes, back, front y académicas)
+├── .claude/       # Skills y panel de progreso del asistente (/cliso-progreso)
 ├── Cliso.API/     # API REST (FastAPI)
 │   ├── app/       # Código de la aplicación (ver "Arquitectura hexagonal del back")
-│   └── test/      # Tests
+│   └── settings.json  # Parámetros de arranque (ver "Configuración y modo demo")
 ├── Cliso.UI/      # Front web (Angular)
 │   └── src/
+│       ├── app/          # core/ (arranque), modules/ (una carpeta por pantalla) y shared/ (lo común)
+│       ├── resources/    # img/icons (iconos SVG) y languages (textos multidioma)
 │       ├── styles.scss   # Estilos globales (importa src/styles/)
-│       └── styles/       # Tokens de diseño, base y clases provisionales
+│       └── styles/       # Tokens de diseño, rejilla, tema de Material, base y clases provisionales
 ├── Documentation/ # Documentación del proyecto
 │   ├── Database/  # Diseño de la base de datos: diagrama UML .drawio
 │   └── UI/        # Diseño de la interfaz: guía de estilo y diagramas .drawio
 └── README.md
 ```
+
+Todavía no hay carpeta de tests (ni en el back ni en el front, más allá del test que genera Angular).
 
 La memoria del proyecto (formato `.odt`) se encuentra en la carpeta `Documentation`.
 
@@ -111,25 +117,63 @@ La guía completa está en [`Documentation/UI/[Diseño] Cliso.UI - Guía de esti
 - **Estilo inspirado en X:** fondo negro, texto blanco y grises; el blanco es el único acento y los colores solo se
   usan para estados (error, éxito). Bordes finos en lugar de sombras, botones y campos en píldora.
 - **Solo tema oscuro.** Tipografía del sistema, tamaño base de 15 px.
-- **Angular Material** será la librería de componentes (aún no instalada). Se adaptará al estilo anterior
-  mediante los tokens `--mat-sys-*`, sin elevaciones, con densidad compacta en el editor.
+- **Mobile-first y rejilla de Bootstrap** (solo las columnas, `Cliso.UI/src/styles/_grid.scss`): se diseña primero
+  para móvil y todo es redimensionable.
+- **Angular Material** es la librería de componentes. Se adapta al estilo anterior mediante los tokens
+  `--mat-sys-*` (tema en `Cliso.UI/src/styles/_material.scss`), sin elevaciones, con densidad compacta en el editor.
+  Los iconos son SVG propios (trazo, 24×24) en `Cliso.UI/src/resources/img/icons/`, sin librería de iconos. Los textos multidioma (gallego, castellano e inglés)
+  viven en `Cliso.UI/src/resources/languages/` y los gestiona `LanguageManager`.
+- **Estructura del código del front** (`Cliso.UI/src`): `app/core` (arranque y guard de rutas), `app/modules` (una
+  carpeta por pantalla), `app/shared` (lo común: definiciones, modelos, servicios, utilidades), `resources` (imágenes
+  y textos multidioma) y `styles`. Las llamadas al API pasan por `DataAccessService` y se esperan con
+  `RequestUtils.AwaitRequest`. Las normas
+  de código (nombres, regiones, control de flujo, comentarios, HTML y CSS) están en `.ai/directrices-front.md`. El
+  formato lo fija Prettier (tabuladores, 130 columnas) y `npm run lint` pasa ESLint sobre `src`.
 - **Tokens de diseño** (colores, espaciado, formas) como propiedades CSS en `Cliso.UI/src/styles/_variables.scss`;
   los componentes los leen con `var(--color-...)` y no llevan valores sueltos.
 - El diseño de pantallas está en los diagramas `.drawio` de `Documentation/UI/` (barra de herramientas, editor y home).
+  Cada uno incluye páginas «(móvil)» de ≈ 360 px que sirven de referencia de responsividad: la barra lateral pasa a
+  barra superior con menú desplegable, el Home muestra las fichas en una columna con los paneles apilados, y los
+  editores ocupan la pantalla completa con lista y detalle en dos pasos.
+
+### Estado del front
+
+Implementado hasta ahora (`Cliso.UI/src/app`):
+
+- **Shell y navegación:** la aplicación arranca en `/home`, con la barra lateral (botón de inicio y usuario actual
+  abajo; en móvil, barra superior con menú desplegable) y el buscador de modelos y visualizaciones a la derecha, aún
+  sin lógica. Rutas en `app.routes.ts` (`AppRoute`); las pantallas protegidas llevan `AuthGuard`, que por ahora deja
+  pasar siempre.
+- **Arranque** (`AppBootstrapUtils`): fija el idioma con el parámetro de la aplicación y establece un usuario por
+  defecto, porque aún no hay inicio de sesión. Pendiente: ejecutarlo tras el login y recuperar del API los
+  parámetros, los modelos y las visualizaciones.
+- **Parámetros de la aplicación** (`ApplicationSettingsManager`): guarda un parámetro por cada valor de
+  `ApplicationSettingsParameter` (`LANGUAGE`, `BIM_MODELS_DIRECTORY`), con valores por defecto hasta que se
+  recuperen del API. Sus nombres, descripciones y observaciones están en los textos multidioma (`AS_*`).
+- **Acceso al API:** `DataAccessService` (solo `HttpClient` y la URL base, `Environment.API_URL`; todavía sin
+  endpoints), `RequestUtils.AwaitRequest` y `HttpRequestCanceller`.
+- **Textos multidioma:** gallego, castellano e inglés (`LanguageGl`, `LanguageEs`, `LanguageEn`), con `LanguageManager`.
+- **Pendiente** (según los diagramas): login, editores de modelos, visualizaciones y usuarios, panel de Edición y
+  Configuración, catálogo de modelos en el Home y visor 3D.
 
 ## Clases: objetos de dominio y DTO
 
-Cada concepto (`BIMModel`, `User`, `Visualization`) tiene dos clases:
+Cada concepto (`BIMModel`, `User`, `Visualization`, `ApplicationParameter`) tiene dos clases:
 
 | Clase | Ubicación | Qué es |
 |---|---|---|
 | **Objeto de dominio** (dataclass) | `app/domain/models/` | Representa una fila de la base de datos dentro de la aplicación. Lo usan los casos de uso y lo devuelven los repositorios. |
-| **DTO** (Pydantic) | `app/adapters/inbound/rest/dtos/` | Lo que entra y sale por la API (`BIMModelDto`, `VisualizationDto`), sin campos internos. El de usuario se retiró con su servicio. |
+| **DTO** (Pydantic) | `app/adapters/inbound/rest/dtos/` | Lo que entra y sale por la API (`BIMModelDto`, `VisualizationDto`, `ApplicationParameterDto`, `ApplicationParametersDto`), sin campos internos. El de usuario se retiró con su servicio. |
 | **Mapper** (clase estática) | `app/adapters/inbound/rest/mappers/` | Convierte, campo a campo y de forma explícita, entre dominio y DTO (`to_dto`, `to_domain`). Sin conversión automática. |
 
-Se accede a la base de datos con **SQL escrito a mano** (módulo `sqlite3` de la librería estándar), sin ORM: el
-esquema está en `app/adapters/outbound/persistence/database_adapter/sqlite/sqlite_schema.sql` (SQLite) y `.../mysql/mysql_schema.sql` (MySQL) y cada repositorio escribirá sus consultas y convertirá las filas en objetos
-de dominio.
+Además, un **wrapper** (`app/domain/wrappers/`) es un objeto de dominio con datos extra calculados al consultarlo:
+`BIMModelWrapper` extiende `BIMModel` con `file_size`, el tamaño en bytes del fichero IFC guardado (0 si aún no
+tiene). El servicio de modelos BIM devuelve wrappers y `BIMModelDto` expone `file_size`.
+
+Se accede a la base de datos con **SQL escrito a mano** (módulo `sqlite3` de la librería estándar y `PyMySQL`), sin
+ORM: el esquema está en `app/adapters/outbound/persistence/sqlite/sqlite_schema.sql` (SQLite) y
+`.../mysql/mysql_schema.sql` (MySQL) y cada repositorio escribe sus consultas y convierte las filas en objetos de
+dominio.
 
 El código se comprueba con `pyright` en modo estricto (`pyrightconfig.json`): `python -m pyright` desde `Cliso.API`.
 
@@ -171,6 +215,14 @@ Se describen a continuación los objetos de dominio.
 | `is_public` | `bool` | Si es `True`, otros usuarios pueden verla pero no modificarla. |
 | `active` | `bool` | `True` activa, `False` borrada (borrado lógico). |
 
+### `ApplicationParameter` (implementado: `Cliso.API/app/domain/models/application_parameter.py`)
+
+| Campo | Tipo | Descripción |
+|---|---|---|
+| `type` | `ApplicationParameterType` | Enumerado que identifica el parámetro (`LANGUAGE`, `BIM_MODELS_DIRECTORY`). |
+| `default_value` | `str` | Valor con el que se creó el parámetro. |
+| `value` | `str` | Valor actual (en la tabla, `current_value`). |
+
 > Los `id` son `int` en Python (sin límite de tamaño); el tipo `long` (64 bits, `BIGINT`) se aplicará en la
 > base de datos. La unicidad de `nick` se garantizará en base de datos y en los casos de uso.
 
@@ -188,10 +240,11 @@ El diagrama UML está en [`Documentation/Database/[Diseño] Cliso.API - Base de 
 marca en cursiva gris las columnas que admiten `NULL`.
 
 > Es el **diseño objetivo**. Los esquemas SQL y los objetos de dominio descritos arriba todavía no lo reflejan por
-> completo. Diferencias pendientes de implementar: `visualization.owner_id` y `model_id` pasan a
+> completo. La tabla `application_parameter` ya está implementada (esquema, repositorios y servicio). Diferencias
+> pendientes de implementar: `visualization.owner_id` y `model_id` pasan a
 > `user_id` y `bim_model_id`; `user` gana `role_id` y `update_date`; `bim_model` gana `observations`,
-> `stored_file_name` y `update_date`; `visualization` gana `creation_date` y `update_date`; y las tablas `role`,
-> `visualization_piece` y `application_parameter` son nuevas.
+> `stored_file_name` y `update_date`; `visualization` gana `creation_date` y `update_date`; y las tablas `role` y
+> `visualization_piece` son nuevas.
 
 | Tabla | Qué guarda |
 |---|---|
@@ -218,21 +271,24 @@ Decisiones de diseño (para la memoria):
 - `bim_model.file_name` es el nombre original del fichero (el que verá el usuario) y `stored_file_name` el nombre
   aleatorio único con el que se guarda en disco, para evitar colisiones y rutas adivinables.
 - `visualization_piece.content` es un JSON cuya clase base indica el tipo de pieza; el tipo no es una columna.
-- `application_parameter` guarda `default_value` y `current_value` como texto, sin tipo: la aplicación los parsea
-  según el parámetro. Los parámetros de arranque (`is_demo`, `database_provider`, MySQL) siguen en `settings.json`
-  porque deciden qué base de datos se abre.
+- `application_parameter` guarda `type` (único), `default_value` y `current_value` como texto, sin tipo: la
+  aplicación los parsea según el parámetro. No guarda nombres ni descripciones: los pone el front, en cada idioma
+  (textos `AS_*`). Los parámetros de arranque (`is_demo`, `database_provider`, MySQL...) siguen en `settings.json`
+  porque deciden qué base de datos se abre; todo lo demás va a la tabla.
 - **Las sesiones no se guardan en base de datos:** viven en memoria de la API, en un gestor. Si la API se reinicia,
   todos los usuarios se desconectan; tampoco funcionaría con varios procesos (`--workers`), porque cada uno tendría
   su propia memoria. El tiempo de caducidad sale de `application_parameter`.
 - La tabla `role` cubre el criterio académico de perfiles o roles de usuario.
 
-Parámetros iniciales de `application_parameter` (los que carga la autoinstalación):
+Parámetros iniciales de `application_parameter` (los que carga la autoinstalación, en `sqlite_basic_data.sql` y
+`mysql_basic_data.sql`):
 
-| Parámetro | Qué es | Valor por defecto |
+| Parámetro (`type`) | Qué es | Valor por defecto |
 |---|---|---|
-| `language` | Idioma de la aplicación, con código internacional (por ejemplo, `es-ES`). | `en-US` (inglés) |
-| `session_timeout_ms` | Tiempo de inactividad, en milisegundos, tras el cual caduca una sesión. | `1800000` (30 minutos) |
-| `models_path` | Ruta, relativa o absoluta, de la carpeta donde se guardan los ficheros `.ifc` de los modelos BIM. Si es relativa, lo es a `Cliso.API`, como `data/` y `logs/`. | `models` |
+| `LANGUAGE` | Idioma de la aplicación, con código internacional (por ejemplo, `es-ES`). | `es-ES` |
+| `BIM_MODELS_DIRECTORY` | Ruta, relativa o absoluta, de la carpeta donde se guardan los ficheros `.ifc` de los modelos BIM. Si es relativa, lo es a `Cliso.API`, como `data/` y `logs/`. | `data/models` |
+
+Pendiente de añadir cuando haya sesiones: el tiempo de inactividad tras el que caduca una sesión.
 
 ## Arquitectura hexagonal del back
 
@@ -242,36 +298,35 @@ tecnología, y todo lo externo (HTTP, bases de datos) se conecta a él mediante 
 ```
 Cliso.API/app/
 ├── main.py                       # Raíz de composición: elige los adaptadores y los conecta
-├── config/                       # Settings, SettingsManager (estático, lee el JSON) y SettingsMapper (parámetros públicos)
-├── logger/                       # Logger estático: escribe en fichero (info, warning, error)
+├── config/                       # StartupParameters (parámetros de arranque), StartupParametersManager (estático, lee el JSON) y DatabaseProvider
+├── logger.py                     # Logger estático: escribe en fichero (info, warning, error)
+├── utils/                        # PathUtils (rutas) y FileUtils (carpetas y ficheros), estáticas
 ├── initializer/                  # DatabaseInitializer (prepara la base de datos al arrancar) y DemoData (datos demo como objetos de dominio)
 │
 ├── domain/                       # NÚCLEO: conceptos del negocio, sin dependencias externas
-│   └── models/                   #   BIMModel, User, Visualization, ApplicationSetting (dataclasses) y su enumerado de parámetros
+│   ├── models/                   #   BIMModel, User, Visualization, ApplicationParameter (dataclasses) y el enumerado ApplicationParameterType
+│   └── wrappers/                 #   Objetos de dominio con datos calculados (BIMModelWrapper)
 │
 ├── application/                  # NÚCLEO: casos de uso y puertos
 │   ├── ports/
-│   │   ├── inbound/              #   Puertos de entrada: lo que se puede pedir a la aplicación (BIMModelServiceBase...)
-│   │   └── outbound/             #   Puertos de salida: lo que la aplicación necesita (bim_model_repository/BIMModelRepositoryBase, bim_model_file_storage/BIMModelFileStorageBase...)
-│   ├── use_cases/                #   Casos de uso (BIMModelService, SettingsService)
-│   └── exceptions/               #   Excepciones del contrato de los puertos (PersistenceError, FileStorageError, BIMModelNotFoundError...)
+│   │   ├── inbound/              #   Puertos de entrada: lo que se puede pedir a la aplicación (BIMModelServiceBase, ApplicationParameterServiceBase)
+│   │   └── outbound/             #   Puertos de salida: lo que la aplicación necesita (BIMModelRepositoryBase, BIMModelFileStorageBase, ApplicationParameterRepositoryBase)
+│   ├── use_cases/                #   Casos de uso (BIMModelService, ApplicationParameterService)
+│   └── exceptions/               #   Excepciones del contrato de los puertos (PersistenceError, FileStorageError, BIMModelNotFoundError, ApplicationParameterNotFoundError...)
 │
 └── adapters/                     # EXTERIOR: conectan el núcleo con el mundo
-    ├── inbound/rest/             #   Adaptador de entrada: routers FastAPI (BIMModelRouter.create(service)...), dtos/ y mappers/
+    ├── inbound/rest/             #   Adaptador de entrada: routers FastAPI (BIMModelRouter.create(service)...), ExceptionHandlers, dtos/ y mappers/
     └── outbound/                 #   Adaptadores de salida
-        ├── storage/              #     Ficheros: bim_model_file_storage/ (local/: carpeta del disco)
+        ├── storage/              #     Ficheros: LocalBIMModelFileStorage (carpeta del disco)
         └── persistence/          #     Base de datos
-            ├── database_adapter/     #       DatabaseAdapterBase (raíz) + sqlite/ (SQLite) y mysql/ (MySQL)
-            ├── database_row/         #       DatabaseRowBase (una fila, leída por nombre de columna)
-            ├── database_cursor/      #       DatabaseCursorBase (ejecutar y leer filas)
-            ├── database_connection/  #       DatabaseConnectionBase
-            ├── database_connection_provider/ # DatabaseConnectionProviderBase (entrega conexiones)
-            ├── bim_model_repository/ #       Repositorio de modelos BIM: sqlite/ (SQLite) y mysql/ (MySQL)
+            ├── database_*_base.py    #       Contratos: DatabaseAdapterBase (raíz), DatabaseConnectionProviderBase, DatabaseConnectionBase, DatabaseCursorBase y DatabaseRowBase
+            ├── sqlite/               #       SQLite: SQLiteAdapter, repositorios, sqlite_schema.sql y sqlite_basic_data.sql
+            ├── mysql/                #       MySQL: MySQLAdapter, repositorios, mysql_schema.sql y mysql_basic_data.sql
             └── exceptions/           #       Errores de base de datos (DatabaseError y derivadas)
 ```
 
 Cada capa es dueña de sus excepciones: las guarda en un subdirectorio `exceptions/` de su propio namespace
-(`app/config/exceptions/` para los errores de settings), que se reexporta desde el namespace.
+(`app/config/exceptions/` para los errores de los parámetros de arranque), que se reexporta desde el namespace.
 
 Regla de dependencias: **todo apunta hacia el núcleo**. `adapters` depende de `application` y `domain`; `application`
 depende de `domain`; `domain` no importa nada de la aplicación. Nunca al revés. Los puertos son las interfaces:
@@ -283,7 +338,7 @@ Flujo típico (crear un modelo BIM): endpoint REST (`adapters/inbound`) → puer
 de dominio.
 
 Cada paquete agrupa y expone sus clases en su `__init__.py` (por ejemplo, `from app.config import
-SettingsFileError`).
+StartupParametersFileError`). Una clase por fichero y, como mucho, tres capas de paquete tras `app` en los imports.
 
 ## Puesta en marcha
 
@@ -320,16 +375,17 @@ Otros comandos: `ng build` (compilación de producción en `dist/`) y `ng test` 
 
 ## Configuración y modo demo
 
-Al arrancar, `SettingsManager.load()` lee `Cliso.API/settings.json` (o el fichero indicado en la variable de entorno
-`CLISO_SETTINGS`). Si el fichero no existe se usan los valores por defecto.
+Al arrancar, `StartupParametersManager.load()` lee `Cliso.API/settings.json` (o el fichero indicado en la variable de
+entorno `CLISO_SETTINGS`) y devuelve los `StartupParameters`. Si el fichero no existe se usan los valores por defecto;
+las claves que faltan toman su valor por defecto y las desconocidas se ignoran. Son solo los parámetros imprescindibles
+para arrancar (abrir la base de datos y escribir el log); el resto de la configuración (idioma, carpeta de los modelos
+BIM...) vive en la tabla `application_parameter`.
 
 ```json
 {
-	"language": "es-ES",
 	"is_demo": true,
 	"database_provider": "sqlite",
 	"sqlite_directory": "data",
-	"bim_models_directory": "data/models",
 	"log_file_path": "logs/cliso.log",
 	"mysql_host": "localhost",
 	"mysql_port": 3306,
@@ -341,11 +397,9 @@ Al arrancar, `SettingsManager.load()` lee `Cliso.API/settings.json` (o el ficher
 
 | Clave | Descripción | Por defecto |
 |---|---|---|
-| `language` | Idioma de arranque, con código internacional. | `es-ES` |
 | `is_demo` | `true`: se usa una base de datos demo, `cliso-demo_<fecha>` (por ejemplo, `cliso-demo_20261010`), con cualquier proveedor. `false`: la base de datos real. | `true` |
 | `database_provider` | Proveedor de base de datos: `sqlite` (un fichero local, sin servidor) o `mysql` (en un servidor). | `sqlite` |
 | `sqlite_directory` | Carpeta de los ficheros SQLite (relativa a `Cliso.API` si no es absoluta). Se crea si no existe. | `data` |
-| `bim_models_directory` | Carpeta donde se guardan los ficheros IFC de los modelos BIM (relativa a `Cliso.API` si no es absoluta). Se crea al subir el primero. | `data/models` |
 | `log_file_path` | Fichero de log (relativo a `Cliso.API` si no es absoluto). Se crea la carpeta si no existe. | `logs/cliso.log` |
 | `mysql_host`, `mysql_port`, `mysql_user`, `mysql_password`, `mysql_database` | Conexión a MySQL (solo con `database_provider` a `mysql`). | `localhost`, `3306`, vacío, vacío, `cliso` |
 
@@ -355,11 +409,10 @@ SQLite y `mysql_database` en MySQL.
 
 ### Adaptadores de base de datos
 
-Cada concepto abstracto tiene su directorio en `app/adapters/outbound/persistence/`, con el contrato (clase abstracta,
-sufijo `Base`) en la raíz y sus implementaciones en subcarpetas: `database_adapter/` (`DatabaseAdapterBase`, con
-`sqlite/` y `mysql/`), `database_connection/` (`DatabaseConnectionBase`, cuyo cursor es un `DatabaseCursorBase` que
-devuelve filas `DatabaseRowBase`, de modo que los repositorios no dependen de `sqlite3` ni de `pymysql`) y `database_connection_provider/`
-(`DatabaseConnectionProviderBase`, que solo sabe entregar conexiones con `connect()`). Los adaptadores implementan
+Los contratos (clases abstractas, sufijo `Base`) están en la raíz de `app/adapters/outbound/persistence/` y sus
+implementaciones en las subcarpetas `sqlite/` y `mysql/`: `DatabaseAdapterBase`, `DatabaseConnectionBase` (su cursor es
+un `DatabaseCursorBase` que devuelve filas `DatabaseRowBase`, de modo que los repositorios no dependen de `sqlite3` ni
+de `pymysql`) y `DatabaseConnectionProviderBase` (que solo sabe entregar conexiones con `connect()`). Los adaptadores implementan
 `DatabaseAdapterBase`, que es además un proveedor de conexiones. Los repositorios solo reciben el proveedor (lo
 mínimo que necesitan: no pueden borrar ni crear la base de datos). Cada método del repositorio es autosuficiente y
 se lee de arriba abajo: pide la conexión, ejecuta su sentencia SQL escrita a mano, cierra la conexión en un
@@ -375,7 +428,7 @@ Cada operación hace una sola cosa y, si no puede hacerla, **lanza una excepció
 | `exists()` | ¿Existe el fichero? | ¿Existe la base de datos en el servidor? |
 | `delete()` | Borra el fichero. | `DROP DATABASE` (irreversible). |
 | `create()` | Crea el fichero (y su carpeta) con las tablas vacías. | `CREATE DATABASE` y sus tablas. Si falla, borra lo creado. |
-| `load_basic_data()` | Carga los datos básicos (`sqlite_basic_data.sql`, vacío por ahora). | Carga los datos básicos (`mysql_basic_data.sql`, vacío por ahora). |
+| `load_basic_data()` | Carga los datos básicos (`sqlite_basic_data.sql`: los parámetros de la aplicación). | Carga los datos básicos (`mysql_basic_data.sql`: los parámetros de la aplicación). |
 | `connect()` | Abre una conexión `sqlite3`. | Abre una conexión `pymysql`. |
 
 Excepciones: `DatabaseNotFoundError` (la base de datos no existe), `DatabaseAlreadyExistsError` (ya existe al crearla)
@@ -384,8 +437,8 @@ inserta nada.
 
 ### Inicializador de la base de datos
 
-Al arrancar, `main.py` crea el adaptador y los repositorios según el proveedor y el modo de los settings, y llama a
-`DatabaseInitializer` (`app/initializer/`):
+Al arrancar (en el `lifespan` de `main.py`), se crea el adaptador y los repositorios según el proveedor y el modo de
+los parámetros de arranque, y se llama a `DatabaseInitializer` (`app/initializer/`):
 
 - Si la base de datos **ya existe**, no se toca (en modo demo, se reutiliza la del día).
 - Si **no existe**, la crea con sus tablas y carga siempre los datos básicos. En modo demo carga además los datos de
@@ -397,34 +450,31 @@ Al arrancar, `main.py` crea el adaptador y los repositorios según el proveedor 
 Los modelos demo no tienen fichero IFC (`file_name` vacío) hasta que se sube uno. Cualquier error de base de datos
 detiene el arranque. La carpeta `data/` (ficheros SQLite) no se versiona.
 
-La configuración pública se expone como parámetros: cada uno es un objeto de dominio `ApplicationSetting` (y un
-`ApplicationSettingParameterDto` en la API) con su identificador (enumerado `ApplicationSettingParameter`), nombre,
-descripción, observaciones y valor, pensado para poder mostrarlos en un editor de parámetros. Solo se exponen el
-idioma y si es modo demo; nunca datos sensibles como la contraseña de MySQL.
+### Parámetros de la aplicación
+
+Los parámetros de la tabla `application_parameter` los sirve `ApplicationParameterService` (puerto de entrada
+`ApplicationParameterServiceBase`) con `ApplicationParameterRepositoryBase` (`SQLiteApplicationParameterRepository` y
+`MySQLApplicationParameterRepository`). Cada parámetro es un objeto de dominio `ApplicationParameter` (y un
+`ApplicationParameterDto` en la API) con su tipo (enumerado `ApplicationParameterType`) y sus valores por defecto y
+actual. La API no envía nombres ni descripciones: los pone el front en cada idioma. Al arrancar, `main.py` lee de aquí
+el idioma y la carpeta de los modelos BIM.
 
 | Endpoint | Qué hace | Respuestas |
 |---|---|---|
-| `GET /settings` | Lista todos los parámetros públicos (`ApplicationSettingsDto`). | 200 |
-| `GET /settings/{parameter}` | Devuelve un parámetro por su identificador (`LANGUAGE`, `IS_DEMO`). | 200, 404 si no existe, 422 si el identificador no es válido |
+| `GET /application-parameters` | Lista todos los parámetros (`ApplicationParametersDto`). | 200 |
+| `GET /application-parameters/{parameter_type}` | Devuelve un parámetro por su tipo (`LANGUAGE`, `BIM_MODELS_DIRECTORY`). | 200, 404 si no existe, 422 si el tipo no es válido |
 
 ```json
 {
-	"parameter": "LANGUAGE",
-	"name": "language",
-	"description": "Idioma de arranque de la aplicación, como código internacional (por ejemplo, es-ES).",
-	"observations": "Se cambia en el fichero de settings y requiere reiniciar la API.",
+	"type": "LANGUAGE",
+	"default_value": "es-ES",
 	"value": "es-ES"
 }
 ```
 
-El servicio de configuración (`SettingsService`) no conoce `Settings`: `SettingsMapper` (`app/config/`) copia los
-parámetros públicos a objetos `ApplicationSetting` y `main.py` se los entrega al servicio. Para hacer público un
-parámetro nuevo: un valor en `ApplicationSettingParameter` y una entrada en `SettingsMapper`. Los parámetros solo se
-cambian editando el fichero de settings y reiniciando la API.
-
-> Según el [diseño de la base de datos](#diseño-de-la-base-de-datos), los parámetros propios de la aplicación que se
-> puedan editar en caliente (caducidad de sesión, idioma, ruta de los modelos...) pasarán a la tabla
-> `application_parameter`; en `settings.json` quedarán los de arranque. Aún no está implementado.
+Para añadir un parámetro nuevo: un valor en `ApplicationParameterType` y una fila en los dos ficheros de datos básicos
+(`sqlite_basic_data.sql` y `mysql_basic_data.sql`). Por ahora solo se pueden leer: la edición en caliente aún no está
+implementada, así que se cambian en la base de datos.
 
 ### Servicios y errores
 
@@ -438,7 +488,7 @@ Los repositorios
 traducen cualquier fallo de la base de datos a `PersistenceError` (`app/application/exceptions/`), que no depende de la
 tecnología. Los routers no capturan errores: las excepciones se escapan y las traducen a HTTP los handlers de
 `ExceptionHandlers` (`adapters/inbound/rest`), que `main.py` registra por bloques de código de respuesta en
-`register_exception_handlers()`: las de «no encontrado» (`BIMModelNotFoundError`, `SettingNotFoundError`...) → 404,
+`register_exception_handlers()`: las de «no encontrado» (`BIMModelNotFoundError`, `BIMModelContentNotFoundError`, `ApplicationParameterNotFoundError`) → 404,
 `BIMModelValidationError` → 400, y `PersistenceError` y `FileStorageError` → 500 (se registra en el log y al
 cliente no se le da el detalle). Cualquier otra excepción no prevista también responde 500 y se registra en el log.
 Un endpoint nuevo no necesita `try/except`; si aparece una excepción nueva, se
@@ -448,12 +498,13 @@ añade una línea en `register_exception_handlers()`.
 
 `BIMModelService` (implementa el puerto `BIMModelServiceBase`) usa dos puertos de salida: `BIMModelRepositoryBase`
 (los datos básicos, con `SQLiteBIMModelRepository` y `MySQLBIMModelRepository`, con SQL escrito a mano y sus propias constantes de columnas) y
-`BIMModelFileStorageBase` (el fichero IFC, con `LocalBIMModelFileStorage`, que lo guarda en `bim_models_directory`).
+`BIMModelFileStorageBase` (el fichero IFC, con `LocalBIMModelFileStorage`, que lo guarda en la carpeta del parámetro `BIM_MODELS_DIRECTORY`). El servicio devuelve `BIMModelWrapper`, es decir,
+el modelo con el tamaño de su fichero (`file_size`).
 `main.py` los crea y entrega el servicio a `BIMModelRouter.create(service)`.
 
 | Endpoint | Qué hace | Respuestas |
 |---|---|---|
-| `GET /bim-models` | Lista los modelos activos (`BIMModelDto`). | 200 |
+| `GET /bim-models` | Lista los modelos activos (`BIMModelDto`, con `file_size`). | 200 |
 | `GET /bim-models/{id}` | Devuelve un modelo activo. | 200, 404 |
 | `POST /bim-models` | Añade un modelo con sus datos básicos (`name`, `description`). `id`, `file_name` y `creation_date` los asigna el sistema. | 201, 400 si el nombre está vacío o supera 200 caracteres |
 | `PUT /bim-models/{id}` | Modifica `name` y `description`; no toca el fichero. | 200, 400, 404 |
@@ -475,13 +526,15 @@ Notas de diseño:
 
 ### Log
 
-`Logger` (`app/logger/`) escribe en el fichero de `log_file_path` con el formato `fecha [NIVEL] mensaje` y tres
+`Logger` (`app/logger.py`) escribe en el fichero de `log_file_path` con el formato `fecha [NIVEL] mensaje` y tres
 niveles: `Logger.info()`, `Logger.warning()` y `Logger.error()` (este último puede recibir la excepción y añade su
 traza). Se configura una vez al arrancar con `Logger.setup()`. La API registra:
 
-- `INFO` cuando el arranque termina correctamente (proveedor, modo e idioma).
+- `INFO` cuando el arranque termina correctamente (proveedor, modo e idioma) y si la base de datos ya existía o se ha
+  creado.
 - `INFO` al cerrarse la aplicación (cierre ordenado, por ejemplo con Ctrl+C).
-- `ERROR`, con su traza, si falla la preparación de la base de datos; el arranque se aborta.
+- `ERROR`, con su traza, si falla la preparación de la base de datos o la lectura de sus parámetros; el arranque se
+  aborta.
 
 Los mensajes se añaden al final del fichero (no se borra lo anterior). La carpeta `logs/` no se versiona.
 
@@ -501,9 +554,14 @@ Estado actual: estructura inicial de ambos proyectos y entidades de dominio `BIM
 
 ## Convenciones
 
-- Nombres de código en `snake_case` (clases en `PascalCase`).
-- Cada campo/clase de dominio documentado con docstring.
-- Sangría con tabuladores en el back, como en el resto del proyecto.
+Las normas completas están en `.ai/` (`directrices.md` común, `directrices-back.md`, `directrices-front.md` y
+`directrices-academicas.md`). Lo esencial:
+
+- Idioma: español en comentarios, docstrings, README y mensajes; los nombres de código, en inglés.
+- Back: `snake_case` (clases en `PascalCase`), sangría con tabuladores, punto y coma al final de cada sentencia,
+  regiones, sin returns tempranos, una clase por fichero y tipado estricto con `pyright`.
+- Front: lo fija su `.editorconfig` (Prettier con tabuladores y 130 columnas; ESLint con `npm run lint`).
+- Cada campo/clase documentado con docstring (back) o comentario de documentación (front).
 
 ## Planificación y medios
 

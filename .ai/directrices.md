@@ -28,8 +28,10 @@ el front se rige por su `.editorconfig`.
   heredocs, PowerShell: `Set-Content`, `Out-File`, `-replace`...).** Todo cambio de código o de documentación se
   hace en el editor para que el autor vea lo que cambia. El shell solo para ejecutar, comprobar y limpiar (y, como
   mucho, mover o borrar ficheros).
-- **Hoja de ruta del README:** no la toques (ni la sección "Estado del proyecto y hoja de ruta") hasta que se pida.
-  El resto del README sí se mantiene al día cuando cambia algo técnico.
+- **README:** no se actualiza nunca durante las sesiones de código. Se actualiza solo cuando el autor lo pide, con el
+  botón "Pedir a Claude que actualice el README" del panel de progreso (`/cliso-progreso`), que envía los cambios
+  anotados desde la última actualización. Tampoco toques la sección "Estado del proyecto y hoja de ruta" hasta
+  que se pida expresamente.
 - **Explicaciones:** el autor viene de C#. Explica los conceptos de Python o TypeScript comparándolos con su
   equivalente en C# (`with` ≈ `using`, `ClassVar` ≈ `static`, `__init__.py` ≈ namespace...), sin jerga innecesaria
   y con ejemplos.
