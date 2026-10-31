@@ -1,5 +1,5 @@
 {
   "name": "cliso",
   "owner": { "name": "Aaron-B-D" },
-  "plugins": [{ "name": "cliso-tracker", "source": "./.claude/mods/cliso-tracker" }]
+  "plugins": [{ "name": "cliso-tracker", "source": "./.claude/skills/cliso-tracker" }]
 }
