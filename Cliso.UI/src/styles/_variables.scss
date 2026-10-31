@@ -29,6 +29,9 @@
 	--space-6: 32px;
 	--space-7: 48px;
 
+	// Interfaz táctil: tamaño mínimo (≈ 44 px) de lo que se pulsa con el dedo
+	--touch-target: 2.75rem;
+
 	// Formas
 	--radius-card: 16px;
 	--radius-field: 8px; // Campos de texto: rectángulo con esquinas ligeramente redondeadas, no cápsula

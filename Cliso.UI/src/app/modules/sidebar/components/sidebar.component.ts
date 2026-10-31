@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatListModule } from '@angular/material/list';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 
 import { IconName } from 'src/app/shared/definitions/icons.definitions';
@@ -13,7 +14,7 @@ import { UserManager } from 'src/app/shared/utils/user/userManager.utils';
 /** Barra lateral de navegación: el botón de inicio y, abajo, el usuario actual. */
 @Component({
 	selector: 'app-sidebar',
-	imports: [MatButtonModule, MatListModule, MatMenuModule, RouterLink, RouterLinkActive],
+	imports: [MatButtonModule, MatListModule, MatMenuModule, MatTooltipModule, RouterLink, RouterLinkActive],
 	templateUrl: './sidebar.component.html',
 	styleUrl: './sidebar.component.scss'
 })

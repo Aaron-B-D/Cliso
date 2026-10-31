@@ -73,6 +73,9 @@ texto secundario de tamaño normal o mayor.
   resto de Bootstrap), cargada desde `styles/_grid.scss`. Ejemplo: `<div class="row"><div class="col-12 col-md-6">`.
 - Todo es redimensionable y ajustable: medidas relativas (`rem`, `%`, `fr`, `var(--space-*)`), sin anchos ni altos
   fijos salvo mínimos y máximos justificados, y sin scroll horizontal.
+- Los breakpoints están en `styles/_breakpoints.scss` (`$sm`…`$xxl`) y las media queries los usan en vez de
+  píxeles sueltos. Alto de pantalla con `100dvh` (no `100vh`) y objetivos táctiles de al menos `--touch-target`
+  (≈ 44 px).
 - **Barra lateral en móvil:** por debajo de `md` es una barra superior con un botón que despliega un menú
   (`mat-menu`); desde `md`, la columna fija de la izquierda.
 - **Editores en móvil:** por debajo de `md` el modal ocupa toda la pantalla, sin maximizar ni splitter, y el
@@ -158,6 +161,7 @@ paleta para que no aparezca ningún tinte (ni azul ni violeta).
 | Diálogo, menú, selector  | `MatDialog`, `mat-menu`, `mat-select`   | Fondo `--color-surface`, borde fino, sin sombra                |
 | Barra de herramientas    | `mat-toolbar`                           | Negro, con línea inferior de 1 px                              |
 | Navegación lateral       | `mat-sidenav` / `mat-nav-list`          | Negro; elemento activo en `--color-hover`                      |
+| Tooltip                  | `matTooltip`                            | Superficie con borde de 1 px; en controles solo de icono       |
 | Avisos                   | `MatSnackBar`                           | Superficie con borde; texto en blanco                          |
 | Insignia, etiqueta       | `mat-chip` (o `.badge` propia)          | Píldora con borde gris                                         |
 | Carga                    | `mat-progress-bar`, `mat-progress-spinner` | Blanco sobre gris                                           |

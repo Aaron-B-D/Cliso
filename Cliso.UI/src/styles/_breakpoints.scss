@@ -1,0 +1,7 @@
+// Breakpoints de la rejilla (los de Bootstrap). Mobile-first: solo se usan con `min-width`.
+// Uso: @use 'styles/breakpoints'; @media (min-width: breakpoints.$md) { ... }
+$sm: 576px;
+$md: 768px;
+$lg: 992px;
+$xl: 1200px;
+$xxl: 1400px;

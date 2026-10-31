@@ -253,6 +253,9 @@ private getName(item: Item | null): string | null {
   clase que solo lo oculte visualmente) y sin saltar niveles de encabezado. Los iconos decorativos llevan
   `alt=""`; los botones o enlaces que solo tienen icono, un nombre accesible (`aria-label`). Un `div` solo se usa
   cuando no hay una etiqueta con el significado adecuado.
+- **Tooltips:** todo control que solo tenga icono, o cuyo texto pueda recortarse, lleva `matTooltip` (Angular
+  Material) con el texto del i18n, además de su `aria-label`. No se pone a lo que ya muestra su texto completo. El
+  aspecto (fondo `--color-surface`, borde de 1 px) sale del tema y de `MAT_TOOLTIP_DEFAULT_OPTIONS`, no del componente.
 - **Clases CSS:** la capa principal de un componente se llama `{nombre}Dir` (`homeDir`) y todo lo de dentro lleva el
   prefijo derivado del componente: `[prefijo]_[tipo]_[descripción]` (`hom_search_input`). El prefijo son las
   iniciales de su nombre o, si es una sola palabra, las dos o tres primeras letras (el mismo criterio que los
@@ -359,4 +362,7 @@ editan con `Edit` / `Write` (son XML); nombre `[Diseño] Cliso.UI - <pantalla>.d
 1. `ng build` y `npm run lint` desde `Cliso.UI` → sin errores ni avisos.
 2. Si hay cambios visuales, comprueba en el navegador que se respeta la guía de estilo (sin colores ni sombras
    ajenos, foco visible).
-3. Di con claridad lo que **no** has podido probar.
+3. **Móvil:** todo cambio visual se prueba a 360 px: sin scroll horizontal, medidas en `rem`, `%` o `fr`,
+   `min-width` con las variables de `styles/breakpoints`, `100dvh` en vez de `100vh` y objetivos táctiles de al
+   menos `var(--touch-target)`.
+4. Di con claridad lo que **no** has podido probar.

@@ -100,7 +100,7 @@ Proyecto/
 │       ├── app/          # core/ (arranque), modules/ (una carpeta por pantalla) y shared/ (lo común)
 │       ├── resources/    # img/icons (iconos SVG) y languages (textos multidioma)
 │       ├── styles.scss   # Estilos globales (importa src/styles/)
-│       └── styles/       # Tokens de diseño, rejilla, tema de Material, base y clases provisionales
+│       └── styles/       # Tokens de diseño, breakpoints, rejilla, tema de Material, base y clases provisionales
 ├── Documentation/ # Documentación del proyecto
 │   ├── Database/  # Diseño de la base de datos: diagrama UML .drawio
 │   └── UI/        # Diseño de la interfaz: guía de estilo y diagramas .drawio
@@ -119,7 +119,9 @@ La guía completa está en [`Documentation/UI/[Diseño] Cliso.UI - Guía de esti
   usan para estados (error, éxito). Bordes finos en lugar de sombras, botones y campos en píldora.
 - **Solo tema oscuro.** Tipografía del sistema, tamaño base de 15 px.
 - **Mobile-first y rejilla de Bootstrap** (solo las columnas, `Cliso.UI/src/styles/_grid.scss`): se diseña primero
-  para móvil y todo es redimensionable.
+  para móvil y todo es redimensionable. Los breakpoints están en `Cliso.UI/src/styles/_breakpoints.scss`, el alto de
+  pantalla usa `100dvh` y lo que se pulsa respeta un tamaño táctil mínimo (`--touch-target`, ≈ 44 px). Toda
+  comprobación visual incluye una prueba a 360 px.
 - **Angular Material** es la librería de componentes. Se adapta al estilo anterior mediante los tokens
   `--mat-sys-*` (tema en `Cliso.UI/src/styles/_material.scss`), sin elevaciones, con densidad compacta en el editor.
   Los iconos son SVG propios (trazo, 24×24) en `Cliso.UI/src/resources/img/icons/`, sin librería de iconos. Los textos multidioma (gallego, castellano e inglés)

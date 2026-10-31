@@ -1,16 +1,20 @@
-<div class="sidebarDir">
+<aside class="sidebarDir">
 	<header class="sid_bar d-md-none">
-		<button mat-icon-button [attr.aria-label]="MENU_TEXT" [matMenuTriggerFor]="mobileMenu">
+		<button mat-icon-button matTooltip="{{ MENU_TEXT }}" [attr.aria-label]="MENU_TEXT" [matMenuTriggerFor]="mobileMenu">
 			<img class="sid_icon" [src]="MenuIcon" alt="" />
 		</button>
 		<mat-menu #mobileMenu="matMenu">
-			<a mat-menu-item [routerLink]="HomeRoute">
-				<img class="sid_icon" [src]="HomeIcon" alt="" />
-				<span>{{ HOME_TEXT }}</span>
+			<a mat-menu-item class="sid_menu_option" [routerLink]="HomeRoute">
+				<span class="sid_menu_content">
+					<img class="sid_icon" [src]="HomeIcon" alt="" />
+					<span>{{ HOME_TEXT }}</span>
+				</span>
 			</a>
-			<button mat-menu-item disabled>
-				<img class="sid_icon" [src]="UserIcon" alt="" />
-				<span>{{ UserName }}</span>
+			<button mat-menu-item disabled class="sid_menu_option">
+				<span class="sid_menu_content">
+					<img class="sid_icon" [src]="UserIcon" alt="" />
+					<span>{{ UserName }}</span>
+				</span>
 			</button>
 		</mat-menu>
 	</header>
@@ -29,9 +33,9 @@
 				<span matListItemTitle>{{ HOME_TEXT }}</span>
 			</a>
 		</mat-nav-list>
-		<div class="sid_user" [attr.title]="UserName">
+		<footer class="sid_user" matTooltip="{{ UserName }}">
 			<img class="sid_user_icon" [src]="UserIcon" alt="" />
 			<span class="sid_user_name">{{ UserName }}</span>
-		</div>
+		</footer>
 	</nav>
-</div>
+</aside>

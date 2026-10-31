@@ -29,9 +29,10 @@
 		)
 	);
 
-	// Listas (barra lateral): el elemento resaltado es un rectángulo redondeado, no una cápsula.
+	// Listas (barra lateral): el elemento resaltado (activo o con el ratón encima) es un rectángulo redondeado, no una cápsula.
 	@include mat.list-overrides(
 		(
+			active-indicator-shape: var(--radius-item),
 			list-item-container-shape: var(--radius-item)
 		)
 	);
@@ -40,6 +41,15 @@
 	@include mat.dialog-overrides(
 		(
 			container-color: var(--color-surface)
+		)
+	);
+
+	// Tooltip: sobre --color-surface y texto claro (por defecto es una caja clara), con la forma de los elementos de lista.
+	@include mat.tooltip-overrides(
+		(
+			container-color: var(--color-surface),
+			container-shape: var(--radius-item),
+			supporting-text-color: var(--color-text)
 		)
 	);
 
@@ -56,6 +66,12 @@
 .floating-panel {
 	border: var(--border);
 	border-radius: var(--radius-card);
+}
+
+// Lo mismo para los tooltips (MAT_TOOLTIP_DEFAULT_OPTIONS), con la forma de los elementos de lista.
+.floating-tooltip {
+	border: var(--border);
+	border-radius: var(--radius-item);
 }
 
 :root {

@@ -11,14 +11,28 @@
 }
 
 .sid_icon {
-	height: 24px;
-	width: 24px;
+	height: 1.5rem;
+	width: 1.5rem;
+}
+
+// Icono y texto de un ítem del menú móvil, centrados en vertical (Material los deja en línea, sobre la línea base)
+.sid_menu_content {
+	align-items: center;
+	display: flex;
+	gap: var(--space-3);
+}
+
+// Ítem del menú móvil: resaltado con esquinas redondeadas (como el de la barra lateral) y separado del borde del panel
+.sid_menu_option {
+	border-radius: var(--radius-item);
+	margin-inline: var(--space-2);
+	width: auto;
 }
 
 .sid_nav {
 	border-right: var(--border);
 	flex-direction: column;
-	height: 100vh;
+	height: 100dvh; // dvh: descuenta la barra del navegador móvil
 	justify-content: space-between;
 	padding: var(--space-2);
 	position: sticky;

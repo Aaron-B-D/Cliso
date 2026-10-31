@@ -7,6 +7,12 @@
 
 html {
 	color-scheme: dark;
+	-webkit-text-size-adjust: 100%; // Evita que el móvil reescale el texto al girar la pantalla
+	text-size-adjust: 100%;
+}
+
+img {
+	max-width: 100%;
 }
 
 body {
