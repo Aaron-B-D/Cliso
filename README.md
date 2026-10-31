@@ -90,7 +90,8 @@ Como mínimo, la versión entregada incluye:
 ```
 Proyecto/
 ├── .ai/           # Directrices de trabajo con el asistente (comunes, back, front y académicas)
-├── .claude/       # Skills y panel de progreso del asistente (/cliso-progreso)
+├── .claude/       # Skills del asistente y plugin cliso-tracker (panel de progreso y cambios pendientes del README)
+├── .claude-plugin/  # marketplace.json: registra el plugin cliso-tracker
 ├── Cliso.API/     # API REST (FastAPI)
 │   ├── app/       # Código de la aplicación (ver "Arquitectura hexagonal del back")
 │   └── settings.json  # Parámetros de arranque (ver "Configuración y modo demo")
