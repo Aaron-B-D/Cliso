@@ -1,0 +1,18 @@
+// Móvil: la barra va arriba y el contenido debajo. Desde `md`: barra a la izquierda y contenido a la derecha.
+.appDir {
+	display: flex;
+	flex-direction: column;
+	min-height: 100vh;
+}
+
+.app_content {
+	flex: 1;
+	min-width: 0;
+	padding: var(--space-4);
+}
+
+@media (min-width: 768px) {
+	.appDir {
+		flex-direction: row;
+	}
+}

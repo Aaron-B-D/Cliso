@@ -1,0 +1,5 @@
+# Las plantillas HTML no se formatean automáticamente: Prettier reordenaría los atributos y rompería su estructura.
+**/*.html
+**/node_modules
+dist
+package-lock.json

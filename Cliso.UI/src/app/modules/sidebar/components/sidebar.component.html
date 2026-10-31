@@ -1,0 +1,37 @@
+<div class="sidebarDir">
+	<header class="sid_bar d-md-none">
+		<button mat-icon-button [attr.aria-label]="MENU_TEXT" [matMenuTriggerFor]="mobileMenu">
+			<img class="sid_icon" [src]="MenuIcon" alt="" />
+		</button>
+		<mat-menu #mobileMenu="matMenu">
+			<a mat-menu-item [routerLink]="HomeRoute">
+				<img class="sid_icon" [src]="HomeIcon" alt="" />
+				<span>{{ HOME_TEXT }}</span>
+			</a>
+			<button mat-menu-item disabled>
+				<img class="sid_icon" [src]="UserIcon" alt="" />
+				<span>{{ UserName }}</span>
+			</button>
+		</mat-menu>
+	</header>
+	<nav class="sid_nav d-none d-md-flex">
+		<mat-nav-list class="sid_menu">
+			<a
+				mat-list-item
+				routerLinkActive
+				class="sid_menu_item"
+				#homeLink="routerLinkActive"
+				[attr.aria-label]="HOME_TEXT"
+				[activated]="homeLink.isActive"
+				[routerLink]="HomeRoute"
+			>
+				<img matListItemIcon [src]="HomeIcon" alt="" />
+				<span matListItemTitle>{{ HOME_TEXT }}</span>
+			</a>
+		</mat-nav-list>
+		<div class="sid_user" [attr.title]="UserName">
+			<img class="sid_user_icon" [src]="UserIcon" alt="" />
+			<span class="sid_user_name">{{ UserName }}</span>
+		</div>
+	</nav>
+</div>

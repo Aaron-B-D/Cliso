@@ -1,4 +1,6 @@
 // Estilos globales. Ver "Documentation/UI/[Diseño] Cliso.UI - Guía de estilo.md" para la guía de estilo.
-@use "styles/variables";
-@use "styles/base";
-@use "styles/components";
+@use 'styles/variables';
+@use 'styles/grid';
+@use 'styles/material';
+@use 'styles/base';
+@use 'styles/components';

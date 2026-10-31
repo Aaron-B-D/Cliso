@@ -1,0 +1,18 @@
+.hom_search {
+	width: 100%;
+}
+
+.hom_search_icon {
+	padding-inline: var(--space-4) var(--space-2);
+}
+
+// Encabezado solo para lectores de pantalla: visualmente oculto.
+.hom_title {
+	border: 0;
+	clip-path: inset(50%);
+	height: 1px;
+	overflow: hidden;
+	position: absolute;
+	white-space: nowrap;
+	width: 1px;
+}

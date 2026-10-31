@@ -1,0 +1,11 @@
+<section class="homeDir container-fluid">
+	<h1 class="hom_title">{{ TITLE }}</h1>
+	<div class="row">
+		<div class="col-12 col-md-8 col-lg-6">
+			<mat-form-field class="hom_search" appearance="outline" subscriptSizing="dynamic">
+				<img matPrefix class="hom_search_icon" [src]="SearchIcon" alt="" />
+				<input matInput type="search" [attr.aria-label]="SEARCH_PLACEHOLDER" [placeholder]="SEARCH_PLACEHOLDER" />
+			</mat-form-field>
+		</div>
+	</div>
+</section>

@@ -1,0 +1,3 @@
+// Rejilla de 12 columnas de Bootstrap (solo la rejilla: container, row, col-*, y sus utilidades de flex y espaciado).
+// Mobile-first: las clases sin sufijo valen desde móvil y las de `sm`, `md`, `lg`, `xl` y `xxl` amplían hacia arriba.
+@use 'bootstrap/dist/css/bootstrap-grid.css';

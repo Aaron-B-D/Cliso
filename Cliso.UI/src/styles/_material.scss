@@ -1,0 +1,127 @@
+// Tema de Angular Material: traduce los tokens de _variables.scss a las variables de sistema `--mat-sys-*`.
+// Solo tema oscuro, sin elevación y sin tintes de color. Ver la guía de estilo (apartado "Angular Material").
+@use '@angular/material' as mat;
+
+:root {
+	// Genera las variables base de Material 3 (la paleta solo sirve de punto de partida: se sobrescribe abajo).
+	@include mat.theme(
+		(
+			color: (
+				theme-type: dark,
+				primary: mat.$azure-palette
+			),
+			typography: (
+				plain-family: var(--font-family),
+				brand-family: var(--font-family)
+			),
+			density: 0
+		)
+	);
+}
+
+// Ajustes por componente, con los mixins `*-overrides` de Material (nunca con ::ng-deep ni clases .mdc-*).
+:root {
+	// Campo de texto: rectángulo de esquinas ligeramente redondeadas. Siempre un radio finito: Material convierte este
+	// valor en el ancho de las piezas del borde y uno enorme (9999px) provocaba scroll horizontal.
+	@include mat.form-field-overrides(
+		(
+			outlined-container-shape: var(--radius-field)
+		)
+	);
+
+	// Listas (barra lateral): el elemento resaltado es un rectángulo redondeado, no una cápsula.
+	@include mat.list-overrides(
+		(
+			list-item-container-shape: var(--radius-item)
+		)
+	);
+
+	// Diálogo: sobre --color-surface, para que se distinga del fondo negro.
+	@include mat.dialog-overrides(
+		(
+			container-color: var(--color-surface)
+		)
+	);
+
+	// Menú: sin sombra (su sombra no sale de --mat-sys-level*).
+	@include mat.menu-overrides(
+		(
+			container-elevation-shadow: none
+		)
+	);
+}
+
+// Material no tiene token para el borde de diálogos y menús: se les pone con esta clase, que app.config.ts
+// asigna por defecto a los diálogos (MAT_DIALOG_DEFAULT_OPTIONS) y a los menús (MAT_MENU_DEFAULT_OPTIONS).
+.floating-panel {
+	border: var(--border);
+	border-radius: var(--radius-card);
+}
+
+:root {
+	// Colores: superficies neutras y blanco como único acento.
+	--mat-sys-background: var(--color-bg);
+	--mat-sys-on-background: var(--color-text);
+	--mat-sys-surface: var(--color-bg);
+	--mat-sys-on-surface: var(--color-text);
+	--mat-sys-surface-dim: var(--color-bg);
+	--mat-sys-surface-bright: var(--color-hover);
+	--mat-sys-surface-container-lowest: var(--color-bg);
+	--mat-sys-surface-container-low: var(--color-surface);
+	--mat-sys-surface-container: var(--color-surface);
+	--mat-sys-surface-container-high: var(--color-surface);
+	--mat-sys-surface-container-highest: var(--color-hover);
+	--mat-sys-surface-variant: var(--color-hover);
+	--mat-sys-on-surface-variant: var(--color-muted);
+	--mat-sys-surface-tint: transparent;
+	--mat-sys-outline: var(--color-muted);
+	--mat-sys-outline-variant: var(--color-border);
+
+	--mat-sys-primary: var(--color-white);
+	--mat-sys-on-primary: var(--color-bg);
+	--mat-sys-primary-container: var(--color-hover);
+	--mat-sys-on-primary-container: var(--color-white);
+
+	// Secundario y terciario son neutros: los estados "seleccionado" (menús, listas, fichas) se ven en --color-hover.
+	--mat-sys-secondary: var(--color-text);
+	--mat-sys-on-secondary: var(--color-bg);
+	--mat-sys-secondary-container: var(--color-hover);
+	--mat-sys-on-secondary-container: var(--color-white);
+	--mat-sys-tertiary: var(--color-text);
+	--mat-sys-on-tertiary: var(--color-bg);
+	--mat-sys-tertiary-container: var(--color-hover);
+	--mat-sys-on-tertiary-container: var(--color-white);
+
+	--mat-sys-error: var(--color-danger);
+	--mat-sys-on-error: var(--color-white);
+	--mat-sys-error-container: var(--color-surface);
+	--mat-sys-on-error-container: var(--color-danger);
+
+	--mat-sys-inverse-surface: var(--color-text);
+	--mat-sys-inverse-on-surface: var(--color-bg);
+	--mat-sys-inverse-primary: var(--color-bg);
+	--mat-sys-scrim: var(--color-bg);
+	--mat-sys-shadow: transparent;
+
+	// Formas: tarjetas, diálogos y demás superficies a 16 px; botones y campos en píldora.
+	--mat-sys-corner-extra-small: var(--radius-card);
+	--mat-sys-corner-small: var(--radius-card);
+	--mat-sys-corner-medium: var(--radius-card);
+	--mat-sys-corner-large: var(--radius-card);
+	--mat-sys-corner-extra-large: var(--radius-card);
+	--mat-sys-corner-full: var(--radius-pill);
+
+	// Elevación: ninguna (las superficies se separan con un borde de 1 px).
+	--mat-sys-level0: none;
+	--mat-sys-level1: none;
+	--mat-sys-level2: none;
+	--mat-sys-level3: none;
+	--mat-sys-level4: none;
+	--mat-sys-level5: none;
+
+	// Tipografía: se conservan los tamaños de la guía de estilo.
+	--mat-sys-body-large-size: var(--font-size-base);
+	--mat-sys-body-medium-size: var(--font-size-base);
+	--mat-sys-body-small-size: var(--font-size-small);
+	--mat-sys-label-large-size: var(--font-size-base);
+}

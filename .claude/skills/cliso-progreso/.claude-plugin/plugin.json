@@ -1,0 +1,6 @@
+{
+  "name": "cliso-progreso",
+  "version": "0.1.0",
+  "description": "Panel de progreso del proyecto Cliso (back, front y requisitos académicos), recalculado al menos cada 24 h. Solo actúa dentro del repositorio Cliso.",
+  "types": "./types/index.d.ts"
+}

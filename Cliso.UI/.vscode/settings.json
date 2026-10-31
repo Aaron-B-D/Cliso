@@ -1,0 +1,28 @@
+{
+	// Editor
+	"editor.tabSize": 2, // Tamaño de tabulación
+	"editor.insertSpaces": false, // Indentar con tabuladores
+	// Angular
+	"angular.forceStrictTemplates": true,
+	// Ordenar las propiedades CSS alfabéticamente al guardar
+	"sortcss.sortingStrategy": "alphabetical",
+	"sortcss.sortOnSave": true,
+	// Formateo al guardar: desactivado por defecto y activo solo en TypeScript, SCSS y CSS
+	"editor.formatOnSave": false,
+	"[typescript]": {
+		"editor.defaultFormatter": "esbenp.prettier-vscode",
+		"editor.formatOnSave": true
+	},
+	"[scss]": {
+		"editor.defaultFormatter": "esbenp.prettier-vscode",
+		"editor.formatOnSave": true
+	},
+	"[css]": {
+		"editor.defaultFormatter": "esbenp.prettier-vscode",
+		"editor.formatOnSave": true
+	},
+	// El HTML no se formatea automáticamente: Prettier reordenaría los atributos y rompería su estructura
+	"[html]": {
+		"editor.formatOnSave": false
+	}
+}
