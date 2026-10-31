@@ -1,6 +1,6 @@
-"""Puertos de entrada: lo que el exterior puede pedir a la aplicación (interfaces de los casos de uso)."""
+"""Puertos de entrada: lo que el exterior puede pedir a la aplicación."""
 
-from app.application.ports.inbound.settings_service_base import SettingsServiceBase;
-from app.application.ports.inbound.user_service_base import UserServiceBase;
+from app.application.ports.inbound.application_parameter_service_base import ApplicationParameterServiceBase;
+from app.application.ports.inbound.bim_model_service_base import BIMModelServiceBase;
 
-__all__ = ["SettingsServiceBase", "UserServiceBase"];
+__all__ = ["ApplicationParameterServiceBase", "BIMModelServiceBase"];

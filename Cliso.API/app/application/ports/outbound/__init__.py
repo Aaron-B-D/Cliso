@@ -1,6 +1,7 @@
-"""Puertos de salida: lo que la aplicación necesita del exterior. Cada concepto (por ejemplo, `user_repository`) tiene su
-directorio, con el contrato `*Base` en la raíz. Todo se importa desde este namespace."""
+"""Puertos de salida: lo que la aplicación necesita del exterior."""
 
-from app.application.ports.outbound.user_repository import UserRepositoryBase;
+from app.application.ports.outbound.application_parameter_repository_base import ApplicationParameterRepositoryBase;
+from app.application.ports.outbound.bim_model_file_storage_base import BIMModelFileStorageBase;
+from app.application.ports.outbound.bim_model_repository_base import BIMModelRepositoryBase;
 
-__all__ = ["UserRepositoryBase"];
+__all__ = ["ApplicationParameterRepositoryBase", "BIMModelFileStorageBase", "BIMModelRepositoryBase"];

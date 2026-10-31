@@ -124,7 +124,7 @@ Cada concepto (`BIMModel`, `User`, `Visualization`) tiene dos clases:
 | Clase | Ubicación | Qué es |
 |---|---|---|
 | **Objeto de dominio** (dataclass) | `app/domain/models/` | Representa una fila de la base de datos dentro de la aplicación. Lo usan los casos de uso y lo devuelven los repositorios. |
-| **DTO** (Pydantic) | `app/adapters/inbound/rest/dtos/` | Lo que entra y sale por la API (`BIMModelDto`, `UserDto`, `VisualizationDto`), sin la contraseña ni campos internos. |
+| **DTO** (Pydantic) | `app/adapters/inbound/rest/dtos/` | Lo que entra y sale por la API (`BIMModelDto`, `VisualizationDto`), sin campos internos. El de usuario se retiró con su servicio. |
 | **Mapper** (clase estática) | `app/adapters/inbound/rest/mappers/` | Convierte, campo a campo y de forma explícita, entre dominio y DTO (`to_dto`, `to_domain`). Sin conversión automática. |
 
 Se accede a la base de datos con **SQL escrito a mano** (módulo `sqlite3` de la librería estándar), sin ORM: el
@@ -187,8 +187,8 @@ El diagrama UML está en [`Documentation/Database/[Diseño] Cliso.API - Base de 
 (se abre con drawio). Distingue las tablas obligatorias de las opcionales (en esta versión todas son obligatorias) y
 marca en cursiva gris las columnas que admiten `NULL`.
 
-> Es el **diseño objetivo**. Los esquemas SQL, los objetos de dominio y `demo_data.json` descritos arriba todavía no
-> lo reflejan por completo. Diferencias pendientes de implementar: `visualization.owner_id` y `model_id` pasan a
+> Es el **diseño objetivo**. Los esquemas SQL y los objetos de dominio descritos arriba todavía no lo reflejan por
+> completo. Diferencias pendientes de implementar: `visualization.owner_id` y `model_id` pasan a
 > `user_id` y `bim_model_id`; `user` gana `role_id` y `update_date`; `bim_model` gana `observations`,
 > `stored_file_name` y `update_date`; `visualization` gana `creation_date` y `update_date`; y las tablas `role`,
 > `visualization_piece` y `application_parameter` son nuevas.
@@ -244,27 +244,30 @@ Cliso.API/app/
 ├── main.py                       # Raíz de composición: elige los adaptadores y los conecta
 ├── config/                       # Settings, SettingsManager (estático, lee el JSON) y SettingsMapper (parámetros públicos)
 ├── logger/                       # Logger estático: escribe en fichero (info, warning, error)
+├── initializer/                  # DatabaseInitializer (prepara la base de datos al arrancar) y DemoData (datos demo como objetos de dominio)
 │
 ├── domain/                       # NÚCLEO: conceptos del negocio, sin dependencias externas
 │   └── models/                   #   BIMModel, User, Visualization, ApplicationSetting (dataclasses) y su enumerado de parámetros
 │
 ├── application/                  # NÚCLEO: casos de uso y puertos
 │   ├── ports/
-│   │   ├── inbound/              #   Puertos de entrada: lo que se puede pedir a la aplicación (UserServiceBase)
-│   │   └── outbound/             #   Puertos de salida: lo que la aplicación necesita (user_repository/UserRepositoryBase)
-│   ├── use_cases/                #   Casos de uso (UserService, SettingsService)
-│   └── exceptions/               #   Excepciones del contrato de los puertos (PersistenceError, UserNotFoundError, SettingNotFoundError)
+│   │   ├── inbound/              #   Puertos de entrada: lo que se puede pedir a la aplicación (BIMModelServiceBase...)
+│   │   └── outbound/             #   Puertos de salida: lo que la aplicación necesita (bim_model_repository/BIMModelRepositoryBase, bim_model_file_storage/BIMModelFileStorageBase...)
+│   ├── use_cases/                #   Casos de uso (BIMModelService, SettingsService)
+│   └── exceptions/               #   Excepciones del contrato de los puertos (PersistenceError, FileStorageError, BIMModelNotFoundError...)
 │
 └── adapters/                     # EXTERIOR: conectan el núcleo con el mundo
-    ├── inbound/rest/             #   Adaptador de entrada: routers FastAPI (UserRouter.create(service)...), dtos/ y mappers/
-    └── outbound/persistence/     #   Adaptadores de salida: base de datos
-        ├── database_adapter/     #     DatabaseAdapterBase (raíz) + sqlite/ (SQLite) y mysql/ (MySQL)
-        ├── database_row/         #     DatabaseRowBase (una fila, leída por nombre de columna)
-        ├── database_cursor/      #     DatabaseCursorBase (ejecutar y leer filas)
-        ├── database_connection/  #     DatabaseConnectionBase
-        ├── database_connection_provider/ # DatabaseConnectionProviderBase (entrega conexiones)
-        ├── user_repository/      #     Repositorio de usuarios: sqlite/ (SQLite) y mysql/ (MySQL)
-        └── exceptions/           #     Errores de base de datos (DatabaseError y derivadas)
+    ├── inbound/rest/             #   Adaptador de entrada: routers FastAPI (BIMModelRouter.create(service)...), dtos/ y mappers/
+    └── outbound/                 #   Adaptadores de salida
+        ├── storage/              #     Ficheros: bim_model_file_storage/ (local/: carpeta del disco)
+        └── persistence/          #     Base de datos
+            ├── database_adapter/     #       DatabaseAdapterBase (raíz) + sqlite/ (SQLite) y mysql/ (MySQL)
+            ├── database_row/         #       DatabaseRowBase (una fila, leída por nombre de columna)
+            ├── database_cursor/      #       DatabaseCursorBase (ejecutar y leer filas)
+            ├── database_connection/  #       DatabaseConnectionBase
+            ├── database_connection_provider/ # DatabaseConnectionProviderBase (entrega conexiones)
+            ├── bim_model_repository/ #       Repositorio de modelos BIM: sqlite/ (SQLite) y mysql/ (MySQL)
+            └── exceptions/           #       Errores de base de datos (DatabaseError y derivadas)
 ```
 
 Cada capa es dueña de sus excepciones: las guarda en un subdirectorio `exceptions/` de su propio namespace
@@ -326,7 +329,7 @@ Al arrancar, `SettingsManager.load()` lee `Cliso.API/settings.json` (o el ficher
 	"is_demo": true,
 	"database_provider": "sqlite",
 	"sqlite_directory": "data",
-	"demo_data_path": "demo_data.json",
+	"bim_models_directory": "data/models",
 	"log_file_path": "logs/cliso.log",
 	"mysql_host": "localhost",
 	"mysql_port": 3306,
@@ -342,7 +345,7 @@ Al arrancar, `SettingsManager.load()` lee `Cliso.API/settings.json` (o el ficher
 | `is_demo` | `true`: se usa una base de datos demo, `cliso-demo_<fecha>` (por ejemplo, `cliso-demo_20261010`), con cualquier proveedor. `false`: la base de datos real. | `true` |
 | `database_provider` | Proveedor de base de datos: `sqlite` (un fichero local, sin servidor) o `mysql` (en un servidor). | `sqlite` |
 | `sqlite_directory` | Carpeta de los ficheros SQLite (relativa a `Cliso.API` si no es absoluta). Se crea si no existe. | `data` |
-| `demo_data_path` | JSON con los datos demo (relativo a `Cliso.API` si no es absoluto). | `demo_data.json` |
+| `bim_models_directory` | Carpeta donde se guardan los ficheros IFC de los modelos BIM (relativa a `Cliso.API` si no es absoluta). Se crea al subir el primero. | `data/models` |
 | `log_file_path` | Fichero de log (relativo a `Cliso.API` si no es absoluto). Se crea la carpeta si no existe. | `logs/cliso.log` |
 | `mysql_host`, `mysql_port`, `mysql_user`, `mysql_password`, `mysql_database` | Conexión a MySQL (solo con `database_provider` a `mysql`). | `localhost`, `3306`, vacío, vacío, `cliso` |
 
@@ -373,21 +376,26 @@ Cada operación hace una sola cosa y, si no puede hacerla, **lanza una excepció
 | `delete()` | Borra el fichero. | `DROP DATABASE` (irreversible). |
 | `create()` | Crea el fichero (y su carpeta) con las tablas vacías. | `CREATE DATABASE` y sus tablas. Si falla, borra lo creado. |
 | `load_basic_data()` | Carga los datos básicos (`sqlite_basic_data.sql`, vacío por ahora). | Carga los datos básicos (`mysql_basic_data.sql`, vacío por ahora). |
-| `load_demo_data()` | Carga **todo** `demo_data.json`. | Carga **todo** `demo_data.json`. |
 | `connect()` | Abre una conexión `sqlite3`. | Abre una conexión `pymysql`. |
 
 Excepciones: `DatabaseNotFoundError` (la base de datos no existe), `DatabaseAlreadyExistsError` (ya existe al crearla)
 y `DatabaseOperationError` (falla el motor: conexión, SQL, permisos). Las cargas son atómicas: si fallan no se
 inserta nada.
 
-Arranque (`app/main.py`), con el proveedor y el modo de los settings:
+### Inicializador de la base de datos
 
-- Si la base de datos **no existe**, se crea y se cargan los datos iniciales: los de `demo_data.json` en modo demo y
-  los básicos si no.
-- Si **ya existe**, no se toca (en modo demo, se reutiliza la del día). El arranque nunca borra una base de datos.
+Al arrancar, `main.py` crea el adaptador y los repositorios según el proveedor y el modo de los settings, y llama a
+`DatabaseInitializer` (`app/initializer/`):
 
-Cualquier error de base de datos detiene el arranque. Los hashes de contraseña del JSON demo son ficticios y la
-carpeta `data/` (ficheros SQLite) no se versiona.
+- Si la base de datos **ya existe**, no se toca (en modo demo, se reutiliza la del día).
+- Si **no existe**, la crea con sus tablas y carga siempre los datos básicos. En modo demo carga además los datos de
+  `DemoData`, que son objetos de dominio (`BIMModel`) guardados con los repositorios de la API, sin ficheros ni
+  sentencias SQL aparte.
+- Si algo falla después de crearla, **la borra**, para no dejar una base de datos a medias que el siguiente arranque
+  daría por buena. Es la única vez que el arranque borra una base de datos, y siempre una que acaba de crear.
+
+Los modelos demo no tienen fichero IFC (`file_name` vacío) hasta que se sube uno. Cualquier error de base de datos
+detiene el arranque. La carpeta `data/` (ficheros SQLite) no se versiona.
 
 La configuración pública se expone como parámetros: cada uno es un objeto de dominio `ApplicationSetting` (y un
 `ApplicationSettingParameterDto` en la API) con su identificador (enumerado `ApplicationSettingParameter`), nombre,
@@ -418,43 +426,52 @@ cambian editando el fichero de settings y reiniciando la API.
 > puedan editar en caliente (caducidad de sesión, idioma, ruta de los modelos...) pasarán a la tabla
 > `application_parameter`; en `settings.json` quedarán los de arranque. Aún no está implementado.
 
-### Servicio de usuarios
+### Servicios y errores
 
-`UserService` (caso de uso, implementa el puerto `UserServiceBase`) usa el puerto de salida `UserRepositoryBase`, que
-implementan `SQLiteUserRepository` (SQLite, `?`) y `MySQLUserRepository` (MySQL, `%s`) con SQL escrito a mano; cada
-uno lleva sus propias constantes con los nombres de las columnas. Solo
-trabaja con usuarios **activos**. `main.py` elige el repositorio según el proveedor y entrega el servicio a
-`UserRouter.create(service)`, que crea el router con los endpoints. Cada router recibe solo el servicio (o servicios)
-que necesita, por constructor: no hay ningún proveedor global del que cualquiera pueda pedir cualquier servicio. Los
-servicios, por debajo, usan el repositorio que les haya dado `main.py`.
+Cada router recibe solo el servicio (o servicios) que necesita, por constructor: no hay ningún proveedor global del
+que cualquiera pueda pedir cualquier servicio. Los servicios usan el repositorio que les haya dado `main.py`.
 
-| Endpoint | Qué hace | Respuestas |
-|---|---|---|
-| `GET /users` | Lista los usuarios activos (`UserDto`, sin contraseña). | 200 |
-| `GET /users/{nick}` | Devuelve el usuario con ese nick. | 200, 404 si no existe |
-| `POST /users/validate-password` | Recibe un `UserCredentialsDto` (`nick` y `password_hash`) y devuelve `true`/`false`. | 200, 404 si el nick no existe |
-
-#### Modelo de contraseñas
-
-- El cliente calcula un hash de la contraseña (`password_hash`) y lo envía: la contraseña real nunca viaja ni se guarda.
-- En la base de datos **no** se guarda ese hash, sino un segundo hash calculado por el servidor a partir de él.
-- Para validar, el servidor aplica ese segundo hash al valor recibido y lo compara, en tiempo constante, con el guardado.
-  Así, quien consiga una copia de la base de datos no obtiene nada que le permita entrar directamente.
-- **Estado actual:** la API todavía compara directamente el hash recibido con el guardado (los hashes del JSON demo son
-  ficticios). El segundo hash se implementará junto con el login por cookie con token.
-- A tener en cuenta al implementarlo: el hash del cliente hace de contraseña para quien lo capture, así que la API solo
-  debe servirse por HTTPS; el segundo hash debe llevar una sal por usuario y un algoritmo lento (por ejemplo,
-  `hashlib.scrypt`, de la librería estándar); y el login no debería distinguir entre "usuario inexistente" y
-  "contraseña incorrecta" (hoy el endpoint responde 404 o `false`, lo que permite averiguar qué nicks existen).
+> El servicio de usuarios (y con él el login y el modelo de contraseñas) se retiró por ser una versión muy primitiva;
+> se rehará aparte. El dominio `User` y la tabla `user` se conservan.
 
 Los repositorios
 traducen cualquier fallo de la base de datos a `PersistenceError` (`app/application/exceptions/`), que no depende de la
 tecnología. Los routers no capturan errores: las excepciones se escapan y las traducen a HTTP los handlers de
 `ExceptionHandlers` (`adapters/inbound/rest`), que `main.py` registra por bloques de código de respuesta en
-`register_exception_handlers()`: `UserNotFoundError` → 404 y `PersistenceError` → 500 (se registra en el log y al
+`register_exception_handlers()`: las de «no encontrado» (`BIMModelNotFoundError`, `SettingNotFoundError`...) → 404,
+`BIMModelValidationError` → 400, y `PersistenceError` y `FileStorageError` → 500 (se registra en el log y al
 cliente no se le da el detalle). Cualquier otra excepción no prevista también responde 500 y se registra en el log.
 Un endpoint nuevo no necesita `try/except`; si aparece una excepción nueva, se
 añade una línea en `register_exception_handlers()`.
+
+### Servicio de modelos BIM
+
+`BIMModelService` (implementa el puerto `BIMModelServiceBase`) usa dos puertos de salida: `BIMModelRepositoryBase`
+(los datos básicos, con `SQLiteBIMModelRepository` y `MySQLBIMModelRepository`, con SQL escrito a mano y sus propias constantes de columnas) y
+`BIMModelFileStorageBase` (el fichero IFC, con `LocalBIMModelFileStorage`, que lo guarda en `bim_models_directory`).
+`main.py` los crea y entrega el servicio a `BIMModelRouter.create(service)`.
+
+| Endpoint | Qué hace | Respuestas |
+|---|---|---|
+| `GET /bim-models` | Lista los modelos activos (`BIMModelDto`). | 200 |
+| `GET /bim-models/{id}` | Devuelve un modelo activo. | 200, 404 |
+| `POST /bim-models` | Añade un modelo con sus datos básicos (`name`, `description`). `id`, `file_name` y `creation_date` los asigna el sistema. | 201, 400 si el nombre está vacío o supera 200 caracteres |
+| `PUT /bim-models/{id}` | Modifica `name` y `description`; no toca el fichero. | 200, 400, 404 |
+| `PUT /bim-models/{id}/content?file_name=x.ifc` | Sube el fichero IFC como cuerpo binario (`application/octet-stream`), recibido por trozos. Si ya había fichero, lo sustituye. | 200, 400 si el nombre no acaba en `.ifc` o lleva ruta, 404 |
+| `GET /bim-models/{id}/content` | Descarga el fichero IFC por trozos, con su nombre original. | 200, 404 si no existe el modelo o no tiene fichero |
+| `DELETE /bim-models/{id}?force=false` | Borrado lógico (`active = 0`): se conservan datos, visualizaciones y fichero. Con `force=true` se borran de verdad el modelo, sus visualizaciones y su fichero. | 204, 404 |
+
+Notas de diseño:
+
+- Los `id` de la URL deben estar entre 1 y 2^63-1 (el rango de un `BIGINT`); fuera de ese rango la API responde 422.
+- El fichero se guarda como `<id>.ifc`: el nombre que envía el cliente solo se anota en `file_name`, así que nunca decide
+  dónde se escribe en disco. Se escribe primero en un `.tmp` y solo cuando está completo sustituye al anterior, de modo
+  que una subida interrumpida no estropea el fichero que ya había.
+- Un modelo recién creado tiene `file_name` vacío hasta que se sube su fichero.
+- Con `force=true` se borra primero la base de datos (modelo y visualizaciones, en una sola transacción) y después el
+  fichero. Los modelos borrados lógicamente solo se pueden purgar con `force=true`.
+- La conexión MySQL usa la opción `FOUND_ROWS`, para que `rowcount` cuente las filas que cumplen el `WHERE` aunque el
+  `UPDATE` no cambie nada (como en SQLite); sin ella, volver a subir un fichero con el mismo nombre daría un 404 falso.
 
 ### Log
 

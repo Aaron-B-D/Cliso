@@ -1,7 +1,7 @@
-"""Excepciones de settings: el fichero no se puede leer o un valor tiene un tipo incorrecto."""
+"""Excepciones de los parámetros de arranque."""
 
-from app.config.exceptions.settings_error import SettingsError;
-from app.config.exceptions.settings_file_error import SettingsFileError;
-from app.config.exceptions.settings_value_error import SettingsValueError;
+from app.config.exceptions.startup_parameters_error import StartupParametersError;
+from app.config.exceptions.startup_parameters_file_error import StartupParametersFileError;
+from app.config.exceptions.startup_parameters_value_error import StartupParametersValueError;
 
-__all__ = ["SettingsError", "SettingsFileError", "SettingsValueError"];
+__all__ = ["StartupParametersError", "StartupParametersFileError", "StartupParametersValueError"];

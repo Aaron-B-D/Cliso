@@ -1,0 +1,7 @@
+"""Persistencia sobre SQLite: un fichero local, sin servidor."""
+
+from app.adapters.outbound.persistence.sqlite.sqlite_adapter import SQLiteAdapter;
+from app.adapters.outbound.persistence.sqlite.sqlite_application_parameter_repository import SQLiteApplicationParameterRepository;
+from app.adapters.outbound.persistence.sqlite.sqlite_bim_model_repository import SQLiteBIMModelRepository;
+
+__all__ = ["SQLiteAdapter", "SQLiteApplicationParameterRepository", "SQLiteBIMModelRepository"];

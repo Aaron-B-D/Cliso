@@ -1,9 +1,7 @@
 {
-	"language": "es-ES",
 	"is_demo": true,
 	"database_provider": "sqlite",
 	"sqlite_directory": "data",
-	"demo_data_path": "demo_data.json",
 	"log_file_path": "logs/cliso.log",
 	"mysql_host": "localhost",
 	"mysql_port": 3306,

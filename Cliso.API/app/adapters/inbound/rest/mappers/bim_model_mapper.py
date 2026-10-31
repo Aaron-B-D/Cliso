@@ -1,9 +1,10 @@
 from app.adapters.inbound.rest import BIMModelDto;
 from app.domain.models import BIMModel;
+from app.domain.wrappers import BIMModelWrapper;
 
 
 class BIMModelMapper:
-	"""Convierte, campo a campo, entre el objeto de dominio `BIMModel` y su DTO `BIMModelDto`.
+	"""Convierte, campo a campo, entre el modelo BIM de dominio y su DTO `BIMModelDto`.
 
 	Clase estática: no se instancia.
 	"""
@@ -11,21 +12,22 @@ class BIMModelMapper:
 	# region PUBLIC STATIC METHODS
 
 	@staticmethod
-	def to_dto(model: BIMModel) -> BIMModelDto:
-		"""Convierte un modelo BIM de dominio en su DTO, para responder por la API.
+	def to_dto(wrapper: BIMModelWrapper) -> BIMModelDto:
+		"""Convierte un modelo BIM de dominio con datos extra (el tamaño de su fichero) en su DTO, para responder por la API.
 
 		Args:
-			model: Modelo BIM de dominio.
+			wrapper: Modelo BIM de dominio con sus datos extra.
 
 		Returns:
 			El DTO del modelo.
 		"""
 		return BIMModelDto(
-			id=model.id,
-			name=model.name,
-			description=model.description,
-			file_name=model.file_name,
-			creation_date=model.creation_date,
+			id=wrapper.id,
+			name=wrapper.name,
+			description=wrapper.description,
+			file_name=wrapper.file_name,
+			creation_date=wrapper.creation_date,
+			file_size=wrapper.file_size,
 		);
 
 	@staticmethod

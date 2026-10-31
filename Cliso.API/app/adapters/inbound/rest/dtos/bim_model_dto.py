@@ -23,4 +23,7 @@ class BIMModelDto(BaseModel):
 	creation_date: datetime | None = None;
 	"""Fecha de creación. La asigna el sistema; se ignora en la entrada."""
 
+	file_size: int | None = None;
+	"""Tamaño del fichero, en bytes (0 si todavía no tiene fichero). Lo calcula el sistema; se ignora en la entrada."""
+
 	# endregion PUBLIC PROPERTIES

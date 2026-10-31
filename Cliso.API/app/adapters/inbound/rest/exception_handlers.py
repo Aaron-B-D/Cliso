@@ -27,6 +27,35 @@ class ExceptionHandlers:
 		return JSONResponse(status_code=404, content={"detail": str(error)});
 
 	@staticmethod
+	async def bad_request(request: Request, error: Exception) -> JSONResponse:
+		"""Responde 400 cuando los datos recibidos no son válidos.
+
+		Args:
+			request: Petición que provocó la excepción.
+			error: Excepción de «datos no válidos».
+
+		Returns:
+			Respuesta 400 con el motivo.
+		"""
+		return JSONResponse(status_code=400, content={"detail": str(error)});
+
+	@staticmethod
+	async def file_storage_error(request: Request, error: Exception) -> JSONResponse:
+		"""Responde 500 cuando falla el acceso al almacenamiento de ficheros, y deja el motivo en el log.
+
+		Al cliente no se le da el detalle del fallo.
+
+		Args:
+			request: Petición que provocó la excepción.
+			error: Excepción de almacenamiento de ficheros.
+
+		Returns:
+			Respuesta 500 genérica.
+		"""
+		Logger.error(f"Error de almacenamiento de ficheros en {request.method} {request.url.path}.", error);
+		return JSONResponse(status_code=500, content={"detail": "Error al acceder al almacenamiento de ficheros"});
+
+	@staticmethod
 	async def persistence_error(request: Request, error: Exception) -> JSONResponse:
 		"""Responde 500 cuando falla el acceso al almacenamiento, y deja el motivo en el log.
 

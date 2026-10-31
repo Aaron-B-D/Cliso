@@ -1,39 +1,29 @@
-"""Adaptador REST (FastAPI): endpoints HTTP, DTOs y mappers. Todo se importa desde este namespace.
-
-El orden de los imports importa: primero los DTOs, luego los mappers (que usan los DTOs), luego los handlers de
-excepciones y por último los routers (que usan los DTOs y los mappers).
-"""
+"""Adaptador REST (FastAPI): lo que la aplicación expone por HTTP."""
 
 from app.adapters.inbound.rest.dtos import (
-	ApplicationSettingParameterDto,
-	ApplicationSettingsDto,
+	ApplicationParameterDto,
+	ApplicationParametersDto,
 	BIMModelDto,
-	UserCredentialsDto,
-	UserDto,
 	VisualizationDto,
 );
 from app.adapters.inbound.rest.mappers import (
-	ApplicationSettingsMapper,
+	ApplicationParameterMapper,
 	BIMModelMapper,
-	UserMapper,
 	VisualizationMapper,
 );
 from app.adapters.inbound.rest.exception_handlers import ExceptionHandlers;
-from app.adapters.inbound.rest.system_router import SystemRouter;
-from app.adapters.inbound.rest.user_router import UserRouter;
+from app.adapters.inbound.rest.application_parameter_router import ApplicationParameterRouter;
+from app.adapters.inbound.rest.bim_model_router import BIMModelRouter;
 
 __all__ = [
-	"ApplicationSettingParameterDto",
-	"ApplicationSettingsDto",
-	"ApplicationSettingsMapper",
+	"ApplicationParameterDto",
+	"ApplicationParameterMapper",
+	"ApplicationParameterRouter",
+	"ApplicationParametersDto",
 	"BIMModelDto",
 	"BIMModelMapper",
+	"BIMModelRouter",
 	"ExceptionHandlers",
-	"SystemRouter",
-	"UserCredentialsDto",
-	"UserDto",
-	"UserMapper",
-	"UserRouter",
 	"VisualizationDto",
 	"VisualizationMapper",
 ];

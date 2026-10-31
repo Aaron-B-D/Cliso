@@ -1,2 +1,0 @@
--- Datos básicos que se cargan al crear una base de datos MySQL real (no demo).
--- Cada sentencia termina en punto y coma. De momento no hay datos iniciales.
