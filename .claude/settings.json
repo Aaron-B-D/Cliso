@@ -1,0 +1,10 @@
+{
+  "extraKnownMarketplaces": {
+    "cliso": {
+      "source": { "source": "github", "repo": "Aaron-B-D/Cliso" }
+    }
+  },
+  "enabledPlugins": {
+    "cliso-tracker@cliso": true
+  }
+}

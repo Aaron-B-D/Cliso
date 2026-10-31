@@ -22,7 +22,7 @@ export type ReadmeState = {
 
 declare module 'claude-code' {
   interface PluginState {
-    'cliso-progreso': {
+    'cliso-tracker': {
       report: Shaped<Report | null>;
       open: Shaped<Record<string, boolean>>;
       shown: Shaped<boolean>;

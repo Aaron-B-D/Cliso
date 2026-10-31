@@ -29,7 +29,7 @@ el front se rige por su `.editorconfig`.
   hace en el editor para que el autor vea lo que cambia. El shell solo para ejecutar, comprobar y limpiar (y, como
   mucho, mover o borrar ficheros).
 - **README:** no se actualiza nunca durante las sesiones de código. Se actualiza solo cuando el autor lo pide, con el
-  botón "Pedir a Claude que actualice el README" del panel de progreso (`/cliso-progreso`), que envía los cambios
+  botón "Pedir a Claude que actualice el README" del panel de Cliso (`/cliso-tracker`), que envía los cambios
   anotados desde la última actualización. Tampoco toques la sección "Estado del proyecto y hoja de ruta" hasta
   que se pida expresamente.
 - **Explicaciones:** el autor viene de C#. Explica los conceptos de Python o TypeScript comparándolos con su

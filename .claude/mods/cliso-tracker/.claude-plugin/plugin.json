@@ -1,0 +1,6 @@
+{
+  "name": "cliso-tracker",
+  "version": "0.2.0",
+  "description": "Panel de ayudas del proyecto Cliso: progreso (back, front y requisitos académicos) y cambios pendientes del README. Solo actúa dentro del repositorio Cliso.",
+  "types": "./types/index.d.ts"
+}

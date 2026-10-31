@@ -4,13 +4,13 @@ import type { Register } from 'claude-code'
 import type { Block, ReadmeState, Report, Task } from '../types'
 // Los cambios del README se calculan con git, sin guardar nada por usuario: así valen en cualquier clon del repositorio.
 
-const PANE = 'cliso-progreso'
+const PANE = 'cliso-tracker'
 const HOUR = 60 * 60 * 1000
 // Se recalcula si el último informe tiene 23 h o más; con un tic cada hora, nunca pasan más de 24 h.
 const MAX_AGE = 23 * HOUR
 // Cambia la etiqueta si cambian los campos: descarta lo guardado por una versión anterior.
-const report = atom({ plugin: 'cliso-progreso', key: 'report' } as const, null, { shape: 'report-1' })
-const open = atom({ plugin: 'cliso-progreso', key: 'open' } as const, {}, { shape: 'open-1' })
+const report = atom({ plugin: 'cliso-tracker', key: 'report' } as const, null, { shape: 'report-1' })
+const open = atom({ plugin: 'cliso-tracker', key: 'open' } as const, {}, { shape: 'open-1' })
 
 // Logo de Cliso: un cubo isométrico (el modelo BIM común) con tres caras en tonos de azul
 // (las visualizaciones independientes que cada usuario crea sobre él).
@@ -23,10 +23,10 @@ const LOGO =
   '</svg>'
 
 // Si el panel se supone visible; lo cambia el botón discreto sobre el prompt.
-const shown = atom({ plugin: 'cliso-progreso', key: 'shown' } as const, true, { shape: 'shown-1' })
+const shown = atom({ plugin: 'cliso-tracker', key: 'shown' } as const, true, { shape: 'shown-1' })
 
 // Estado del README: cuándo se actualizó por última vez y los cambios pendientes de pasarle (calculados con git).
-const readme = atom({ plugin: 'cliso-progreso', key: 'readme' } as const, null, { shape: 'readme-2' })
+const readme = atom({ plugin: 'cliso-tracker', key: 'readme' } as const, null, { shape: 'readme-2' })
 
 type Entry = { name: string; kind: string; mtimeMs: number }
 
@@ -210,7 +210,7 @@ async function check($: any, base: string, now: number): Promise<{ report: Repor
       }
       tasks.push({ label: def.label, isDone })
     }
-    blocks.push({ id, title: TITLES[id], tasks })
+    blocks.push({ id, title: TITLES[id] ?? id, tasks })
   }
   return { report: { checkedAt: now, blocks }, modified }
 }
@@ -222,7 +222,7 @@ let lastRemindAt = 0
 /** Si un cambio cuenta para el README: no el propio README, ni dependencias, cachés o ficheros de herramientas. */
 const isTracked = (path: string): boolean => {
   const parts = path.split('/')
-  const name = parts[parts.length - 1]
+  const name = parts[parts.length - 1] ?? ''
 
   return path !== 'README.md' && !SKIP_FILES.has(name) && !parts.slice(0, -1).some(dir => SKIP_DIRS.has(dir))
 }
@@ -263,19 +263,19 @@ async function scanReadme($: any, base: string, now: number): Promise<void> {
   } else {
     // Árbol de trabajo frente al commit del README: incluye lo commiteado y lo que aún no.
     for (const line of lines(await git($, base, ['diff', '--name-status', '-M', syncedCommit]))) {
-      const parts = line.split('\t')
-      const status = parts[0].charAt(0)
+      const [code = '', first = '', second = ''] = line.split('\t')
+      const status = code.charAt(0)
       if (status === 'A') {
-        added.add(parts[1])
+        added.add(first)
       } else if (status === 'D') {
-        removed.add(parts[1])
+        removed.add(first)
       } else if (status === 'R') {
-        removed.add(parts[1])
-        added.add(parts[2])
+        removed.add(first)
+        added.add(second)
       } else if (status === 'C') {
-        added.add(parts[2])
+        added.add(second)
       } else {
-        changed.add(parts[1])
+        changed.add(first)
       }
     }
   }
@@ -319,16 +319,30 @@ async function scanReadme($: any, base: string, now: number): Promise<void> {
   await update($, readme, () => state)
 
   // Recordatorio sin gasto de tokens: un aviso en pantalla cada pocas horas mientras haya algo pendiente.
-  const pending = pendingCount(state)
-  if (pending > 0 && now - lastRemindAt >= REMIND_EVERY) {
+  if (needsReadme(state) && now - lastRemindAt >= REMIND_EVERY) {
     lastRemindAt = now
-    $.ui.toast(`README: ${pending} ficheros cambiados desde su última actualización. Abre /cliso-progreso para pedir que se actualice.`, {
+    $.ui.toast(`README: ${pendingCount(state)} ficheros cambiados (${relevantPaths(state).length} relevantes) desde su última actualización. Abre /cliso-tracker para pedir que se actualice.`, {
       timeoutMs: 8000,
     })
   }
 }
 
 const pendingCount = (s: ReadmeState): number => s.added.length + s.changed.length + s.removed.length
+
+// Ficheros que, al modificarse, suelen cambiar lo que cuenta el README (dependencias, configuración, esquema, diseños, documentos).
+const README_RELEVANT = /(^|\/)(package\.json|angular\.json|settings\.json|requirements[^/]*\.txt|[^/]*schema[^/]*\.sql|[^/]*\.drawio|[^/]*\.md)$/i
+// Si se modifican tantos ficheros de código, se aconseja revisar el README aunque ninguno sea de los anteriores.
+const MINOR_LIMIT = 10
+
+/** Cambios con probabilidad de afectar al README: ficheros nuevos, borrados o renombrados, y modificados de configuración o documentación. */
+const relevantPaths = (s: ReadmeState): string[] => [
+  ...s.added,
+  ...s.removed,
+  ...s.changed.filter(path => README_RELEVANT.test(path)),
+]
+
+/** Si conviene actualizar el README según lo cambiado: hay cambios relevantes o se han tocado muchos ficheros. */
+const needsReadme = (s: ReadmeState): boolean => s.isGit && (relevantPaths(s).length > 0 || s.changed.length >= MINOR_LIMIT)
 
 const listFiles = (label: string, paths: string[]): string =>
   paths.length === 0
@@ -349,6 +363,7 @@ function readmePrompt(state: ReadmeState): string {
       ? 'El README nunca se ha commiteado.'
       : `README actualizado por última vez: ${stamp(state.syncedAt)} (commit ${state.syncedCommit.slice(0, 7)}).`,
     changes,
+    'Primero decide si esos cambios obligan a tocar el README (estructura de carpetas, funcionalidades, tecnologías, ejecución). Si no hace falta, dilo y no cambies nada.',
   ].join('\n')
 }
 
@@ -433,8 +448,8 @@ async function start($: any): Promise<void> {
     }
     base = found
     await $.command.register({
-      name: 'cliso-progreso',
-      description: 'Abre el panel de progreso de Cliso (back, front y requisitos académicos)',
+      name: 'cliso-tracker',
+      description: 'Abre el panel de Cliso (progreso del proyecto y cambios pendientes del README)',
     })
     const saved = (await $.store.get('report')) as Report | undefined
     if (saved !== undefined && saved.root === base) {
@@ -442,7 +457,7 @@ async function start($: any): Promise<void> {
     }
     // Respeta la última elección del usuario: si lo ocultó, no se vuelve a abrir solo.
     if (await read($, shown)) {
-      void $.ui.open({ id: PANE, title: 'Progreso Cliso' })
+      void $.ui.open({ id: PANE, title: 'Tracker Cliso' })
     }
     await runIfStale($)
     cancel?.()
@@ -467,11 +482,11 @@ export const register: Register = on => {
     return next(e)
   })
 
-  on('command.run', { command: 'cliso-progreso' }, async $ => {
-    await $.ui.open({ id: PANE, title: 'Progreso Cliso' })
+  on('command.run', { command: 'cliso-tracker' }, async $ => {
+    await $.ui.open({ id: PANE, title: 'Tracker Cliso' })
     await update($, shown, () => true)
 
-    return { text: 'Panel de progreso de Cliso abierto.' }
+    return { text: 'Panel de Cliso abierto.' }
   })
 
   // Botón discreto sobre el prompt para mostrar/ocultar el panel.
@@ -487,7 +502,7 @@ export const register: Register = on => {
     const { Box, Button, Svg, Text } = $.ui.resolve(e) as any
     const isShown = await read($, shown)
     const readmeNow = await read($, readme)
-    const pending = readmeNow !== null && readmeNow.isGit ? pendingCount(readmeNow) : 0
+    const isReadmeDue = readmeNow !== null && needsReadme(readmeNow)
     // El logo se dibuja donde hay vectores (escritorio, VS Code, móvil); en terminal se usa un rombo.
     const hasLogo = Svg !== undefined
 
@@ -496,17 +511,17 @@ export const register: Register = on => {
         {hasLogo && <Svg key="logo" source={LOGO} alt="Logo de Cliso" width={18} height={18} />}
         <Button
           key="toggle-progress"
-          label={`${hasLogo ? ' ' : '◆ '}${isShown ? 'Ocultar progreso' : 'Mostrar progreso'}`}
+          label={`${hasLogo ? ' ' : '◆ '}${isShown ? 'Ocultar tracker' : 'Mostrar tracker'}`}
           onPress={async () => {
             if (isShown) {
               await $.ui.close({ id: PANE })
             } else {
-              await $.ui.open({ id: PANE, title: 'Progreso Cliso' })
+              await $.ui.open({ id: PANE, title: 'Tracker Cliso' })
             }
             await update($, shown, () => !isShown)
           }}
         />
-        {pending > 0 && <Text color="yellow"> · README: {pending} cambios pendientes</Text>}
+        {isReadmeDue && <Text color="yellow"> · README: conviene actualizarlo</Text>}
       </Box>
     )
   })
@@ -541,6 +556,11 @@ export const register: Register = on => {
               <Text color={pendingCount(readmeState) === 0 ? 'green' : 'yellow'}>
                 Ficheros cambiados desde entonces: {pendingCount(readmeState)} ({readmeState.added.length} nuevos,{' '}
                 {readmeState.changed.length} modificados, {readmeState.removed.length} eliminados)
+              </Text>
+              <Text color={needsReadme(readmeState) ? 'yellow' : 'green'}>
+                {needsReadme(readmeState)
+                  ? `Conviene actualizar el README: ${relevantPaths(readmeState).length} cambios relevantes`
+                  : 'No hace falta actualizar el README por ahora'}
               </Text>
             </Box>
           )}
