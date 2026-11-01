@@ -11,17 +11,20 @@ from app.adapters.outbound.persistence.database_cursor_base import DatabaseCurso
 from app.adapters.outbound.persistence.database_connection_base import DatabaseConnectionBase;
 from app.adapters.outbound.persistence.database_connection_provider_base import DatabaseConnectionProviderBase;
 from app.adapters.outbound.persistence.database_adapter_base import DatabaseAdapterBase;
+from app.adapters.outbound.persistence.visualization_piece_content_mapper import VisualizationPieceContentMapper;
 from app.adapters.outbound.persistence.sqlite import (
 	SQLiteAdapter,
 	SQLiteApplicationParameterRepository,
 	SQLiteBIMModelRepository,
 	SQLiteUserRepository,
+	SQLiteVisualizationRepository,
 );
 from app.adapters.outbound.persistence.mysql import (
 	MySQLAdapter,
 	MySQLApplicationParameterRepository,
 	MySQLBIMModelRepository,
 	MySQLUserRepository,
+	MySQLVisualizationRepository,
 );
 
 __all__ = [
@@ -38,8 +41,11 @@ __all__ = [
 	"MySQLApplicationParameterRepository",
 	"MySQLBIMModelRepository",
 	"MySQLUserRepository",
+	"MySQLVisualizationRepository",
 	"SQLiteAdapter",
 	"SQLiteApplicationParameterRepository",
 	"SQLiteBIMModelRepository",
 	"SQLiteUserRepository",
+	"SQLiteVisualizationRepository",
+	"VisualizationPieceContentMapper",
 ];

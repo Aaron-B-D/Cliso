@@ -1,7 +1,7 @@
 from pathlib import Path;
 from typing import ClassVar;
 
-from app.domain.models import BIMModel, User, UserRole;
+from app.domain.models import BIMModel, BIMModelVisualizationMarkerPiece, User, UserRole, Visualization;
 from app.utils import PasswordUtils;
 
 
@@ -70,6 +70,34 @@ class DemoData:
 				description="Edificio de dos viviendas, modelo de arquitectura (IFC 2x3).",
 				file_name="Ifc2x3_Duplex_Architecture.ifc",
 				stored_file_name="demo_ifc2x3_duplex_architecture.ifc",
+			),
+		];
+
+	@staticmethod
+	def get_visualizations(user_id: int, bim_model_id: int) -> list[Visualization]:
+		"""Devuelve las visualizaciones de demostración de un modelo BIM, sin guardar (sin `id`).
+
+		Args:
+			user_id: Identificador del usuario propietario (el administrador).
+			bim_model_id: Identificador del modelo BIM, ya guardado, sobre el que trabajan.
+
+		Returns:
+			Las visualizaciones demo: una privada y una pública.
+		"""
+		return [
+			Visualization(
+				user_id=user_id,
+				bim_model_id=bim_model_id,
+				name="Revisión de plantas",
+				description="Visualización privada de ejemplo.",
+			),
+			Visualization(
+				user_id=user_id,
+				bim_model_id=bim_model_id,
+				name="Recorrido público",
+				description="Visualización pública de ejemplo.",
+				is_public=True,
+				pieces=[BIMModelVisualizationMarkerPiece(x=0.0, y=0.0, z=0.0, color="#FF0000")],
 			),
 		];
 

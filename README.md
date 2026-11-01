@@ -252,12 +252,12 @@ Implementado hasta ahora (`Cliso.UI/src/app`):
 
 ## Clases: objetos de dominio y DTO
 
-Cada concepto (`BIMModel`, `User`, `Visualization`, `ApplicationParameter` y `Session`) tiene dos clases:
+Cada concepto (`BIMModel`, `User`, `Visualization`, `VisualizationPiece`, `ApplicationParameter` y `Session`) tiene dos clases:
 
 | Clase | Ubicación | Qué es |
 |---|---|---|
 | **Objeto de dominio** (dataclass) | `app/domain/models/` | Representa una fila de la base de datos dentro de la aplicación. Lo usan los casos de uso y lo devuelven los repositorios. |
-| **DTO** (Pydantic) | `app/adapters/inbound/rest/dtos/` | Lo que entra y sale por la API (`BIMModelDto`, `UserDto`, `UserCreationDto`, `UserModificationDto`, `VisualizationDto`, `ApplicationParameterDto`, `ApplicationParametersDto`, `LoginDto`, `SessionDto`), sin campos internos: el de usuario nunca lleva la contraseña, ni siquiera hasheada. |
+| **DTO** (Pydantic) | `app/adapters/inbound/rest/dtos/` | Lo que entra y sale por la API (`BIMModelDto`, `UserDto`, `UserCreationDto`, `UserModificationDto`, `VisualizationDto`, `BIMModelVisualizationMarkerPieceDto`, `ApplicationParameterDto`, `ApplicationParametersDto`, `LoginDto`, `SessionDto`), sin campos internos: el de usuario nunca lleva la contraseña, ni siquiera hasheada. |
 | **Mapper** (clase estática) | `app/adapters/inbound/rest/mappers/` | Convierte, campo a campo y de forma explícita, entre dominio y DTO (`to_dto`, `to_domain`). Sin conversión automática. |
 
 Además, un **wrapper** (`app/domain/wrappers/`) es un objeto de dominio con datos extra calculados al consultarlo:
@@ -315,6 +315,25 @@ Se describen a continuación los objetos de dominio.
 | `active` | `bool` | `True` activa, `False` borrada (borrado lógico). |
 | `creation_date` | `datetime` | Fecha y hora de creación. |
 | `update_date` | `datetime \| None` | Fecha y hora de la última modificación (`None` si nunca se ha modificado). |
+| `pieces` | `list[VisualizationPiece] \| None` | Piezas, por orden de añadido. `None` si no se han cargado (o, al modificar, si no se quieren tocar). |
+
+### `VisualizationPiece` (implementado: `Cliso.API/app/domain/models/visualization_piece.py`)
+
+Cada una de las piezas que el usuario ha añadido a una visualización, por orden de añadido (el de su `id`). Es una
+clase base: cada tipo de pieza la especializa con los datos que necesita para mostrarse.
+
+| Campo | Tipo | Descripción |
+|---|---|---|
+| `id` | `int` | Identificador único. Lo asigna la base de datos al guardar; cada guardado de la lista de piezas lo regenera. |
+| `type` | `VisualizationPieceType` | Tipo de la pieza. |
+
+Por ahora solo existe un tipo, `BIMModelVisualizationMarkerPiece` (`type = MARKER`), que pinta un marcador sencillo (un
+círculo) de un color en una coordenada del modelo BIM:
+
+| Campo | Tipo | Descripción |
+|---|---|---|
+| `x`, `y`, `z` | `float` | Coordenada del marcador en el modelo BIM. |
+| `color` | `str` | Color del círculo, en hexadecimal (`#RRGGBB`). Por defecto `#FF0000`. |
 
 ### `ApplicationParameter` (implementado: `Cliso.API/app/domain/models/application_parameter.py`)
 
@@ -338,7 +357,7 @@ Una sesión abierta. **No se guarda en la base de datos**: vive en la memoria de
 | `creation_date` | `datetime` | Cuándo se inició la sesión. |
 | `last_access_date` | `datetime` | Última petición con sesión válida; de ella se cuenta la inactividad. |
 
-### Enumerados de usuario
+### Enumerados
 
 Son enumerados de texto (`StrEnum`), cada uno en su fichero de `Cliso.API/app/domain/models/`.
 
@@ -346,15 +365,19 @@ Son enumerados de texto (`StrEnum`), cada uno en su fichero de `Cliso.API/app/do
 |---|---|---|
 | `UserRole` | `ADMIN`, `OPERATOR`, `VIEWER` | Rol de un usuario; se guarda como texto en `user.role`. Hay solo tres, para que los permisos sean sencillos. `ADMIN` ve y gestiona todo (modelos, usuarios, parámetros de la aplicación...); `OPERATOR` hace todo lo operativo con los modelos BIM y edita sus propias visualizaciones, pero no gestiona usuarios ni parámetros; `VIEWER` solo ve las visualizaciones públicas a las que se le da acceso. El inicio de sesión ya existe, pero los permisos de cada rol todavía no se aplican: hoy cualquier usuario con sesión puede usar todos los endpoints. |
 | `PasswordRequirement` | `MIN_LENGTH`, `UPPERCASE`, `LOWERCASE`, `DIGIT`, `SYMBOL` | Requisito mínimo que debe cumplir una contraseña. Su valor es el código que recibe el cliente cuando la contraseña se rechaza, para que el front ponga el texto en cada idioma. |
+| `VisualizationPieceType` | `MARKER` | Tipo de una pieza de visualización. Decide a qué clase de pieza se deserializa su JSON. Se guarda dentro del propio JSON de la pieza, no en una columna. |
 
 > Los `id` son `int` en Python (sin límite de tamaño); el tipo `long` (64 bits, `BIGINT`) se aplica en la
 > base de datos. La unicidad de `nick` la garantiza un `UNIQUE` en la base de datos (`UserAlreadyExistsError`).
 
 Relaciones: un usuario tiene muchas visualizaciones; un modelo BIM tiene muchas visualizaciones; cada
-visualización pertenece a un único usuario y a un único modelo.
+visualización pertenece a un único usuario y a un único modelo, y tiene muchas piezas.
 
 ```
 User 1 ───< Visualization >─── 1 BIMModel
+                 1
+                 │
+                 └───< VisualizationPiece
 ```
 
 ### Diseño de la base de datos
@@ -364,8 +387,8 @@ El diagrama UML está en [`Documentation/Database/[Diseño] Cliso.API - Base de 
 marca en cursiva gris las columnas que admiten `NULL`.
 
 > Los esquemas SQL (`sqlite_schema.sql` y `mysql_schema.sql`) reflejan por completo este diseño: mismas tablas y
-> columnas. Los repositorios y servicios ya existen para `application_parameter`, `user` y `bim_model`;
-> `visualization` y `visualization_piece` están en el esquema, pero todavía sin repositorios ni endpoints. Los
+> columnas. Los repositorios y servicios ya existen para `application_parameter`, `user`, `bim_model` y
+> `visualization` (el repositorio de visualizaciones guarda también `visualization_piece`). Los
 > esquemas solo se aplican al **crear** la base de datos: una base de datos creada con un esquema anterior no se
 > migra, hay que borrarla y dejar que se cree de nuevo.
 
@@ -397,7 +420,11 @@ Decisiones de diseño (para la memoria):
 - `bim_model.file_name` es el nombre original del fichero (el que verá el usuario) y `stored_file_name` el nombre
   aleatorio único (`<uuid>.ifc`) con el que se guarda en disco, para evitar colisiones y rutas adivinables. Se genera
   al crear el modelo, aunque todavía no tenga fichero.
-- `visualization_piece.content` es un JSON cuya clase base indica el tipo de pieza; el tipo no es una columna.
+- `visualization_piece.content` es un JSON con la estructura de la pieza (por ejemplo, un marcador:
+  `{"type": "MARKER", "x": 0.0, "y": 0.0, "z": 0.0, "color": "#FF0000"}`); el tipo va dentro del JSON y no es una
+  columna. Al leer, el JSON se deserializa en la clase de dominio que indica su tipo antes de llegar al front; el
+  `id` de la pieza es el de su fila. El orden de las piezas es el de su `id`, sin columna de posición: reordenar es
+  guardar la lista en el orden nuevo.
 - `application_parameter` guarda `type` (único), `default_value` y `current_value` como texto, sin tipo: la
   aplicación los parsea según el parámetro. No guarda nombres ni descripciones: los pone el front, en cada idioma
   (textos `AS_*`). Los parámetros de arranque (`is_demo`, `database_provider`, MySQL...) siguen en `settings.json`
@@ -435,22 +462,23 @@ Cliso.API/app/
 ├── initializer/                  # DatabaseInitializer (prepara la base de datos al arrancar) y DemoData (datos demo como objetos de dominio)
 │
 ├── domain/                       # NÚCLEO: conceptos del negocio, sin dependencias externas
-│   ├── models/                   #   BIMModel, User, Visualization, ApplicationParameter, Session (dataclasses) y los enumerados ApplicationParameterType, UserRole y PasswordRequirement
+│   ├── models/                   #   BIMModel, User, Visualization, VisualizationPiece, BIMModelVisualizationMarkerPiece, ApplicationParameter, Session (dataclasses) y los enumerados ApplicationParameterType, UserRole, PasswordRequirement y VisualizationPieceType
 │   └── wrappers/                 #   Objetos de dominio con datos calculados (BIMModelWrapper)
 │
 ├── application/                  # NÚCLEO: casos de uso y puertos
 │   ├── ports/
-│   │   ├── inbound/              #   Puertos de entrada: lo que se puede pedir a la aplicación (BIMModelServiceBase, UserServiceBase, ApplicationParameterServiceBase, AuthServiceBase)
-│   │   └── outbound/             #   Puertos de salida: lo que la aplicación necesita (BIMModelRepositoryBase, BIMModelFileStorageBase, UserRepositoryBase, ApplicationParameterRepositoryBase)
-│   ├── use_cases/                #   Casos de uso (BIMModelService, UserService, ApplicationParameterService, AuthService)
-│   └── exceptions/               #   Excepciones del contrato de los puertos, agrupadas por tema: application_parameter/, auth/, bim_model/ y user/ (más PersistenceError y FileStorageError)
+│   │   ├── inbound/              #   Puertos de entrada: lo que se puede pedir a la aplicación (BIMModelServiceBase, UserServiceBase, VisualizationServiceBase, ApplicationParameterServiceBase, AuthServiceBase)
+│   │   └── outbound/             #   Puertos de salida: lo que la aplicación necesita (BIMModelRepositoryBase, BIMModelFileStorageBase, UserRepositoryBase, VisualizationRepositoryBase, ApplicationParameterRepositoryBase)
+│   ├── use_cases/                #   Casos de uso (BIMModelService, UserService, VisualizationService, ApplicationParameterService, AuthService)
+│   └── exceptions/               #   Excepciones del contrato de los puertos, agrupadas por tema: application_parameter/, auth/, bim_model/, user/ y visualization/ (más PersistenceError y FileStorageError)
 │
 └── adapters/                     # EXTERIOR: conectan el núcleo con el mundo
-    ├── inbound/rest/             #   Adaptador de entrada: routers FastAPI (BIMModelRouter.create(service, auth_service), UserRouter, AuthRouter...), SessionDependency (exige la sesión), ExceptionHandlers, dtos/ y mappers/
+    ├── inbound/rest/             #   Adaptador de entrada: routers FastAPI (BIMModelRouter.create(service, auth_service), UserRouter, AuthRouter, VisualizationRouter...), SessionDependency (exige la sesión), ExceptionHandlers, dtos/ y mappers/
     └── outbound/                 #   Adaptadores de salida
         ├── storage/              #     Ficheros: LocalBIMModelFileStorage (carpeta del disco)
         └── persistence/          #     Base de datos
             ├── database_*_base.py    #       Contratos: DatabaseAdapterBase (raíz), DatabaseConnectionProviderBase, DatabaseConnectionBase, DatabaseCursorBase y DatabaseRowBase
+            ├── visualization_piece_content_mapper.py  #  VisualizationPieceContentMapper: convierte una pieza de dominio en el JSON de `content` y al revés (lo comparten SQLite y MySQL)
             ├── sqlite/               #       SQLite: SQLiteAdapter, repositorios, sqlite_schema.sql y sqlite_basic_data.sql
             ├── mysql/                #       MySQL: MySQLAdapter, repositorios, mysql_schema.sql y mysql_basic_data.sql
             └── exceptions/           #       Errores de base de datos (DatabaseError y derivadas)
@@ -459,7 +487,7 @@ Cliso.API/app/
 Cada capa es dueña de sus excepciones: las guarda en un subdirectorio `exceptions/` de su propio namespace
 (`app/config/exceptions/` para los errores de los parámetros de arranque), que se reexporta desde el namespace. En la
 capa de aplicación, que tiene muchas, se agrupan además en subcarpetas por tema (`application_parameter/`,
-`auth/`, `bim_model/` y `user/`); aun así, desde fuera se importan todas de `app.application.exceptions`.
+`auth/`, `bim_model/`, `user/` y `visualization/`); aun así, desde fuera se importan todas de `app.application.exceptions`.
 
 Regla de dependencias: **todo apunta hacia el núcleo**. `adapters` depende de `application` y `domain`; `application`
 depende de `domain`; `domain` no importa nada de la aplicación. Nunca al revés. Los puertos son las interfaces:
@@ -636,16 +664,19 @@ inserta nada.
 Al arrancar (en el `lifespan` de `main.py`), se crea el adaptador y los repositorios según el proveedor y el modo de
 los parámetros de arranque, y se llama a `DatabaseInitializer` (`app/initializer/`):
 
-- Si la base de datos **ya existe**, no se toca (en modo demo, se reutiliza la del día).
-- Si **no existe**, la crea con sus tablas y carga siempre los datos básicos: los parámetros de la aplicación (desde
+- En modo **real**, si la base de datos **ya existe**, no se toca nunca. En modo **demo** se borra y se rehace de cero en
+  cada arranque, para que empiece siempre limpia.
+- Si **no existe** (o es la demo), la crea con sus tablas y carga siempre los datos básicos: los parámetros de la aplicación (desde
   los `.sql`) y el usuario `admin` (con rol `ADMIN` y contraseña inicial `admin`, cámbiala), que se guarda desde
   Python con el repositorio porque su contraseña va hasheada. En modo demo carga además los datos de `DemoData`, que
-  son objetos de dominio (`BIMModel` y `User`) guardados con los repositorios de la API, sin ficheros ni sentencias
-  SQL aparte: dos modelos (con su fichero IFC, que se copia desde `app/initializer/demo_models/` a la carpeta de modelos
-del parámetro `BIM_MODELS_DIRECTORY`, con nombre fijo) y dos usuarios, `operator` (rol `OPERATOR`) y `viewer` (rol `VIEWER`), cuya contraseña es
-  su propio nick. Estos usuarios iniciales no pasan por las reglas de contraseña del servicio.
+  son objetos de dominio (`BIMModel`, `User` y `Visualization`) guardados con los repositorios de la API, sin ficheros
+  ni sentencias SQL aparte: dos modelos (con su fichero IFC, que se copia desde `app/initializer/demo_models/` a la carpeta de modelos
+del parámetro `BIM_MODELS_DIRECTORY`, con nombre fijo), dos usuarios, `operator` (rol `OPERATOR`) y `viewer` (rol `VIEWER`), cuya contraseña es
+  su propio nick, y dos visualizaciones de `admin` sobre el primer modelo (una privada y una pública, esta con un
+  marcador). Estos usuarios iniciales no pasan por las reglas de contraseña del servicio.
 - Si algo falla después de crearla, **la borra**, para no dejar una base de datos a medias que el siguiente arranque
-  daría por buena. Es la única vez que el arranque borra una base de datos, y siempre una que acaba de crear.
+  daría por buena. Aparte de la demo, que se rehace a propósito, el arranque solo borra una base de datos que acaba de
+  crear él mismo.
 
 Cualquier error de base de datos
 detiene el arranque. La carpeta `data/` (ficheros SQLite) no se versiona.
@@ -687,10 +718,10 @@ traducen cualquier fallo de la base de datos a `PersistenceError` (`app/applicat
 tecnología. Los routers no capturan errores: las excepciones se escapan y las traducen a HTTP los handlers de
 `ExceptionHandlers` (`adapters/inbound/rest`), que se registran por bloques de código de respuesta en
 `AppStartupConfigurator.register_exception_handlers()`: las de «no encontrado» (`BIMModelNotFoundError`, `BIMModelContentNotFoundError`,
-`UserNotFoundError`, `ApplicationParameterNotFoundError`) → 404; los datos no válidos (`BIMModelValidationError`,
-`UserValidationError`) → 400, y `UserPasswordValidationError` → 400 también, con los códigos de los requisitos que
-falla; `AuthInvalidCredentialsError` y `AuthSessionNotValidError` → 401; `UserProtectedError` → 403;
-`UserAlreadyExistsError` → 409; `AuthTooManyAttemptsError` → 429; y `PersistenceError` y `FileStorageError` → 500 (se
+`UserNotFoundError`, `VisualizationNotFoundError`, `ApplicationParameterNotFoundError`) → 404; los datos no válidos
+(`BIMModelValidationError`, `UserValidationError`, `VisualizationValidationError`) → 400, y `UserPasswordValidationError` → 400
+también, con los códigos de los requisitos que falla; `AuthInvalidCredentialsError` y `AuthSessionNotValidError` → 401;
+`UserProtectedError` y `VisualizationForbiddenError` → 403; `UserAlreadyExistsError` → 409; `AuthTooManyAttemptsError` → 429; y `PersistenceError` y `FileStorageError` → 500 (se
 registra en el log y al cliente no se le da el detalle). Cualquier otra excepción no prevista también responde 500 y
 se registra en el log.
 Un endpoint nuevo no necesita `try/except`; si aparece una excepción nueva, se
@@ -739,7 +770,8 @@ Decisiones de diseño (para la memoria):
   ha preferido un inicio de sesión con nick y contraseña, una sesión en memoria y un token en cookie `HttpOnly`.
 - **Límites conocidos:** al reiniciar la API se pierden las sesiones y los contadores de intentos, y no funciona con
   varios procesos (`--workers`) porque cada uno tendría su memoria; la sesión está ligada a la IP, así que un cambio de
-  red obliga a iniciar sesión otra vez; y los permisos de cada rol (`UserRole`) todavía no se aplican.
+  red obliga a iniciar sesión otra vez; y los permisos de cada rol (`UserRole`) solo se aplican, de momento, en las
+  visualizaciones (ver «Servicio de visualizaciones»).
 - **Alojar la web y la API en sitios distintos:** hace falta `session_cookie_same_site` a `none`, https, el origen de
   la web en `allowed_origins`, la URL completa de la API en el `Environment.API_URL` del front y, si hay un proxy
   delante, que uvicorn se fíe de él (`FORWARDED_ALLOW_IPS`) para ver la IP real del cliente.
@@ -784,7 +816,8 @@ Reglas:
   aplicación (habría que contactar con el técnico); `force=true` queda para uso excepcional directo sobre la API.
 - **Sesiones:** borrar un usuario o cambiarle el rol cierra sus sesiones abiertas. Un usuario desactivado no puede
   entrar (la búsqueda por nick solo devuelve usuarios activos).
-- **Pendiente:** que un usuario no pueda borrarse a sí mismo y la aplicación de los permisos de cada rol.
+- **Pendiente:** que un usuario no pueda borrarse a sí mismo y la aplicación de los permisos de cada rol en los usuarios,
+  los modelos BIM y los parámetros (en las visualizaciones ya se aplican).
 
 ### Servicio de modelos BIM
 
@@ -818,6 +851,58 @@ Notas de diseño:
 - La conexión MySQL usa la opción `FOUND_ROWS`, para que `rowcount` cuente las filas que cumplen el `WHERE` aunque el
   `UPDATE` no cambie nada (como en SQLite); sin ella, volver a subir un fichero con el mismo nombre daría un 404 falso.
 
+### Servicio de visualizaciones
+
+`VisualizationService` (implementa el puerto `VisualizationServiceBase`) usa dos puertos de salida:
+`VisualizationRepositoryBase` (`SQLiteVisualizationRepository` y `MySQLVisualizationRepository`, con SQL escrito a
+mano) y `BIMModelRepositoryBase` (para comprobar que existe el modelo de una visualización nueva). `main.py` entrega el
+servicio a `VisualizationRouter.create(service, auth_service)`. Todos los endpoints exigen una sesión válida
+(`SessionDependency`, como el resto de routers) y el servicio actúa en nombre de su usuario. El servicio trabaja con
+objetos de dominio `Visualization`; `VisualizationMapper` y `VisualizationPieceMapper` los convierten en
+`VisualizationDto` y `BIMModelVisualizationMarkerPieceDto`.
+
+| Endpoint | Qué hace | Respuestas |
+|---|---|---|
+| `GET /visualizations?bim_model_id=N&depth=0` | Lista las visualizaciones activas que puede ver el usuario, todas o solo las del modelo `N`. | 200, 401, 422 si `depth` o `bim_model_id` no son válidos |
+| `GET /visualizations/{id}?depth=0` | Devuelve una visualización activa que el usuario pueda ver. | 200, 401, 404 (también si no puede verla) |
+| `POST /visualizations` | Crea una visualización (`bim_model_id`, `name`, `description`, `observations`, `is_public` y, opcionalmente, `pieces`). `id`, `user_id` y el `id` de cada pieza los asigna el sistema; el propietario es el usuario de la sesión. | 201, 400 si el nombre no es válido o una coordenada no es finita, 401, 403 si es `VIEWER`, 404 si no existe el modelo |
+| `PUT /visualizations/{id}` | Modifica `name`, `description`, `observations`, `is_public` y `pieces`. El propietario no cambia y `bim_model_id` debe ser el que ya tiene. | 200, 400 si el nombre no es válido, una coordenada no es finita o `bim_model_id` es otro, 401, 403 si no es suya o es `VIEWER`, 404 |
+| `DELETE /visualizations/{id}?force=false` | Borrado lógico (`active = 0`). Con `force=true` se borran de verdad la visualización y sus piezas. | 204, 401, 403 si no es suya o es `VIEWER`, 404 |
+
+Notas de diseño:
+
+- **`depth`:** con `0` (por defecto) la visualización se recupera sin piezas y `pieces` vale `null`, para recuperaciones
+  ligeras (por ejemplo, el listado del editor); con `1` incluye todas sus piezas, por orden de añadido. Otros valores
+  responden 422. `pieces: null` significa «no cargadas», distinto de `[]` (sin ninguna pieza). Con `depth=1`, el
+  listado lee las piezas de todas las visualizaciones con **una sola consulta adicional** (un `JOIN` con el mismo
+  filtro), no una por visualización, para que el coste no crezca con su número.
+- **Modelo BIM:** una visualización no puede cambiar de modelo. Por eso el `PUT` exige `bim_model_id` (como el de los
+  usuarios exige el `nick`) y responde 400 si no coincide con el guardado.
+- **Piezas en el `PUT`:** si `pieces` es `null` o no se envía, las piezas guardadas no se tocan (renombrar una
+  visualización no las borra); si es una lista, **sustituye a todas** las guardadas, en ese orden (`[]` las borra).
+  Las piezas se guardan en una sola transacción junto con la visualización, así que un fallo a medias no deja la
+  visualización sin piezas. Como se reinsertan, sus `id` cambian en cada guardado de la lista.
+- **Tipo de pieza:** de momento solo `MARKER` (`BIMModelVisualizationMarkerPieceDto`: `x`, `y`, `z` y `color`). Un tipo
+  desconocido en la entrada responde 422. Las coordenadas deben ser números finitos: un `NaN` o un infinito responde
+  400, y se comprueba en el servicio y no en el DTO porque el error de validación de Pydantic repetiría el valor
+  recibido y un `NaN` no se puede escribir en la respuesta JSON (daría un 500). El `color` es un texto libre, a
+  propósito: admite cualquier forma de expresar un color. Cuando haya más tipos, `pieces` pasará a ser una unión
+  discriminada por `type`.
+- **Permisos según la sesión y el rol** (los aplica `VisualizationService`):
+
+  | Rol | Ver | Crear | Modificar y borrar |
+  |---|---|---|---|
+  | `ADMIN` | Todas | Sí | Solo las suyas |
+  | `OPERATOR` | Las públicas y las suyas | Sí | Solo las suyas |
+  | `VIEWER` | Las públicas y las suyas | No (403) | No (403) |
+
+  El propietario siempre es el usuario de la sesión: el `user_id` que envíe el cliente se ignora. Una visualización
+  que el usuario no puede ver responde 404, como si no existiera, para no revelar que existe; una que sí ve pero no puede
+  modificar responde 403. El filtro de visibilidad se aplica en la consulta SQL (también el de las piezas con
+  `depth=1`), no en memoria, para que el coste no dependa de cuántas visualizaciones ajenas haya. Un administrador
+  tampoco modifica las visualizaciones de otros: «solo su propietario puede modificarla».
+- Los `id` de la URL deben estar entre 1 y 2^63-1; fuera de ese rango la API responde 422.
+
 ### Log
 
 `Logger` (`app/logger.py`) escribe en el fichero de `log_file_path` con el formato `fecha [NIVEL] mensaje` y tres
@@ -834,17 +919,23 @@ Los mensajes se añaden al final del fichero (no se borra lo anterior). La carpe
 
 ## Estado del proyecto y hoja de ruta
 
-Estado actual: estructura inicial de ambos proyectos y entidades de dominio `BIMModel`, `User` y `Visualization` definidas.
+Estado actual: la API ya ofrece inicio de sesión, los parámetros de la aplicación, los usuarios, los modelos BIM (con su
+fichero IFC) y las visualizaciones con sus piezas, sobre SQLite o MySQL, con autoinstalación y modo demo; el front tiene el esqueleto de
+navegación, el arranque y los textos multidioma, pero aún ninguna pantalla funcional (ver «Estado del front»).
 
-- [x] Entidad `BIMModel` en dominio.
-- [x] Entidades `User` y `Visualization`.
-- [ ] Elegir base de datos y añadir SQLAlchemy (repositorios en `adapters`).
-- [ ] Casos de uso de modelos BIM + endpoints CRUD.
-- [ ] Subida/descarga y almacenamiento de ficheros de modelos.
-- [ ] Autenticación por credenciales y sesión en cookie.
-- [ ] Casos de uso y endpoints de visualizaciones.
+- [x] Entidades de dominio `BIMModel`, `User` y `Visualization` (y `VisualizationPiece`).
+- [x] Base de datos: SQLite y MySQL con SQL escrito a mano (sin ORM), repositorios en `adapters`, autoinstalación y modo demo.
+- [x] Casos de uso y endpoints de modelos BIM (CRUD).
+- [x] Subida/descarga y almacenamiento de ficheros de modelos.
+- [x] Casos de uso y endpoints de usuarios (roles y contraseñas hasheadas).
+- [x] Casos de uso y endpoints de visualizaciones, con su primera pieza (marcador) y recuperación ligera o completa (`depth`).
+- [x] Diagrama de base de datos para la memoria.
+- [x] Entorno local con Docker Compose.
+- [x] Autenticación por credenciales y sesión en cookie; en las visualizaciones, ya con propietario y permisos por rol.
+- [ ] Permisos por rol en usuarios, modelos BIM y parámetros de la aplicación.
+- [ ] Más tipos de pieza de visualización (colores, etiquetas, paneles, cámaras...).
 - [ ] Front: login, gestión de modelos, visor 3D y editor de visualizaciones.
-- [ ] Tests (`Cliso.API/test/`) y diagrama de base de datos para la memoria.
+- [ ] Tests (`Cliso.API/test/`).
 
 ## Convenciones
 

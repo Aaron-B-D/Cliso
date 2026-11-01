@@ -1,6 +1,8 @@
 from dataclasses import dataclass, field;
 from datetime import datetime;
 
+from app.domain.models.visualization_piece import VisualizationPiece;
+
 
 @dataclass(kw_only=True)
 class Visualization:
@@ -37,5 +39,8 @@ class Visualization:
 
 	update_date: datetime | None = None;
 	"""Fecha y hora de la última modificación de la visualización (None si nunca se ha modificado)."""
+
+	pieces: list[VisualizationPiece] | None = None;
+	"""Piezas de la visualización, por orden de añadido. None si no se han cargado (o, al modificar, si no se quieren tocar)."""
 
 	# endregion PUBLIC PROPERTIES

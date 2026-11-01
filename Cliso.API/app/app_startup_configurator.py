@@ -17,6 +17,9 @@ from app.application.exceptions import (
 	UserPasswordValidationError,
 	UserProtectedError,
 	UserValidationError,
+	VisualizationForbiddenError,
+	VisualizationNotFoundError,
+	VisualizationValidationError,
 );
 from app.config import StartupParametersManager;
 
@@ -66,11 +69,13 @@ class AppStartupConfigurator:
 		app.add_exception_handler(BIMModelContentNotFoundError, ExceptionHandlers.not_found);
 		app.add_exception_handler(BIMModelNotFoundError, ExceptionHandlers.not_found);
 		app.add_exception_handler(UserNotFoundError, ExceptionHandlers.not_found);
+		app.add_exception_handler(VisualizationNotFoundError, ExceptionHandlers.not_found);
 
 		# 400: los datos recibidos no son válidos.
 		app.add_exception_handler(BIMModelValidationError, ExceptionHandlers.bad_request);
 		app.add_exception_handler(UserValidationError, ExceptionHandlers.bad_request);
 		app.add_exception_handler(UserPasswordValidationError, ExceptionHandlers.password_requirements);
+		app.add_exception_handler(VisualizationValidationError, ExceptionHandlers.bad_request);
 
 		# 401: no hay una sesión válida o las credenciales no son correctas.
 		app.add_exception_handler(AuthInvalidCredentialsError, ExceptionHandlers.unauthorized);
@@ -78,6 +83,7 @@ class AppStartupConfigurator:
 
 		# 403: la operación no está permitida sobre lo indicado.
 		app.add_exception_handler(UserProtectedError, ExceptionHandlers.forbidden);
+		app.add_exception_handler(VisualizationForbiddenError, ExceptionHandlers.forbidden);
 
 		# 409: choca con algo que ya existe.
 		app.add_exception_handler(UserAlreadyExistsError, ExceptionHandlers.conflict);

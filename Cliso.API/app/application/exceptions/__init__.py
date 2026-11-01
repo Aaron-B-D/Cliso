@@ -23,6 +23,12 @@ from app.application.exceptions.user import (
 	UserProtectedError,
 	UserValidationError,
 );
+from app.application.exceptions.visualization import (
+	VisualizationError,
+	VisualizationForbiddenError,
+	VisualizationNotFoundError,
+	VisualizationValidationError,
+);
 
 __all__ = [
 	"ApplicationParameterError",
@@ -43,4 +49,8 @@ __all__ = [
 	"UserPasswordValidationError",
 	"UserProtectedError",
 	"UserValidationError",
+	"VisualizationError",
+	"VisualizationForbiddenError",
+	"VisualizationNotFoundError",
+	"VisualizationValidationError",
 ];

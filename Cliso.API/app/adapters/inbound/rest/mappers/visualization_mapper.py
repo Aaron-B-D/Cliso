@@ -1,5 +1,6 @@
-from app.adapters.inbound.rest import VisualizationDto;
-from app.domain.models import Visualization;
+from app.adapters.inbound.rest import BIMModelVisualizationMarkerPieceDto, VisualizationDto;
+from app.adapters.inbound.rest.mappers.visualization_piece_mapper import VisualizationPieceMapper;
+from app.domain.models import Visualization, VisualizationPiece;
 
 
 class VisualizationMapper:
@@ -20,6 +21,9 @@ class VisualizationMapper:
 		Returns:
 			El DTO de la visualización.
 		"""
+		pieces: list[BIMModelVisualizationMarkerPieceDto] | None = None;
+		if visualization.pieces is not None:
+			pieces = [VisualizationPieceMapper.to_dto(piece) for piece in visualization.pieces];
 		return VisualizationDto(
 			id=visualization.id,
 			user_id=visualization.user_id,
@@ -28,6 +32,7 @@ class VisualizationMapper:
 			description=visualization.description,
 			observations=visualization.observations,
 			is_public=visualization.is_public,
+			pieces=pieces,
 		);
 
 	@staticmethod
@@ -43,6 +48,9 @@ class VisualizationMapper:
 		Returns:
 			La visualización de dominio, activa y sin `id` hasta que se guarde.
 		"""
+		pieces: list[VisualizationPiece] | None = None;
+		if dto.pieces is not None:
+			pieces = [VisualizationPieceMapper.to_domain(piece) for piece in dto.pieces];
 		return Visualization(
 			user_id=user_id,
 			bim_model_id=dto.bim_model_id,
@@ -50,6 +58,7 @@ class VisualizationMapper:
 			description=dto.description,
 			observations=dto.observations,
 			is_public=dto.is_public,
+			pieces=pieces,
 		);
 
 	# endregion PUBLIC STATIC METHODS

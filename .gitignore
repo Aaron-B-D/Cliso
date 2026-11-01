@@ -1,3 +1,10 @@
 Documentation/\[V1\] \[Memoria proyecto\] Cliso - Aarón Barreira Diz.odt
-/Cliso.API/.idea
 /Cliso.Docker/.env
+
+# Carpetas y ficheros que crean los IDE (PyCharm, Visual Studio, Fleet) y no aportan nada al proyecto.
+# La configuración compartida de VS Code (.vscode) sí se versiona: tiene los ajustes de formato y la depuración.
+.idea/
+.vs/
+.fleet/
+*.suo
+*.user

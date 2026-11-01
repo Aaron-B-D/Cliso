@@ -3,7 +3,13 @@ from contextlib import asynccontextmanager;
 
 from fastapi import FastAPI;
 
-from app.adapters.inbound.rest import ApplicationParameterRouter, AuthRouter, BIMModelRouter, UserRouter;
+from app.adapters.inbound.rest import (
+	ApplicationParameterRouter,
+	AuthRouter,
+	BIMModelRouter,
+	UserRouter,
+	VisualizationRouter,
+);
 from app.adapters.outbound.persistence import (
 	DatabaseAdapterBase,
 	DatabaseError,
@@ -11,16 +17,29 @@ from app.adapters.outbound.persistence import (
 	MySQLApplicationParameterRepository,
 	MySQLBIMModelRepository,
 	MySQLUserRepository,
+	MySQLVisualizationRepository,
 	SQLiteAdapter,
 	SQLiteApplicationParameterRepository,
 	SQLiteBIMModelRepository,
 	SQLiteUserRepository,
+	SQLiteVisualizationRepository,
 );
 from app.adapters.outbound.storage import LocalBIMModelFileStorage;
 from app.app_startup_configurator import AppStartupConfigurator;
 from app.application.exceptions import ApplicationParameterError, PersistenceError;
-from app.application.ports.outbound import ApplicationParameterRepositoryBase, BIMModelRepositoryBase, UserRepositoryBase;
-from app.application.use_cases import ApplicationParameterService, AuthService, BIMModelService, UserService;
+from app.application.ports.outbound import (
+	ApplicationParameterRepositoryBase,
+	BIMModelRepositoryBase,
+	UserRepositoryBase,
+	VisualizationRepositoryBase,
+);
+from app.application.use_cases import (
+	ApplicationParameterService,
+	AuthService,
+	BIMModelService,
+	UserService,
+	VisualizationService,
+);
 from app.config import DatabaseProvider, StartupParametersManager;
 from app.domain.models import ApplicationParameterType;
 from app.initializer import DatabaseInitializer;
@@ -61,6 +80,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None]:
 	application_parameter_repository: ApplicationParameterRepositoryBase;
 	bim_model_repository: BIMModelRepositoryBase;
 	user_repository: UserRepositoryBase;
+	visualization_repository: VisualizationRepositoryBase;
 	try:
 		if startup.database_provider == DatabaseProvider.MYSQL:
 			database = MySQLAdapter(
@@ -69,14 +89,21 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None]:
 			application_parameter_repository = MySQLApplicationParameterRepository(database);
 			bim_model_repository = MySQLBIMModelRepository(database);
 			user_repository = MySQLUserRepository(database);
+			visualization_repository = MySQLVisualizationRepository(database);
 		else:
 			database = SQLiteAdapter(startup.database_file);
 			application_parameter_repository = SQLiteApplicationParameterRepository(database);
 			bim_model_repository = SQLiteBIMModelRepository(database);
 			user_repository = SQLiteUserRepository(database);
+			visualization_repository = SQLiteVisualizationRepository(database);
 
 		DatabaseInitializer(
-			database, application_parameter_repository, bim_model_repository, user_repository, startup.is_demo
+			database,
+			application_parameter_repository,
+			bim_model_repository,
+			user_repository,
+			visualization_repository,
+			startup.is_demo,
 		).initialize();
 
 		application_parameter_service = ApplicationParameterService(application_parameter_repository);
@@ -111,6 +138,9 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None]:
 		)
 	);
 	app.include_router(UserRouter.create(UserService(user_repository, auth_service), auth_service));
+	app.include_router(
+		VisualizationRouter.create(VisualizationService(visualization_repository, bim_model_repository), auth_service)
+	);
 	Logger.info(
 		f"Arranque correcto (proveedor {startup.database_provider}, modo {'demo' if startup.is_demo else 'real'}, "
 		f"idioma {language})."

@@ -4,5 +4,6 @@ from app.application.use_cases.application_parameter_service import ApplicationP
 from app.application.use_cases.auth_service import AuthService;
 from app.application.use_cases.bim_model_service import BIMModelService;
 from app.application.use_cases.user_service import UserService;
+from app.application.use_cases.visualization_service import VisualizationService;
 
-__all__ = ["ApplicationParameterService", "AuthService", "BIMModelService", "UserService"];
+__all__ = ["ApplicationParameterService", "AuthService", "BIMModelService", "UserService", "VisualizationService"];

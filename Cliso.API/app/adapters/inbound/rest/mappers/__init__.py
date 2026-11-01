@@ -4,6 +4,14 @@ from app.adapters.inbound.rest.mappers.application_parameter_mapper import Appli
 from app.adapters.inbound.rest.mappers.bim_model_mapper import BIMModelMapper;
 from app.adapters.inbound.rest.mappers.session_mapper import SessionMapper;
 from app.adapters.inbound.rest.mappers.user_mapper import UserMapper;
+from app.adapters.inbound.rest.mappers.visualization_piece_mapper import VisualizationPieceMapper;
 from app.adapters.inbound.rest.mappers.visualization_mapper import VisualizationMapper;
 
-__all__ = ["ApplicationParameterMapper", "BIMModelMapper", "SessionMapper", "UserMapper", "VisualizationMapper"];
+__all__ = [
+	"ApplicationParameterMapper",
+	"BIMModelMapper",
+	"SessionMapper",
+	"UserMapper",
+	"VisualizationMapper",
+	"VisualizationPieceMapper",
+];
