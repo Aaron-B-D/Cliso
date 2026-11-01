@@ -1,0 +1,43 @@
+// Móvil: la tarjeta ocupa el ancho disponible. Se centra en la pantalla y no pasa de un ancho máximo.
+.loginDir {
+	align-items: center;
+	display: flex;
+	justify-content: center;
+	min-height: 100dvh;
+	padding: var(--space-4);
+}
+
+.log_card {
+	background: var(--color-surface);
+	border: var(--border);
+	border-radius: var(--radius-card);
+	display: flex;
+	flex-direction: column;
+	gap: var(--space-5);
+	max-width: 25rem;
+	padding: var(--space-5);
+	width: 100%;
+}
+
+// Reserva su altura aunque no haya aviso, para que el formulario no se mueva al aparecer.
+.log_error {
+	color: var(--color-danger);
+	font-size: var(--font-size-small);
+	margin: 0;
+	min-height: 1.25em;
+}
+
+.log_form {
+	display: flex;
+	flex-direction: column;
+	gap: var(--space-4);
+}
+
+.log_submit {
+	min-height: var(--touch-target);
+}
+
+.log_title {
+	font-size: var(--font-size-h2);
+	margin: 0;
+}

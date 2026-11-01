@@ -36,7 +36,7 @@
 	width: 100%;
 }
 
-// Panel del apartado de edición, que sale a la derecha de su botón para marcar que es un nivel inferior
+// Panel del apartado de edición, que sale a la derecha de su botón; el del usuario, encima de su botón
 .sid_panel {
 	background-color: var(--color-surface);
 	min-width: 12rem;
@@ -63,19 +63,4 @@
 	padding: var(--space-2);
 	position: sticky;
 	top: 0;
-}
-
-// Usuario anclado abajo
-.sid_user {
-	align-items: center;
-	display: flex;
-	gap: var(--space-3);
-	padding: var(--space-3);
-}
-
-// El nombre largo se recorta con puntos suspensivos en vez de ensanchar la barra
-.sid_user_name {
-	overflow: hidden;
-	text-overflow: ellipsis;
-	white-space: nowrap;
 }

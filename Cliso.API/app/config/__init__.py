@@ -2,11 +2,13 @@
 
 from app.config.exceptions import StartupParametersError, StartupParametersFileError, StartupParametersValueError;
 from app.config.database_provider import DatabaseProvider;
+from app.config.session_cookie_same_site import SessionCookieSameSite;
 from app.config.startup_parameters import StartupParameters;
 from app.config.startup_parameters_manager import StartupParametersManager;
 
 __all__ = [
 	"DatabaseProvider",
+	"SessionCookieSameSite",
 	"StartupParameters",
 	"StartupParametersError",
 	"StartupParametersFileError",

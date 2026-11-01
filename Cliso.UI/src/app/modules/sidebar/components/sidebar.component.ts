@@ -5,18 +5,22 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatListModule } from '@angular/material/list';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { RouterLink, RouterLinkActive } from '@angular/router';
+import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 
 import { type BimModelEditorComponent } from 'src/app/modules/bimModelEditor/components/bimModelEditor.component';
 import { IconName } from 'src/app/shared/definitions/icons.definitions';
 import { NotificationLevel } from 'src/app/shared/definitions/notifications.definitions';
 import { AppRoute } from 'src/app/shared/definitions/routes.definitions';
+import { TryGetResult } from 'src/app/shared/models/common/tryGetResult.models';
+import { DataAccessService } from 'src/app/shared/services/dataAccess.service';
 import { NotificationService } from 'src/app/shared/services/notification.service';
 import { CheckUtils } from 'src/app/shared/utils/check.utils';
 import { ErrorUtils } from 'src/app/shared/utils/error.utils';
+import { HttpRequestCanceller } from 'src/app/shared/utils/httpRequestCanceller.utils';
 import { IconsUtils } from 'src/app/shared/utils/icons.utils';
 import { LanguageManager } from 'src/app/shared/utils/language/languageManager.utils';
-import { UserManager } from 'src/app/shared/utils/user/userManager.utils';
+import { RequestUtils } from 'src/app/shared/utils/request.utils';
+import { SessionManager } from 'src/app/shared/utils/session/sessionManager.utils';
 
 /** Barra lateral de navegación: el botón de inicio, el panel de edición y, abajo, el usuario actual. */
 @Component({
@@ -60,6 +64,12 @@ export class SidebarComponent implements OnDestroy, OnInit {
 	/** Texto del botón de inicio. */
 	public readonly HOME_TEXT: string = LanguageManager.GetText('WEB_HOME');
 
+	/** Aviso de que no se ha podido cerrar la sesión. */
+	public readonly LOGOUT_ERROR_TEXT: string = LanguageManager.GetText('SIDEBAR_LOGOUT_ERROR');
+
+	/** Texto del botón que cierra la sesión. */
+	public readonly LOGOUT_TEXT: string = LanguageManager.GetText('SIDEBAR_LOGOUT');
+
 	/** Nombre accesible del botón que despliega el menú en móvil. */
 	public readonly MENU_TEXT: string = LanguageManager.GetText('SIDEBAR_MENU');
 
@@ -98,21 +108,36 @@ export class SidebarComponent implements OnDestroy, OnInit {
 	/** Ruta a la que lleva el botón de inicio. */
 	public HomeRoute: string = '/' + AppRoute.HOME;
 
+	/** `true` si el panel del usuario (con el cierre de sesión) está abierto (desde `md`). */
+	public IsUserPanelOpen: boolean = false;
+
+	/** Icono del botón que cierra la sesión. */
+	public LogoutIcon: string = IconsUtils.GetUrl(IconName.LOGOUT);
+
 	/** Icono del botón que despliega el menú en móvil. */
 	public MenuIcon: string = IconsUtils.GetUrl(IconName.MENU);
 
 	/** Icono del usuario. */
 	public UserIcon: string = IconsUtils.GetUrl(IconName.USER);
 
-	/** Nombre completo del usuario actual. */
-	public UserName: string = UserManager.GetFullName();
+	/** Alias del usuario de la sesión abierta. */
+	public UserName: string = SessionManager.GetNick();
+
+	/** Dónde se coloca el panel del usuario: encima del botón que lo despliega, alineado por la izquierda. */
+	public UserPanelPositions: ConnectedPosition[] = [{ originX: 'start', originY: 'top', overlayX: 'start', overlayY: 'bottom' }];
 
 	//#endregion PUBLIC PROPERTIES
 
 	//#region PRIVATE PROPERTIES
 
+	/** Acceso al API. */
+	private readonly _DataAccess: DataAccessService;
+
 	/** Servicio de diálogos de Angular Material. */
 	private readonly _Dialog: MatDialog;
+
+	/** Corta las peticiones pendientes al destruir el componente. */
+	private readonly _HttpRequestCanceller: HttpRequestCanceller = new HttpRequestCanceller();
 
 	/** Avisa al usuario de los fallos. */
 	private readonly _Notification: NotificationService;
@@ -120,17 +145,24 @@ export class SidebarComponent implements OnDestroy, OnInit {
 	/** Temporizador de la descarga del editor en segundo plano. Es `null` si no hay ninguno pendiente. */
 	private _PreloadTimeout: number | null = null;
 
+	/** Navegación entre pantallas. */
+	private readonly _Router: Router;
+
 	//#endregion PRIVATE PROPERTIES
 
 	//#region CONSTRUCTOR
 
 	/**
+	 * @param dataAccess Acceso al API.
 	 * @param dialog Servicio de diálogos de Angular Material.
 	 * @param notification Avisa al usuario de los fallos.
+	 * @param router Navegación entre pantallas.
 	 */
-	constructor(dialog: MatDialog, notification: NotificationService) {
+	constructor(dataAccess: DataAccessService, dialog: MatDialog, notification: NotificationService, router: Router) {
+		this._DataAccess = dataAccess;
 		this._Dialog = dialog;
 		this._Notification = notification;
+		this._Router = router;
 	}
 
 	//#endregion CONSTRUCTOR
@@ -138,6 +170,8 @@ export class SidebarComponent implements OnDestroy, OnInit {
 	//#region ANGULAR LIFECYCLE
 
 	public ngOnDestroy(): void {
+		this._HttpRequestCanceller.Destroy();
+
 		if (!CheckUtils.IsNull(this._PreloadTimeout)) {
 			window.clearTimeout(this._PreloadTimeout);
 			this._PreloadTimeout = null;
@@ -205,6 +239,43 @@ export class SidebarComponent implements OnDestroy, OnInit {
 		// El menú se cierra al pulsar una entrada: aquí solo se despliega o pliega la sección
 		event.stopPropagation();
 		this.IsEditionExpanded = !this.IsEditionExpanded;
+	}
+
+	public async OnLogoutClicked(): Promise<void> {
+		this.IsUserPanelOpen = false;
+
+		try {
+			const result: TryGetResult<void> = await RequestUtils.AwaitRequest(
+				this._DataAccess.Auth.Logout(),
+				this._HttpRequestCanceller
+			);
+
+			if (result.Success) {
+				SessionManager.SetCurrentSession(null);
+				await this._Router.navigateByUrl('/' + AppRoute.LOGIN);
+			} else {
+				// Petición cancelada: no hay nada que hacer
+			}
+		} catch (error) {
+			this._Notification.Send(this.LOGOUT_ERROR_TEXT, NotificationLevel.DANGER);
+			console.warn(`Sidebar.OnLogoutClicked() => ${ErrorUtils.GetMessage(error)}`);
+		}
+	}
+
+	public OnUserPanelClosed(): void {
+		this.IsUserPanelOpen = false;
+	}
+
+	public OnUserPanelKeyDown(event: KeyboardEvent): void {
+		if (event.key === 'Escape') {
+			this.IsUserPanelOpen = false;
+		} else {
+			// Otra tecla: el panel sigue abierto
+		}
+	}
+
+	public OnUserPanelToggled(): void {
+		this.IsUserPanelOpen = !this.IsUserPanelOpen;
 	}
 
 	//#endregion SUBSCRIBERS

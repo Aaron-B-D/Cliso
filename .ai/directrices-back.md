@@ -36,7 +36,9 @@ pregunta antes de saltártela.
   `ApplicationParameterType`, `ApplicationParameterService`), que se pueden editar en caliente. La tabla solo guarda
   el tipo y los valores (por defecto y actual): los nombres y descripciones los pone el front, en cada idioma, y no se
   guardan en la base de datos. Todo lo que no sea imprescindible para arrancar va a la tabla, nunca al fichero de
-  configuración.
+  configuración. Excepción acordada: lo que depende de cómo se aloja la aplicación y no debe cambiarse en caliente
+  (`allowed_origins` y `session_cookie_same_site`, la política `SameSite` de la cookie de la sesión) va también en el
+  fichero de arranque.
 - **Tipado estricto.** El código debe dar 0 errores con `python -m pyright` (modo `strict`, ver
   `Cliso.API/pyrightconfig.json`). Nada de tipos desconocidos: anota todo, incluidas las listas y diccionarios.
 - **Documenta todo con docstring** (el equivalente al `<summary>` de C#): clases, métodos, funciones y cada
@@ -152,14 +154,18 @@ implementaciones en los adaptadores.
   último (lo mínimo que necesitan) y escriben en cada método su SQL, su `try/except/finally` y el cierre de la
   conexión, a la vista (sin utilidades que lo oculten). Hay un repositorio por concepto y motor, cada uno con sus
   propias constantes de columnas.
-- **Modo demo** (`is_demo`): con cualquier proveedor, se usa una base de datos `cliso-demo_<fecha>`. **Real**: `cliso`
-  (SQLite) o `mysql_database` (MySQL). En ambos casos, si la base de datos no existe, el `DatabaseInitializer` la crea
-  con sus tablas y los datos básicos (los parámetros de la aplicación) y, en modo demo, con los datos de `DemoData`,
-  que son objetos de dominio guardados con los repositorios. Si existe, se reutiliza sin tocarla. El arranque nunca
-  borra una base de datos que ya existía (solo la que acaba de crear, si falla su carga inicial).
+- **Modo demo** (`is_demo`): con cualquier proveedor, se usa una base de datos `cliso-demo` (nombre fijo). **Real**:
+  `cliso` (SQLite) o `mysql_database` (MySQL). En ambos casos, si la base de datos no existe, el `DatabaseInitializer`
+  la crea con sus tablas y los datos básicos (los parámetros de la aplicación) y, en modo demo, con los datos de
+  `DemoData`, que son objetos de dominio guardados con los repositorios. En modo real, si existe se reutiliza sin
+  tocarla. En modo demo se borra y se rehace en cada arranque, para que empiece limpia: es la única base de datos que
+  el arranque borra, además de la que acaba de crear si falla su carga inicial.
 - **Routers:** una clase estática por router con `create(service)` (`BIMModelRouter.create(...)`), que recibe solo los
   servicios que sus endpoints necesitan. No hay proveedor global de servicios: `main.py` crea los servicios (con el
-  repositorio que toque) y se los entrega a cada router.
+  repositorio que toque) y se los entrega a cada router. Los routers protegidos reciben además el servicio de
+  autenticación (`Depends(SessionDependency(auth_service).require_session)`) y `AuthRouter`, un valor de
+  configuración (la política `SameSite` de la cookie), que decide `main.py`. Un router nuevo que exija sesión debe
+  llevar esa dependencia: nada lo comprueba por él.
 - **Errores en los endpoints:** los routers no llevan `try/except`. Las excepciones se traducen a HTTP en
   `ExceptionHandlers` (`adapters/inbound/rest`) y se registran en `AppStartupConfigurator.register_exception_handlers()`
   (`app/app_startup_configurator.py`), en bloques por código de respuesta. Excepción nueva = un handler (si hace falta) y una línea ahí.
@@ -181,6 +187,8 @@ esquemas y el diagrama. El README se actualiza aparte, según lo que dice `direc
 - Las claves foráneas se nombran `<tabla>_id` (`user_id`, `bim_model_id`).
 - Los textos con valor opcional usan cadena vacía por defecto (`DEFAULT ''`), no `NULL`.
 - Las sesiones no se guardan en base de datos: viven en memoria de la API.
+- **Sin migraciones:** una base de datos existente no se actualiza. Al cambiar el esquema o los datos básicos, una base
+  **real** hay que rehacerla (borrarla y dejar que se cree de nuevo); la **demo** se rehace sola en cada arranque.
 
 ## Comprobaciones antes de dar algo por hecho
 

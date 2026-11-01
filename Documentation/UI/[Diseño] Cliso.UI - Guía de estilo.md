@@ -105,6 +105,15 @@ Estructura funcional de la aplicación. Los diagramas `.drawio` de esta carpeta 
 - El usuario abre un panel encima con *Cerrar sesión*. Los paneles se cierran al hacer clic fuera.
 - El botón activo o con el ratón encima se marca con `--color-hover`.
 
+### Inicio de sesión
+
+- Pantalla aparte, sin barra lateral: una tarjeta (16 px, borde de 1 px en `--color-border`) centrada, de ancho máximo
+  25 rem, con el título, los campos *Nick* y *Contraseña* y el botón *Entrar* a ancho completo.
+- El motivo de un fallo (datos incorrectos, demasiados intentos, sesión caducada por inactividad) se muestra en
+  `--color-danger` bajo los campos, en un hueco que se reserva para que el formulario no se mueva.
+- Sin sesión, cualquier otra pantalla lleva aquí. Al caducar la sesión se cierran los diálogos abiertos y se vuelve
+  a esta pantalla.
+
 ### Editores (diagrama «Editor», mismo esquema para los tres)
 
 - Modal (`MatDialog`) redimensionable, con maximizar/restaurar y cerrar; el título y las fichas dependen del tipo.

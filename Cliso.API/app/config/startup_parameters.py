@@ -1,9 +1,9 @@
 from dataclasses import dataclass, field;
-from datetime import date;
 from pathlib import Path;
 from typing import ClassVar;
 
 from app.config.database_provider import DatabaseProvider;
+from app.config.session_cookie_same_site import SessionCookieSameSite;
 from app.utils import PathUtils;
 
 
@@ -20,15 +20,15 @@ class StartupParameters:
 	_SQLITE_DATABASE_NAME: ClassVar[str] = "cliso";
 	"""Nombre de la base de datos real en SQLite (el fichero será `cliso.db`)."""
 
-	_DEMO_DATABASE_PREFIX: ClassVar[str] = "cliso-demo_";
-	"""Prefijo del nombre de la base de datos demo, al que se le añade la fecha (`cliso-demo_20261010`)."""
+	_DEMO_DATABASE_NAME: ClassVar[str] = "cliso-demo";
+	"""Nombre de la base de datos demo. Es fijo: la API la borra y la rehace en cada arranque."""
 
 	# endregion PRIVATE CONSTANTS
 
 	# region PUBLIC PROPERTIES
 
 	is_demo: bool = True;
-	"""Si es True se usa una base de datos demo (`cliso-demo_<fecha>`), creada con datos de demostración si no existía; si no, la base de datos real."""
+	"""Si es True se usa una base de datos demo (`cliso-demo`), que se borra y se rehace con datos de demostración en cada arranque; si no, la base de datos real."""
 
 	database_provider: DatabaseProvider = DatabaseProvider.SQLITE;
 	"""Motor de base de datos: SQLite (por defecto) o MySQL."""
@@ -57,6 +57,9 @@ class StartupParameters:
 	allowed_origins: list[str] = field(default_factory=list[str]);
 	"""Orígenes completos (`http://host:puerto`) de las webs autorizadas a llamar a la API desde el navegador. En modo demo se aceptan todos."""
 
+	session_cookie_same_site: SessionCookieSameSite = SessionCookieSameSite.LAX;
+	"""Política `SameSite` de la cookie de la sesión. Con la web y la API en sitios distintos (dominios distintos) debe ser `none`, que además exige https y que `allowed_origins` incluya el origen de la web."""
+
 	@property
 	def log_file(self) -> Path:
 		"""Ruta absoluta del fichero de log."""
@@ -66,11 +69,10 @@ class StartupParameters:
 	def database_name(self) -> str:
 		"""Nombre de la base de datos que se usa, según el modo y el proveedor.
 
-		En modo demo es `cliso-demo_<fecha de hoy>` con cualquier proveedor. Si no, `mysql_database` en MySQL y `cliso`
-		en SQLite. Como depende de la fecha, conviene consultarlo una sola vez.
+		En modo demo es `cliso-demo` con cualquier proveedor. Si no, `mysql_database` en MySQL y `cliso` en SQLite.
 		"""
 		if self.is_demo:
-			name = f"{self._DEMO_DATABASE_PREFIX}{date.today():%Y%m%d}";
+			name = self._DEMO_DATABASE_NAME;
 		elif self.database_provider == DatabaseProvider.MYSQL:
 			name = self.mysql_database;
 		else:
@@ -79,7 +81,7 @@ class StartupParameters:
 
 	@property
 	def database_file(self) -> Path:
-		"""Ruta absoluta del fichero SQLite (`<sqlite_directory>/<database_name>.db`). Conviene consultarla una sola vez."""
+		"""Ruta absoluta del fichero SQLite (`<sqlite_directory>/<database_name>.db`)."""
 		return PathUtils.resolve(self.sqlite_directory) / f"{self.database_name}.db";
 
 	# endregion PUBLIC PROPERTIES

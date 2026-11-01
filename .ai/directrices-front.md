@@ -58,7 +58,8 @@ regiones, una clase por fichero...) **no se aplican aquí**.
   `LanguageManager.GetText`.
 - **Interfaces y tipos:** una interfaz (`INombre`) solo define un contrato de métodos o funciones comunes, nunca
   propiedades. Para describir una estructura de propiedades se usa un `type` (`type Nombre = { ... };`), sin
-  uniones ni combinaciones de tipos (salvo `| null` para «sin valor»).
+  uniones ni combinaciones de tipos (salvo `| null` para «sin valor»). Otra excepción acordada: el retorno
+  `boolean | UrlTree` de un guard, que lo exige `CanActivateFn` (`UrlTree` es la redirección).
 - **Todo tipado de forma explícita:** variables, parámetros, retornos y propiedades. Sin `any`. `ng build` sin
   errores.
 - **Nombres:**
@@ -103,15 +104,18 @@ regiones, una clase por fichero...) **no se aplican aquí**.
 - **Inicializa al declarar:** toda variable o propiedad lleva valor en su declaración; «sin valor» es `null`.
 - **Usa las constantes y enumerados existentes** en vez de literales sueltos (rutas, claves, códigos de idioma...).
 - **Sin funciones sueltas:** la lógica de los Utils va en clases estáticas. Única excepción: los guards, que Angular
-  exige como función (`CanActivateFn`, en `core/guards/`).
+  exige como función (`CanActivateFn`, en `core/guards/`). Los interceptores, en cambio, son clases
+  (`HttpInterceptor`, en `core/interceptors/`), no la función `HttpInterceptorFn`.
 - **Inyección explícita:** por parámetros del constructor, asignados a una propiedad privada. `inject()` solo en
-  `app.config.ts`.
+  `app.config.ts` y en los guards, que al ser una función no tienen constructor desde el que recibir el `Router`.
 
 ## Estado, llamadas al API y componentes
 
 - **Estado con propiedades normales y `async`/`await`.** Sin signals ni RxJS (con `zone.js`, Angular refresca la
   pantalla tras un `await`). RxJS solo aparece en la capa HTTP: `DataAccessService` (devuelve los `Observable` de
-  `HttpClient`), `RequestUtils.AwaitRequest` y `HttpRequestCanceller`. Única excepción acordada: `ConfirmDialogService`,
+  `HttpClient`), `RequestUtils.AwaitRequest`, `HttpRequestCanceller` y el interceptor de sesión (`SessionInterceptor`:
+  envía la cookie a las llamadas al API y trata el 401; es la capa HTTP, y el interceptor de `HttpClient` trabaja con
+  `Observable`). Otra excepción acordada: `ConfirmDialogService`,
   que convierte en promesa el `afterClosed()` de `MatDialog` (que solo ofrece un `Observable`) y así los componentes
   siguen usando `await`.
 - **Llamadas al API:** solo a través de `DataAccessService`, y cada una se espera con

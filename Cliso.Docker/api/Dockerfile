@@ -12,4 +12,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY app ./app
 
 EXPOSE 8000
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+# --proxy-headers: usa la IP del cliente que reenvía el proxy (X-Forwarded-For), pero solo de las IP de FORWARDED_ALLOW_IPS
+# (por defecto, solo 127.0.0.1; el docker-compose la define para la red de Docker).
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--proxy-headers"]

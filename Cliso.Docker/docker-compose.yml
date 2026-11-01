@@ -9,9 +9,13 @@ services:
       dockerfile: ../Cliso.Docker/api/Dockerfile
     environment:
       CLISO_SETTINGS: /config/settings.json
-    # Publicada para poder apuntar a ella desde fuera (por ejemplo, una web local con `ng serve`).
+      # nginx (en la red de Docker) le pasa la IP real del cliente en X-Forwarded-For. uvicorn solo se fía de esa cabecera
+      # si viene de estas redes (las que usa Docker): sin esto, la API vería siempre la IP de nginx.
+      FORWARDED_ALLOW_IPS: 172.16.0.0/12
+    # Publicada solo en este equipo, para poder apuntar a ella desde fuera (por ejemplo, una web local con `ng serve`).
+    # No debe ser accesible desde la red local: quien llegue directo podría falsear la IP del cliente.
     ports:
-      - "${API_PORT:-8000}:8000"
+      - "127.0.0.1:${API_PORT:-8000}:8000"
     volumes:
       - ./api/${CLISO_SETTINGS_FILE:-settings.docker.json}:/config/settings.json:ro
       - cliso-data:/app/data

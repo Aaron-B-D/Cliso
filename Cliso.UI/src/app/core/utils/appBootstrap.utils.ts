@@ -1,47 +1,59 @@
-import { User } from 'src/app/shared/models/user/user.models';
+import { HttpErrorResponse, HttpStatusCode } from '@angular/common/http';
+
+import { TryGetResult } from 'src/app/shared/models/common/tryGetResult.models';
+import { Session } from 'src/app/shared/models/session/session.models';
+import { DataAccessService } from 'src/app/shared/services/dataAccess.service';
 import { ApplicationSettingsManager } from 'src/app/shared/utils/applicationSettings/applicationSettingsManager.utils';
+import { HttpRequestCanceller } from 'src/app/shared/utils/httpRequestCanceller.utils';
 import { LanguageManager } from 'src/app/shared/utils/language/languageManager.utils';
-import { UserManager } from 'src/app/shared/utils/user/userManager.utils';
+import { RequestUtils } from 'src/app/shared/utils/request.utils';
+import { SessionManager } from 'src/app/shared/utils/session/sessionManager.utils';
 
-/** Punto de arranque de la aplicación: deja listos el idioma y el usuario antes de pintar la interfaz. */
+/** Punto de arranque de la aplicación: deja listos el idioma y la sesión antes de pintar la interfaz. */
 export class AppBootstrapUtils {
-	//#region PRIVATE CONSTANTS
-
-	/** Identificador del usuario por defecto. */
-	private static readonly _DEFAULT_USER_ID: number = 1;
-
-	/** Nombre del usuario por defecto. */
-	private static readonly _DEFAULT_USER_NAME: string = 'Admin';
-
-	/** Alias del usuario por defecto. */
-	private static readonly _DEFAULT_USER_NICK: string = 'admin';
-
-	/** Apellidos del usuario por defecto. */
-	private static readonly _DEFAULT_USER_SURNAME: string = 'Demo Cliso';
-
-	//#endregion PRIVATE CONSTANTS
-
 	//#region PUBLIC STATIC METHODS
 
 	/**
-	 * Arranca la aplicación: fija el idioma con el parámetro de la aplicación y establece el usuario por defecto,
-	 * porque aún no hay inicio de sesión.
-	 * @returns Una promesa ya resuelta: Angular espera a que termine antes de mostrar la aplicación.
+	 * Arranca la aplicación: fija el idioma con el parámetro de la aplicación y recupera la sesión abierta, si la hay.
+	 * @param dataAccess Acceso al API.
+	 * @returns Una promesa que se resuelve al terminar: Angular espera a que termine antes de mostrar la aplicación.
 	 */
-	public static Start(): Promise<void> {
+	public static async Start(dataAccess: DataAccessService): Promise<void> {
 		// TODO Aarón https://trello.com/c/VGtyoR8y: ejecutar este arranque tras el inicio de sesión (no al abrir la página) y recuperar del API los parámetros de la aplicación, los modelos BIM y las visualizaciones
 		LanguageManager.SetLanguage(ApplicationSettingsManager.GetLanguage());
-		UserManager.SetCurrentUser(
-			new User(
-				AppBootstrapUtils._DEFAULT_USER_ID,
-				AppBootstrapUtils._DEFAULT_USER_NICK,
-				AppBootstrapUtils._DEFAULT_USER_NAME,
-				AppBootstrapUtils._DEFAULT_USER_SURNAME
-			)
-		);
-
-		return Promise.resolve();
+		await AppBootstrapUtils.restoreSession(dataAccess);
 	}
 
 	//#endregion PUBLIC STATIC METHODS
+
+	//#region PRIVATE STATIC METHODS
+
+	/**
+	 * Pregunta al API si el navegador ya tiene una sesión abierta (la cookie sobrevive a recargar la página) y, si la
+	 * hay, la guarda. Sin sesión, la aplicación queda sin ella y el guard lleva al inicio de sesión.
+	 * @param dataAccess Acceso al API.
+	 */
+	private static async restoreSession(dataAccess: DataAccessService): Promise<void> {
+		const canceller: HttpRequestCanceller = new HttpRequestCanceller();
+
+		try {
+			const result: TryGetResult<Session> = await RequestUtils.AwaitRequest(dataAccess.Auth.GetSession(), canceller);
+
+			if (result.Success) {
+				SessionManager.SetCurrentSession(result.Result);
+			} else {
+				// Petición cancelada: no hay nada que hacer
+			}
+		} catch (error) {
+			if (error instanceof HttpErrorResponse && error.status === HttpStatusCode.Unauthorized) {
+				// Sin sesión abierta o caducada: es lo esperable al abrir la página sin haber iniciado sesión
+			} else {
+				console.warn('AppBootstrapUtils.restoreSession() => no se pudo recuperar la sesión', error);
+			}
+		} finally {
+			canceller.Destroy();
+		}
+	}
+
+	//#endregion PRIVATE STATIC METHODS
 }

@@ -1,0 +1,17 @@
+<main class="loginDir">
+	<section class="log_card">
+		<h1 class="log_title">{{ TITLE }}</h1>
+		<form class="log_form" (ngSubmit)="OnSubmit()">
+			<mat-form-field appearance="outline" subscriptSizing="dynamic">
+				<mat-label>{{ NICK_TEXT }}</mat-label>
+				<input matInput name="nick" autocomplete="username" required [(ngModel)]="Nick" />
+			</mat-form-field>
+			<mat-form-field appearance="outline" subscriptSizing="dynamic">
+				<mat-label>{{ PASSWORD_TEXT }}</mat-label>
+				<input matInput type="password" name="password" autocomplete="current-password" required [(ngModel)]="Password" />
+			</mat-form-field>
+			<p class="log_error" role="alert">{{ ErrorText }}</p>
+			<button mat-flat-button class="log_submit" type="submit" [disabled]="IsLoading">{{ SUBMIT_TEXT }}</button>
+		</form>
+	</section>
+</main>

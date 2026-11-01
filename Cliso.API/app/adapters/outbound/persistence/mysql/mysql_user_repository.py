@@ -123,6 +123,42 @@ class MySQLUserRepository(UserRepositoryBase):
 		except ValueError as error:
 			raise PersistenceError(f"Datos no válidos del usuario {user_id}: {error}") from error;
 
+	def get_by_nick(self, nick: str) -> User:
+		"""Recupera el usuario activo con ese nick.
+
+		Raises:
+			UserNotFoundError: Si no hay ningún usuario activo con ese nick.
+			PersistenceError: Si no se puede abrir la base de datos o falla la consulta.
+		"""
+		# 1. Abrimos la conexión.
+		try:
+			connection = self._database.connect();
+		except DatabaseError as error:
+			raise PersistenceError(f"No se pudo recuperar el usuario '{nick}': {error}") from error;
+
+		# 2. Ejecutamos la consulta. La conexión se cierra siempre (finally).
+		try:
+			cursor = connection.cursor();
+			cursor.execute(
+				f"SELECT {self._ID}, {self._NICK}, {self._NAME}, {self._SURNAME}, {self._PASSWORD}, {self._ROLE}, "
+				f"{self._ACTIVE}, {self._CREATION_DATE}, {self._UPDATE_DATE} "
+				f"FROM user WHERE {self._NICK} = %s AND {self._ACTIVE} = TRUE",
+				(nick,),
+			);
+			row: DatabaseRowBase | None = cursor.fetchone();
+		except pymysql.MySQLError as error:
+			raise PersistenceError(f"No se pudo recuperar el usuario '{nick}': {error}") from error;
+		finally:
+			connection.close();
+
+		# 3. Si no hay fila, el usuario no existe; si la hay, la convertimos en un usuario.
+		if row is None:
+			raise UserNotFoundError(f"No existe ningún usuario activo con el nick '{nick}'");
+		try:
+			return self._to_user(row);
+		except ValueError as error:
+			raise PersistenceError(f"Datos no válidos del usuario '{nick}': {error}") from error;
+
 	def add(self, user: User) -> User:
 		"""Guarda un usuario nuevo y le asigna el `id` que da la base de datos.
 

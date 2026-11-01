@@ -1,10 +1,10 @@
 from typing import Annotated, Any, ClassVar;
 
-from fastapi import APIRouter, Path, Request, Response;
+from fastapi import APIRouter, Depends, Path, Request, Response;
 from fastapi.responses import FileResponse;
 
-from app.adapters.inbound.rest import BIMModelDto, BIMModelMapper;
-from app.application.ports.inbound import BIMModelServiceBase;
+from app.adapters.inbound.rest import BIMModelDto, BIMModelMapper, SessionDependency;
+from app.application.ports.inbound import AuthServiceBase, BIMModelServiceBase;
 
 
 class BIMModelRouter:
@@ -35,16 +35,21 @@ class BIMModelRouter:
 	# region PUBLIC STATIC METHODS
 
 	@staticmethod
-	def create(service: BIMModelServiceBase) -> APIRouter:
+	def create(service: BIMModelServiceBase, auth_service: AuthServiceBase) -> APIRouter:
 		"""Crea el router de los modelos BIM.
 
 		Args:
 			service: Servicio de modelos BIM que usan sus endpoints.
+			auth_service: Servicio de autenticación con el que se exige una sesión válida en todos sus endpoints.
 
 		Returns:
 			El router, listo para incluirlo en la aplicación.
 		"""
-		router = APIRouter(prefix="/bim-models", tags=["Modelos BIM"]);
+		router = APIRouter(
+			prefix="/bim-models",
+			tags=["Modelos BIM"],
+			dependencies=[Depends(SessionDependency(auth_service).require_session)],
+		);
 
 		@router.get("")
 		def get_bim_models() -> list[BIMModelDto]:

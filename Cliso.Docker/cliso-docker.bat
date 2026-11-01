@@ -49,6 +49,12 @@ if /i "%~1"=="stop-db" (
 	docker compose --profile mysql stop db || exit /b 1
 	exit /b 0
 )
+rem Reinicia la API sin reconstruir su imagen. En modo demo la API borra y rehace su base de datos al arrancar, asi que
+rem queda limpia, con sus valores por defecto (con SQLite o MySQL). Los ficheros IFC del volumen se conservan.
+if /i "%~1"=="restart-api" (
+	docker compose --profile mysql restart api || exit /b 1
+	exit /b 0
+)
 rem Reconstruye las imagenes de la API y la web. Para usarlas hay que arrancar de nuevo los servicios (se recrean).
 if /i "%~1"=="build" (
 	docker compose build api ui || exit /b 1
@@ -73,6 +79,6 @@ if /i "%~1"=="ip" (
 
 echo Uso: cliso-docker.bat ^<accion^>
 echo   up-all-sqlite, up-all-mysql, up-api-sqlite, up-api-mysql, up-ui, up-db
-echo   stop-all, stop-api, stop-ui, stop-db
+echo   stop-all, stop-api, stop-ui, stop-db, restart-api
 echo   build, images, ps, ip
 exit /b 2

@@ -27,6 +27,12 @@
 					<span>{{ UserName }}</span>
 				</span>
 			</button>
+			<button mat-menu-item class="sid_menu_option" (click)="OnLogoutClicked()">
+				<span class="sid_menu_content">
+					<img class="sid_icon" [src]="LogoutIcon" alt="" />
+					<span>{{ LOGOUT_TEXT }}</span>
+				</span>
+			</button>
 		</mat-menu>
 	</header>
 	<nav class="sid_nav d-none d-md-flex">
@@ -73,9 +79,36 @@
 				</mat-action-list>
 			</ng-template>
 		</mat-nav-list>
-		<footer class="sid_user" matTooltip="{{ UserName }}">
-			<img class="sid_user_icon" [src]="UserIcon" alt="" />
-			<span class="sid_user_name">{{ UserName }}</span>
+		<footer>
+			<mat-nav-list class="sid_menu">
+				<button
+					mat-list-item
+					cdkOverlayOrigin
+					class="sid_menu_item"
+					matTooltip="{{ UserName }}"
+					#userOrigin="cdkOverlayOrigin"
+					[activated]="IsUserPanelOpen"
+					[attr.aria-expanded]="IsUserPanelOpen"
+					(click)="OnUserPanelToggled()"
+				>
+					<img matListItemIcon [src]="UserIcon" alt="" />
+					<span matListItemTitle>{{ UserName }}</span>
+				</button>
+				<ng-template
+					cdkConnectedOverlay
+					cdkConnectedOverlayBackdropClass="cdk-overlay-transparent-backdrop"
+					[cdkConnectedOverlayHasBackdrop]="true"
+					[cdkConnectedOverlayOpen]="IsUserPanelOpen"
+					[cdkConnectedOverlayOrigin]="userOrigin"
+					[cdkConnectedOverlayPositions]="UserPanelPositions"
+					(backdropClick)="OnUserPanelClosed()"
+					(overlayKeydown)="OnUserPanelKeyDown($event)"
+				>
+					<mat-action-list class="sid_panel floating-panel">
+						<button class="sid_panel_item" mat-list-item (click)="OnLogoutClicked()">{{ LOGOUT_TEXT }}</button>
+					</mat-action-list>
+				</ng-template>
+			</mat-nav-list>
 		</footer>
 	</nav>
 </aside>

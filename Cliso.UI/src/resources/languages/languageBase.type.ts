@@ -159,11 +159,44 @@ export type LanguageBase = {
 	/** Texto de ayuda del buscador de la pantalla principal (módulo Home). */
 	HOME_SEARCH_PLACEHOLDER: string;
 
+	/** Aviso de que falta el nick o la contraseña (pantalla de inicio de sesión). */
+	LOGIN_ERROR_EMPTY: string;
+
+	/** Aviso de que el nick o la contraseña no son correctos (pantalla de inicio de sesión). */
+	LOGIN_ERROR_INVALID: string;
+
+	/** Aviso de que hay demasiados intentos fallidos seguidos (pantalla de inicio de sesión). */
+	LOGIN_ERROR_TOO_MANY: string;
+
+	/** Aviso de que no se ha podido iniciar sesión por otro motivo (pantalla de inicio de sesión). */
+	LOGIN_ERROR_UNEXPECTED: string;
+
+	/** Etiqueta del campo del nick (pantalla de inicio de sesión). */
+	LOGIN_NICK: string;
+
+	/** Etiqueta del campo de la contraseña (pantalla de inicio de sesión). */
+	LOGIN_PASSWORD: string;
+
+	/** Aviso de que la sesión ha caducado por inactividad y hay que iniciarla de nuevo (pantalla de inicio de sesión). */
+	LOGIN_SESSION_EXPIRED: string;
+
+	/** Texto del botón que inicia sesión (pantalla de inicio de sesión). */
+	LOGIN_SUBMIT: string;
+
+	/** Título de la pantalla de inicio de sesión. */
+	LOGIN_TITLE: string;
+
 	/** Botón de la barra lateral que abre el panel de edición (Sidebar). */
 	SIDEBAR_EDITION: string;
 
 	/** Aviso de que no se ha podido abrir el editor (Sidebar). */
 	SIDEBAR_EDITOR_ERROR: string;
+
+	/** Botón que cierra la sesión (Sidebar). */
+	SIDEBAR_LOGOUT: string;
+
+	/** Aviso de que no se ha podido cerrar la sesión (Sidebar). */
+	SIDEBAR_LOGOUT_ERROR: string;
 
 	/** Nombre accesible del botón que despliega el menú en móvil (Sidebar). */
 	SIDEBAR_MENU: string;

@@ -4,6 +4,9 @@ from fastapi.middleware.cors import CORSMiddleware;
 from app.adapters.inbound.rest import ExceptionHandlers;
 from app.application.exceptions import (
 	ApplicationParameterNotFoundError,
+	AuthInvalidCredentialsError,
+	AuthSessionNotValidError,
+	AuthTooManyAttemptsError,
 	BIMModelContentNotFoundError,
 	BIMModelNotFoundError,
 	BIMModelValidationError,
@@ -36,12 +39,17 @@ class AppStartupConfigurator:
 		ninguno (la web servida por el mismo origen, como detrás de un proxy, no lo necesita). Hay que hacerlo antes de que
 		la aplicación arranque, por eso se leen aquí los parámetros de arranque y no en el `lifespan`.
 
+		Se permiten las credenciales: sin ellas, el navegador no envía ni guarda la cookie de la sesión en las llamadas
+		de otro origen. Con `*`, Starlette responde con el origen concreto de quien llama, que es lo que el navegador exige.
+
 		Args:
 			app: Aplicación FastAPI en la que se registra.
 		"""
 		startup = StartupParametersManager.load();
 		origins = ["*"] if startup.is_demo else startup.allowed_origins;
-		app.add_middleware(CORSMiddleware, allow_origins=origins, allow_methods=["*"], allow_headers=["*"]);
+		app.add_middleware(
+			CORSMiddleware, allow_origins=origins, allow_credentials=True, allow_methods=["*"], allow_headers=["*"]
+		);
 
 	@staticmethod
 	def register_exception_handlers(app: FastAPI) -> None:
@@ -64,11 +72,18 @@ class AppStartupConfigurator:
 		app.add_exception_handler(UserValidationError, ExceptionHandlers.bad_request);
 		app.add_exception_handler(UserPasswordValidationError, ExceptionHandlers.password_requirements);
 
+		# 401: no hay una sesión válida o las credenciales no son correctas.
+		app.add_exception_handler(AuthInvalidCredentialsError, ExceptionHandlers.unauthorized);
+		app.add_exception_handler(AuthSessionNotValidError, ExceptionHandlers.unauthorized);
+
 		# 403: la operación no está permitida sobre lo indicado.
 		app.add_exception_handler(UserProtectedError, ExceptionHandlers.forbidden);
 
 		# 409: choca con algo que ya existe.
 		app.add_exception_handler(UserAlreadyExistsError, ExceptionHandlers.conflict);
+
+		# 429: demasiados intentos seguidos.
+		app.add_exception_handler(AuthTooManyAttemptsError, ExceptionHandlers.too_many_requests);
 
 		# 500: falla el almacenamiento (se registra en el log y al cliente no se le da el detalle).
 		app.add_exception_handler(FileStorageError, ExceptionHandlers.file_storage_error);

@@ -12,4 +12,7 @@ class ApplicationParameterType(StrEnum):
 	BIM_MODELS_DIRECTORY = "BIM_MODELS_DIRECTORY";
 	"""Carpeta donde se guardan los ficheros IFC de los modelos BIM."""
 
+	SESSION_TIMEOUT_MILLISECONDS = "SESSION_TIMEOUT_MILLISECONDS";
+	"""Tiempo de inactividad, en milisegundos, tras el cual caduca una sesión."""
+
 	# endregion PUBLIC CONSTANTS

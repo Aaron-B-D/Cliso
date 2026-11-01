@@ -1,9 +1,9 @@
 from typing import Annotated, ClassVar;
 
-from fastapi import APIRouter, Path, Response;
+from fastapi import APIRouter, Depends, Path, Response;
 
-from app.adapters.inbound.rest import UserCreationDto, UserDto, UserMapper, UserModificationDto;
-from app.application.ports.inbound import UserServiceBase;
+from app.adapters.inbound.rest import SessionDependency, UserCreationDto, UserDto, UserMapper, UserModificationDto;
+from app.application.ports.inbound import AuthServiceBase, UserServiceBase;
 
 
 class UserRouter:
@@ -23,16 +23,19 @@ class UserRouter:
 	# region PUBLIC STATIC METHODS
 
 	@staticmethod
-	def create(service: UserServiceBase) -> APIRouter:
+	def create(service: UserServiceBase, auth_service: AuthServiceBase) -> APIRouter:
 		"""Crea el router de los usuarios.
 
 		Args:
 			service: Servicio de usuarios que usan sus endpoints.
+			auth_service: Servicio de autenticación con el que se exige una sesión válida en todos sus endpoints.
 
 		Returns:
 			El router, listo para incluirlo en la aplicación.
 		"""
-		router = APIRouter(prefix="/users", tags=["Usuarios"]);
+		router = APIRouter(
+			prefix="/users", tags=["Usuarios"], dependencies=[Depends(SessionDependency(auth_service).require_session)]
+		);
 
 		@router.get("")
 		def get_users() -> list[UserDto]:

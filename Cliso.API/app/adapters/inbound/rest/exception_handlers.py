@@ -61,6 +61,19 @@ class ExceptionHandlers:
 		return JSONResponse(status_code=400, content={"detail": str(error), "requirements": requirements});
 
 	@staticmethod
+	async def unauthorized(request: Request, error: Exception) -> JSONResponse:
+		"""Responde 401 cuando no hay una sesión válida o las credenciales no son correctas.
+
+		Args:
+			request: Petición que provocó la excepción.
+			error: Excepción de «no autenticado».
+
+		Returns:
+			Respuesta 401 con el motivo.
+		"""
+		return JSONResponse(status_code=401, content={"detail": str(error)});
+
+	@staticmethod
 	async def forbidden(request: Request, error: Exception) -> JSONResponse:
 		"""Responde 403 cuando la operación pedida no está permitida sobre lo indicado.
 
@@ -85,6 +98,19 @@ class ExceptionHandlers:
 			Respuesta 409 con el motivo.
 		"""
 		return JSONResponse(status_code=409, content={"detail": str(error)});
+
+	@staticmethod
+	async def too_many_requests(request: Request, error: Exception) -> JSONResponse:
+		"""Responde 429 cuando se han hecho demasiados intentos y el acceso queda bloqueado un tiempo.
+
+		Args:
+			request: Petición que provocó la excepción.
+			error: Excepción de «demasiados intentos».
+
+		Returns:
+			Respuesta 429 con el motivo.
+		"""
+		return JSONResponse(status_code=429, content={"detail": str(error)});
 
 	@staticmethod
 	async def file_storage_error(request: Request, error: Exception) -> JSONResponse:

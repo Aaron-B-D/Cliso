@@ -36,6 +36,21 @@ class UserRepositoryBase(ABC):
 		"""
 
 	@abstractmethod
+	def get_by_nick(self, nick: str) -> User:
+		"""Recupera el usuario activo con ese nick.
+
+		Args:
+			nick: Nick del usuario, tal como se guarda (en minúsculas).
+
+		Returns:
+			El usuario encontrado.
+
+		Raises:
+			UserNotFoundError: Si no hay ningún usuario activo con ese nick.
+			PersistenceError: Si falla el acceso al almacenamiento.
+		"""
+
+	@abstractmethod
 	def add(self, user: User) -> User:
 		"""Guarda un usuario nuevo.
 

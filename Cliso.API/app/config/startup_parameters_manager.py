@@ -5,6 +5,7 @@ from typing import Any, ClassVar, cast;
 
 from app.config.database_provider import DatabaseProvider;
 from app.config.exceptions import StartupParametersFileError, StartupParametersValueError;
+from app.config.session_cookie_same_site import SessionCookieSameSite;
 from app.config.startup_parameters import StartupParameters;
 from app.utils import PathUtils;
 
@@ -43,7 +44,8 @@ class StartupParametersManager:
 
 		Raises:
 			StartupParametersFileError: Si el fichero no se puede leer, no es un JSON válido o no contiene un objeto.
-			StartupParametersValueError: Si algún parámetro tiene un valor de un tipo distinto al esperado.
+			StartupParametersValueError: Si algún parámetro tiene un valor de un tipo distinto al esperado, o una
+				combinación no permitida (`session_cookie_same_site` a `none` con `is_demo`).
 		"""
 		path = path or Path(os.environ.get(StartupParametersManager._ENV_VAR, StartupParametersManager._DEFAULT_PATH));
 		parameters = StartupParameters();
@@ -68,6 +70,15 @@ class StartupParametersManager:
 			parameters.mysql_password = StartupParametersManager._read(raw, "mysql_password", str, parameters.mysql_password);
 			parameters.mysql_database = StartupParametersManager._read(raw, "mysql_database", str, parameters.mysql_database);
 			parameters.allowed_origins = StartupParametersManager._read_origins(raw, parameters.allowed_origins);
+			parameters.session_cookie_same_site = StartupParametersManager._read_same_site(
+				raw, parameters.session_cookie_same_site
+			);
+			# En modo demo la API acepta llamadas de cualquier web: con la cookie enviada entre sitios, cualquiera podría usarla.
+			if parameters.session_cookie_same_site == SessionCookieSameSite.NONE and parameters.is_demo:
+				raise StartupParametersValueError(
+					"El parámetro 'session_cookie_same_site' no puede ser 'none' con 'is_demo' a true: en modo demo la API "
+					"acepta llamadas de cualquier web y la cookie de la sesión podría usarse desde otro sitio."
+				);
 
 		return parameters;
 
@@ -119,6 +130,29 @@ class StartupParametersManager:
 			valid = ", ".join(provider.value for provider in DatabaseProvider);
 			raise StartupParametersValueError(
 				f"El parámetro 'database_provider' debe ser uno de ({valid}), pero vale '{value}'."
+			) from error;
+
+	@staticmethod
+	def _read_same_site(raw: dict[str, Any], default: SessionCookieSameSite) -> SessionCookieSameSite:
+		"""Lee el parámetro `session_cookie_same_site` del JSON comprobando que es una de las políticas conocidas.
+
+		Args:
+			raw: Contenido del fichero de configuración.
+			default: Política que se usa si la clave no está en el fichero.
+
+		Returns:
+			La política del fichero, o `default` si la clave no está.
+
+		Raises:
+			StartupParametersValueError: Si el valor no es un texto o no es una política conocida (`lax`, `strict`, `none`).
+		"""
+		value = StartupParametersManager._read(raw, "session_cookie_same_site", str, default.value);
+		try:
+			return SessionCookieSameSite(value);
+		except ValueError as error:
+			valid = ", ".join(same_site.value for same_site in SessionCookieSameSite);
+			raise StartupParametersValueError(
+				f"El parámetro 'session_cookie_same_site' debe ser uno de ({valid}), pero vale '{value}'."
 			) from error;
 
 	@staticmethod

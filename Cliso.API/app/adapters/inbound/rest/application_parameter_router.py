@@ -1,8 +1,9 @@
-from fastapi import APIRouter;
+from fastapi import APIRouter, Depends;
 
+from app.adapters.inbound.rest import SessionDependency;
 from app.adapters.inbound.rest.dtos import ApplicationParameterDto, ApplicationParametersDto;
 from app.adapters.inbound.rest.mappers import ApplicationParameterMapper;
-from app.application.ports.inbound import ApplicationParameterServiceBase;
+from app.application.ports.inbound import ApplicationParameterServiceBase, AuthServiceBase;
 from app.domain.models import ApplicationParameterType;
 
 
@@ -16,16 +17,21 @@ class ApplicationParameterRouter:
 	# region PUBLIC STATIC METHODS
 
 	@staticmethod
-	def create(service: ApplicationParameterServiceBase) -> APIRouter:
+	def create(service: ApplicationParameterServiceBase, auth_service: AuthServiceBase) -> APIRouter:
 		"""Crea el router de los parámetros de la aplicación.
 
 		Args:
 			service: Servicio de parámetros que usan sus endpoints.
+			auth_service: Servicio de autenticación con el que se exige una sesión válida en todos sus endpoints.
 
 		Returns:
 			El router, listo para incluirlo en la aplicación.
 		"""
-		router = APIRouter(prefix="/application-parameters", tags=["Parámetros de la aplicación"]);
+		router = APIRouter(
+			prefix="/application-parameters",
+			tags=["Parámetros de la aplicación"],
+			dependencies=[Depends(SessionDependency(auth_service).require_session)],
+		);
 
 		@router.get("")
 		def get_parameters() -> ApplicationParametersDto:

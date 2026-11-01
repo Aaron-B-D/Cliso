@@ -1,20 +1,20 @@
 @use 'styles/breakpoints';
 
 // Móvil: la barra va arriba y el contenido debajo. Desde `md`: barra a la izquierda y contenido a la derecha.
-.appDir {
+.mainLayoutDir {
 	display: flex;
 	flex-direction: column;
 	min-height: 100dvh;
 }
 
-.app_content {
+.ml_content {
 	flex: 1;
 	min-width: 0;
 	padding: var(--space-4);
 }
 
 @media (min-width: breakpoints.$md) {
-	.appDir {
+	.mainLayoutDir {
 		flex-direction: row;
 	}
 }

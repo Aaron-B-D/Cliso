@@ -14,10 +14,11 @@ from app.utils import PasswordUtils, PathUtils;
 class DatabaseInitializer:
 	"""Prepara la base de datos al arrancar: si no existe, la crea con sus tablas y sus datos.
 
-	Una base de datos que ya existe no se toca nunca. Una que se acaba de crear lleva siempre los datos básicos (entre
-	ellos, los parámetros de la aplicación y el usuario administrador) y, en modo demo, además los datos de
-	demostración, que se guardan con los repositorios de la aplicación (los ficheros IFC de los modelos, en la carpeta de
-	modelos de los parámetros de la aplicación).
+	En modo real, una base de datos que ya existe no se toca nunca. En modo demo se rehace en cada arranque: si existe,
+	se borra y se crea de nuevo, para que cada vez empiece limpia, con sus valores por defecto. Una base de datos que se
+	acaba de crear lleva siempre los datos básicos (entre ellos, los parámetros de la aplicación y el usuario
+	administrador) y, en modo demo, además los datos de demostración, que se guardan con los repositorios de la
+	aplicación (los ficheros IFC de los modelos, en la carpeta de modelos de los parámetros de la aplicación).
 	"""
 
 	# region PRIVATE CONSTANTS
@@ -68,13 +69,20 @@ class DatabaseInitializer:
 	def initialize(self) -> None:
 		"""Deja la base de datos lista para usar.
 
-		Si la base de datos ya existe, no hace nada. Si no, la crea, carga los datos básicos y, en modo demo, los datos
-		de demostración. Si algo falla después de crearla, la borra, para no dejar una base de datos a medias que el
-		siguiente arranque daría por buena.
+		En modo demo, si ya existe, la borra para rehacerla de cero. En modo real, si ya existe, no hace nada. Si no
+		existe, la crea, carga los datos básicos y, en modo demo, los datos de demostración. Si algo falla después de
+		crearla, la borra, para no dejar una base de datos a medias que el siguiente arranque daría por buena.
 
 		Raises:
-			DatabaseError: Si no se puede crear la base de datos o cargar sus datos.
+			DatabaseError: Si no se puede borrar o crear la base de datos, o cargar sus datos.
 		"""
+		if self._is_demo and self._database.exists():
+			self._database.delete();
+			Logger.info("Base de datos demo anterior borrada: se rehace de cero.");
+		else:
+			# En modo real una base de datos que existe no se toca; si no existe, no hay nada que borrar.
+			pass;
+
 		if self._database.exists():
 			Logger.info("La base de datos ya existe: se usa tal cual.");
 		else:

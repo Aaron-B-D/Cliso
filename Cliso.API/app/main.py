@@ -3,7 +3,7 @@ from contextlib import asynccontextmanager;
 
 from fastapi import FastAPI;
 
-from app.adapters.inbound.rest import ApplicationParameterRouter, BIMModelRouter, UserRouter;
+from app.adapters.inbound.rest import ApplicationParameterRouter, AuthRouter, BIMModelRouter, UserRouter;
 from app.adapters.outbound.persistence import (
 	DatabaseAdapterBase,
 	DatabaseError,
@@ -20,7 +20,7 @@ from app.adapters.outbound.storage import LocalBIMModelFileStorage;
 from app.app_startup_configurator import AppStartupConfigurator;
 from app.application.exceptions import ApplicationParameterError, PersistenceError;
 from app.application.ports.outbound import ApplicationParameterRepositoryBase, BIMModelRepositoryBase, UserRepositoryBase;
-from app.application.use_cases import ApplicationParameterService, BIMModelService, UserService;
+from app.application.use_cases import ApplicationParameterService, AuthService, BIMModelService, UserService;
 from app.config import DatabaseProvider, StartupParametersManager;
 from app.domain.models import ApplicationParameterType;
 from app.initializer import DatabaseInitializer;
@@ -34,9 +34,10 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None]:
 
 	- Parámetros de arranque (`StartupParameters`, del fichero de configuración): solo lo imprescindible para arrancar.
 	  Proveedor (`database_provider`): SQLite (por defecto, un fichero local) o MySQL (en un servidor).
-	- Base de datos: la real, o la demo (`is_demo` True, de nombre `cliso-demo_<fecha>`) con cualquier proveedor.
+	- Base de datos: la real, o la demo (`is_demo` True, de nombre `cliso-demo`) con cualquier proveedor.
 	- Si la base de datos no existe, el `DatabaseInitializer` la crea con sus tablas y los datos básicos y, en modo demo,
-	  los datos de demostración. Si ya existe no se toca: el arranque nunca borra una base de datos que ya existía.
+	  los datos de demostración. En modo real, si ya existe no se toca. En modo demo se borra y se rehace en cada
+	  arranque, para que empiece siempre limpia.
 	- El resto de parámetros (idioma, carpeta de los ficheros de modelos...) se leen de la tabla de parámetros de la
 	  aplicación una vez preparada la base de datos.
 
@@ -83,14 +84,33 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None]:
 		bim_models_directory = PathUtils.resolve(
 			application_parameter_service.get_parameter(ApplicationParameterType.BIM_MODELS_DIRECTORY).value
 		);
+		session_timeout_text = application_parameter_service.get_parameter(
+			ApplicationParameterType.SESSION_TIMEOUT_MILLISECONDS
+		).value;
+		try:
+			session_timeout_milliseconds = int(session_timeout_text);
+		except ValueError as error:
+			raise ApplicationParameterError(
+				f"El parámetro {ApplicationParameterType.SESSION_TIMEOUT_MILLISECONDS} no es un número entero: '{session_timeout_text}'"
+			) from error;
+		if session_timeout_milliseconds <= 0:
+			raise ApplicationParameterError(
+				f"El parámetro {ApplicationParameterType.SESSION_TIMEOUT_MILLISECONDS} debe ser mayor que cero: '{session_timeout_text}'"
+			);
 	except (DatabaseError, ApplicationParameterError, PersistenceError) as error:
 		Logger.error("Arranque fallido: no se pudo preparar la base de datos ni leer sus parámetros.", error);
 		Logger.close();
 		raise;
 
-	app.include_router(ApplicationParameterRouter.create(application_parameter_service));
-	app.include_router(BIMModelRouter.create(BIMModelService(bim_model_repository, LocalBIMModelFileStorage(bim_models_directory))));
-	app.include_router(UserRouter.create(UserService(user_repository)));
+	auth_service = AuthService(user_repository, session_timeout_milliseconds);
+	app.include_router(AuthRouter.create(auth_service, startup.session_cookie_same_site));
+	app.include_router(ApplicationParameterRouter.create(application_parameter_service, auth_service));
+	app.include_router(
+		BIMModelRouter.create(
+			BIMModelService(bim_model_repository, LocalBIMModelFileStorage(bim_models_directory)), auth_service
+		)
+	);
+	app.include_router(UserRouter.create(UserService(user_repository, auth_service), auth_service));
 	Logger.info(
 		f"Arranque correcto (proveedor {startup.database_provider}, modo {'demo' if startup.is_demo else 'real'}, "
 		f"idioma {language})."

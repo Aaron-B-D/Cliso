@@ -1,0 +1,69 @@
+<mxfile host="app.diagrams.net">
+  <diagram name="Inicio de sesión" id="login-escritorio">
+    <mxGraphModel background="#000000" dx="1704" dy="946" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1200" pageHeight="827" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="frame" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#000000;strokeColor=#2F3336;strokeWidth=2;" value="" vertex="1">
+          <mxGeometry height="560" width="700" x="40" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="card" parent="1" style="rounded=1;arcSize=16;absoluteArcSize=1;whiteSpace=wrap;html=1;fillColor=#16181C;strokeColor=#2F3336;" value="" vertex="1">
+          <mxGeometry height="348" width="400" x="190" y="126" as="geometry" />
+        </mxCell>
+        <mxCell id="title" parent="1" style="text;html=1;align=left;verticalAlign=middle;fontSize=23;fontStyle=1;fontColor=#FFFFFF;" value="Iniciar sesión" vertex="1">
+          <mxGeometry height="40" width="336" x="222" y="158" as="geometry" />
+        </mxCell>
+        <mxCell id="nick" parent="1" style="rounded=1;arcSize=8;absoluteArcSize=1;whiteSpace=wrap;html=1;fillColor=#000000;strokeColor=#2F3336;align=left;spacingLeft=16;fontSize=15;fontColor=#71767B;" value="Nick" vertex="1">
+          <mxGeometry height="52" width="336" x="222" y="218" as="geometry" />
+        </mxCell>
+        <mxCell id="password" parent="1" style="rounded=1;arcSize=8;absoluteArcSize=1;whiteSpace=wrap;html=1;fillColor=#000000;strokeColor=#2F3336;align=left;spacingLeft=16;fontSize=15;fontColor=#71767B;" value="Contraseña" vertex="1">
+          <mxGeometry height="52" width="336" x="222" y="286" as="geometry" />
+        </mxCell>
+        <mxCell id="error" parent="1" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=wrap;fontSize=13;fontColor=#F4212E;" value="El nick o la contraseña no son correctos." vertex="1">
+          <mxGeometry height="24" width="336" x="222" y="350" as="geometry" />
+        </mxCell>
+        <mxCell id="submit" parent="1" style="rounded=1;arcSize=50;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=none;fontSize=15;fontStyle=1;fontColor=#000000;" value="Entrar" vertex="1">
+          <mxGeometry height="48" width="336" x="222" y="394" as="geometry" />
+        </mxCell>
+        <mxCell id="notes" parent="1" style="shape=note;size=16;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=12;fontSize=13;fillColor=#16181C;strokeColor=#2F3336;fontColor=#E7E9EA;" value="&lt;b&gt;Inicio de sesión&lt;/b&gt;&lt;br&gt;&lt;br&gt;Pantalla aparte, sin barra lateral. Tarjeta centrada, de ancho máximo 25 rem.&lt;br&gt;&lt;br&gt;Campos &lt;b&gt;Nick&lt;/b&gt; y &lt;b&gt;Contraseña&lt;/b&gt;; Intro o el botón &lt;b&gt;Entrar&lt;/b&gt; inician sesión.&lt;br&gt;&lt;br&gt;El motivo de un fallo sale en rojo bajo los campos: datos incorrectos, demasiados intentos seguidos, sesión caducada por inactividad o fallo inesperado. Su hueco se reserva para que el formulario no se mueva.&lt;br&gt;&lt;br&gt;Con los datos correctos se va a Inicio. Sin sesión, cualquier otra ruta lleva aquí." vertex="1">
+          <mxGeometry height="300" width="360" x="780" y="40" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram name="Inicio de sesión (móvil)" id="login-movil">
+    <mxGraphModel background="#000000" dx="1704" dy="946" grid="1" gridSize="4" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1300" pageHeight="827" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="label" parent="1" style="text;html=1;align=left;verticalAlign=middle;fontSize=13;fontStyle=1;fontColor=#71767B;" value="INICIO DE SESIÓN, CON AVISO DE SESIÓN CADUCADA (&lt; 768 px)" vertex="1">
+          <mxGeometry height="24" width="520" x="40" y="12" as="geometry" />
+        </mxCell>
+        <mxCell id="frame" parent="1" style="rounded=1;arcSize=24;absoluteArcSize=1;whiteSpace=wrap;html=1;fillColor=#000000;strokeColor=#2F3336;strokeWidth=2;" value="" vertex="1">
+          <mxGeometry height="720" width="360" x="40" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="card" parent="1" style="rounded=1;arcSize=16;absoluteArcSize=1;whiteSpace=wrap;html=1;fillColor=#16181C;strokeColor=#2F3336;" value="" vertex="1">
+          <mxGeometry height="372" width="328" x="56" y="192" as="geometry" />
+        </mxCell>
+        <mxCell id="title" parent="1" style="text;html=1;align=left;verticalAlign=middle;fontSize=23;fontStyle=1;fontColor=#FFFFFF;" value="Iniciar sesión" vertex="1">
+          <mxGeometry height="40" width="280" x="80" y="216" as="geometry" />
+        </mxCell>
+        <mxCell id="nick" parent="1" style="rounded=1;arcSize=8;absoluteArcSize=1;whiteSpace=wrap;html=1;fillColor=#000000;strokeColor=#2F3336;align=left;spacingLeft=16;fontSize=15;fontColor=#71767B;" value="Nick" vertex="1">
+          <mxGeometry height="52" width="280" x="80" y="276" as="geometry" />
+        </mxCell>
+        <mxCell id="password" parent="1" style="rounded=1;arcSize=8;absoluteArcSize=1;whiteSpace=wrap;html=1;fillColor=#000000;strokeColor=#2F3336;align=left;spacingLeft=16;fontSize=15;fontColor=#71767B;" value="Contraseña" vertex="1">
+          <mxGeometry height="52" width="280" x="80" y="344" as="geometry" />
+        </mxCell>
+        <mxCell id="error" parent="1" style="text;html=1;align=left;verticalAlign=top;whiteSpace=wrap;fontSize=13;fontColor=#F4212E;" value="La sesión ha caducado por inactividad. Vuelve a iniciar sesión." vertex="1">
+          <mxGeometry height="40" width="280" x="80" y="408" as="geometry" />
+        </mxCell>
+        <mxCell id="submit" parent="1" style="rounded=1;arcSize=50;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=none;fontSize=15;fontStyle=1;fontColor=#000000;" value="Entrar" vertex="1">
+          <mxGeometry height="48" width="280" x="80" y="464" as="geometry" />
+        </mxCell>
+        <mxCell id="notes" parent="1" style="shape=note;size=16;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=12;fontSize=13;fillColor=#16181C;strokeColor=#2F3336;fontColor=#E7E9EA;" value="&lt;b&gt;Inicio de sesión en móvil&lt;/b&gt;&lt;br&gt;&lt;br&gt;La tarjeta ocupa el ancho disponible, con 16 px de margen, y se centra en la pantalla. El botón &lt;b&gt;Entrar&lt;/b&gt; mide al menos 44 px de alto.&lt;br&gt;&lt;br&gt;Al caducar la sesión se cierran los diálogos abiertos y se llega aquí con este aviso." vertex="1">
+          <mxGeometry height="200" width="360" x="440" y="40" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

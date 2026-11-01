@@ -1,13 +1,10 @@
 import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 
-import { SidebarComponent } from 'src/app/modules/sidebar/components/sidebar.component';
-
-/** Componente raíz de la aplicación: la barra lateral y, a su lado, la pantalla de cada ruta. */
+/** Componente raíz de la aplicación: muestra la pantalla de la ruta actual. */
 @Component({
 	selector: 'app-root',
-	imports: [RouterOutlet, SidebarComponent],
-	templateUrl: './app.html',
-	styleUrl: './app.scss'
+	imports: [RouterOutlet],
+	templateUrl: './app.html'
 })
 export class App {}

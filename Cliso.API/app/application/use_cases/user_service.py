@@ -1,7 +1,7 @@
 from typing import ClassVar;
 
 from app.application.exceptions import UserPasswordValidationError, UserProtectedError, UserValidationError;
-from app.application.ports.inbound import UserServiceBase;
+from app.application.ports.inbound import AuthServiceBase, UserServiceBase;
 from app.application.ports.outbound import UserRepositoryBase;
 from app.domain.models import User;
 from app.utils import PasswordUtils;
@@ -32,14 +32,18 @@ class UserService(UserServiceBase):
 
 	# region CONSTRUCTOR
 
-	def __init__(self, repository: UserRepositoryBase) -> None:
+	def __init__(self, repository: UserRepositoryBase, auth_service: AuthServiceBase) -> None:
 		"""Crea el servicio.
 
 		Args:
 			repository: Acceso a los usuarios guardados.
+			auth_service: Servicio de autenticación, para cerrar las sesiones de un usuario cuando se borra o cambia de rol.
 		"""
 		self._repository = repository;
 		"""Acceso a los usuarios guardados."""
+
+		self._auth_service = auth_service;
+		"""Servicio de autenticación, para cerrar las sesiones de un usuario cuando se borra o cambia de rol."""
 
 	# endregion CONSTRUCTOR
 
@@ -132,6 +136,7 @@ class UserService(UserServiceBase):
 		# de entrada válido.
 		if stored.nick == self.PROTECTED_NICK and user.role != stored.role:
 			raise UserProtectedError(f"El usuario '{stored.nick}' está protegido: no se puede cambiar su rol");
+		is_role_changed = user.role != stored.role;
 		stored.name = name;
 		stored.surname = surname;
 		stored.role = user.role;
@@ -141,6 +146,13 @@ class UserService(UserServiceBase):
 			# Sin contraseña nueva se conserva la que ya tiene.
 			pass;
 		self._repository.update(stored);
+
+		# 3. Si ha cambiado de rol, sus sesiones abiertas llevan el rol antiguo: se cierran para que vuelva a entrar.
+		if is_role_changed and stored.id is not None:
+			self._auth_service.close_user_sessions(stored.id);
+		else:
+			# El rol no cambia: sus sesiones siguen valiendo.
+			pass;
 		return stored;
 
 	def delete_user(self, user_id: int, force: bool) -> None:
@@ -162,6 +174,8 @@ class UserService(UserServiceBase):
 			self._repository.delete(user_id);
 		else:
 			self._repository.deactivate(user_id);
+		# Un usuario borrado no puede seguir con sesiones abiertas.
+		self._auth_service.close_user_sessions(user_id);
 
 	# endregion PUBLIC METHODS
 

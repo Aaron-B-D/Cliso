@@ -43,7 +43,8 @@ const EMPTY_CONTAINERS: ContainersState = {
   isMessageError: false,
   error: '',
 }
-const containers = atom({ plugin: 'cliso-tracker', key: 'containers' } as const, EMPTY_CONTAINERS, { shape: 'containers-3' })
+// La etiqueta de forma sube cada vez que cambia lo que se guarda: un «ocupado» guardado por una versión anterior se descarta.
+const containers = atom({ plugin: 'cliso-tracker', key: 'containers' } as const, EMPTY_CONTAINERS, { shape: 'containers-4' })
 
 // Pestaña del panel ('progress' o 'docker') y subpestaña de Docker ('services' o 'images').
 const tab = atom({ plugin: 'cliso-tracker', key: 'tab' } as const, 'progress', { shape: 'tab-1' })
@@ -423,7 +424,13 @@ const isDockerTracked = (path: string): boolean =>
 
 // Script que lanza docker compose con los argumentos de cada acción (se puede usar también a mano).
 const DOCKER_SCRIPT = 'Cliso.Docker\\cliso-docker.bat'
+// Plazo de las acciones largas (arrancar, detener, reconstruir): es el máximo que admite $.process.run.
 const DOCKER_TIMEOUT = 10 * 60 * 1000
+// Las consultas son instantáneas: si Docker no responde, se cortan pronto para que el panel no se quede esperando.
+const QUERY_ACTIONS = new Set(['ps', 'images', 'ip'])
+const QUERY_TIMEOUT = 60 * 1000
+// Margen tras el plazo de una operación a partir del cual se da por perdida si no ha terminado ni ha fallado.
+const OPERATION_GRACE = 60 * 1000
 // Cada cuánto se consulta el estado de los servicios mientras el panel de Docker se ha usado.
 const DOCKER_REFRESH = 20 * 1000
 // Cada cuánto avanza la barra de espera de una operación de Docker, y sus medidas (en celdas).
@@ -435,7 +442,9 @@ const SETTINGS_DOCKER = /^Cliso\.Docker\/api\/settings\.docker[^/]*\.json$/
 /** Ejecuta una acción de `cliso-docker.bat`; lanza el error si el script no se puede ejecutar. */
 async function dockerScript($: any, action: string): Promise<{ exitCode: number; stdout: string; stderr: string }> {
   const script = `${String(base).replace(/\//g, '\\')}\\${DOCKER_SCRIPT}`
-  const result = await $.process.run(['cmd.exe', '/c', script, action], { timeoutMs: DOCKER_TIMEOUT })
+  const result = await $.process.run(['cmd.exe', '/c', script, action], {
+    timeoutMs: QUERY_ACTIONS.has(action) ? QUERY_TIMEOUT : DOCKER_TIMEOUT,
+  })
 
   return { exitCode: result.exitCode, stdout: String(result.stdout), stderr: String(result.stderr) }
 }
@@ -568,15 +577,25 @@ async function setContainers($: any, patch: Partial<ContainersState>): Promise<v
 }
 
 let isRefreshing = false
+let refreshingSince = 0
 // Se activa al usar el panel de Docker: desde entonces el estado se refresca solo.
 let isWatchingDocker = false
+// Operación de Docker en curso en ESTE módulo. El estado «ocupado» se guarda en $.state y sobrevive a una recarga del
+// módulo, pero la operación no: sin este dato, una recarga a mitad de una operación dejaba el panel esperando para siempre.
+let operation: { startedAt: number; stopClock: () => void } | null = null
 
 /** Consulta qué servicios de Docker existen y la IP local del equipo. */
 async function refreshContainers($: any): Promise<void> {
-  if (base === null || isRefreshing) {
+  if (base === null) {
+    return
+  }
+  const startedAt = await $.clock.now()
+  // Una consulta que lleva demasiado sin terminar se da por perdida, para que no bloquee las siguientes.
+  if (isRefreshing && startedAt - refreshingSince < QUERY_TIMEOUT * 2) {
     return
   }
   isRefreshing = true
+  refreshingSince = startedAt
   isWatchingDocker = true
   try {
     const ps = await dockerScript($, 'ps')
@@ -595,35 +614,65 @@ async function refreshContainers($: any): Promise<void> {
   }
 }
 
+/**
+ * Da por perdida una operación que el estado dice en curso pero que ya no existe: este módulo no la tiene (se recargó
+ * a mitad) o lleva más del plazo máximo sin terminar ni fallar. Sin esto, el panel se queda cargando y no deja pulsar nada.
+ */
+async function recoverBusy($: any): Promise<void> {
+  const c = await read($, containers)
+  if (c.busy === '') {
+    return
+  }
+  const now = await $.clock.now()
+  if (operation === null || now - operation.startedAt > DOCKER_TIMEOUT + OPERATION_GRACE) {
+    operation?.stopClock()
+    operation = null
+    await setContainers($, {
+      busy: '',
+      busySince: 0,
+      message: `✗ ${c.busy}: la operación se perdió (el panel se recargó o Docker no respondió). Comprueba el estado y vuelve a intentarlo.`,
+      isMessageError: true,
+    })
+  }
+}
+
 /** Lanza una acción de `cliso-docker.bat` (arrancar, detener, reconstruir) y refresca el estado al terminar. */
 async function runDockerAction($: any, action: string, label: string): Promise<void> {
-  if (base === null || (await read($, containers)).busy !== '') {
+  if (base === null) {
+    return
+  }
+  await recoverBusy($)
+  if ((await read($, containers)).busy !== '') {
     return
   }
   const startedAt = await $.clock.now()
-  await setContainers($, { busy: label, busySince: startedAt, now: startedAt, message: '', isMessageError: false })
   // Mientras dura la operación, el reloj del panel avanza cada segundo para que la barra de espera se mueva.
   const stopClock = $.clock.every(WAIT_TICK, async () => {
     await setContainers($, { now: await $.clock.now() })
   })
+  operation = { startedAt, stopClock }
+  await setContainers($, { busy: label, busySince: startedAt, now: startedAt, message: '', isMessageError: false })
+  let message = ''
+  let isError = false
   try {
     const result = await dockerScript($, action)
     // Compose escribe su progreso en la salida de error: solo se muestra si la acción falla.
     const detail = lines(result.stderr).slice(-3).join(' ').slice(0, 300)
-    await setContainers($, {
-      message:
-        result.exitCode !== 0
-          ? `✗ ${label}: ${detail}`
-          : action === 'build'
-            ? `✓ ${label}. Los servicios en marcha siguen con la imagen antigua: arráncalos de nuevo para usar la nueva.`
-            : `✓ ${label}`,
-      isMessageError: result.exitCode !== 0,
-    })
+    isError = result.exitCode !== 0
+    message = isError
+      ? `✗ ${label}: ${detail}`
+      : action === 'build'
+        ? `✓ ${label}. Los servicios en marcha siguen con la imagen antigua: arráncalos de nuevo para usar la nueva.`
+        : `✓ ${label}`
   } catch (error) {
-    await setContainers($, { message: `✗ ${label}: ${String(error)}`, isMessageError: true })
-  } finally {
-    stopClock()
-    await setContainers($, { busy: '', busySince: 0 })
+    isError = true
+    message = `✗ ${label}: ${String(error)}`
+  }
+  stopClock()
+  // Si mientras tanto se dio por perdida (y quizá empezó otra), este resultado ya no cuenta.
+  if (operation !== null && operation.startedAt === startedAt) {
+    operation = null
+    await setContainers($, { busy: '', busySince: 0, message, isMessageError: isError })
   }
   await refreshContainers($)
 }
@@ -725,6 +774,8 @@ async function start($: any): Promise<void> {
       return
     }
     base = found
+    // Un «ocupado» guardado antes de recargar este módulo es de una operación que ya no existe.
+    await recoverBusy($)
     await $.command.register({
       name: 'cliso-tracker',
       description: 'Abre el panel de Cliso (progreso del proyecto, cambios pendientes del README y control de Docker)',
@@ -744,6 +795,8 @@ async function start($: any): Promise<void> {
     })
     cancelDocker?.()
     cancelDocker = $.clock.every(DOCKER_REFRESH, () => {
+      // Red de seguridad: si una operación se pierde sin avisar, el panel deja de esperarla.
+      void recoverBusy($)
       if (isWatchingDocker) {
         void refreshContainers($)
       }
@@ -820,6 +873,7 @@ const GROUPS: DockerGroup[] = [
     starts: [
       { action: 'up-api-sqlite', label: '▶ SQLite', what: 'Arrancar la API con SQLite', tip: 'Solo la API, con SQLite. Para apuntarle una web local.' },
       { action: 'up-api-mysql', label: '▶ MySQL', what: 'Arrancar la API con MySQL', tip: 'Solo la API, con MySQL. Arranca antes la base de datos y espera a que esté lista.' },
+      { action: 'restart-api', label: '↺ Reiniciar', what: 'Reiniciar la API (base de datos limpia)', tip: 'Reinicia la API. En modo demo borra su base de datos y la crea de nuevo con los valores por defecto (SQLite o MySQL). Los ficheros IFC se conservan.' },
     ],
     stop: { action: 'stop-api', label: '■ Detener', what: 'Detener la API', tip: 'Detiene solo la API.' },
   },
