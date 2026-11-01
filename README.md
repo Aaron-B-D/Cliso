@@ -83,6 +83,7 @@ Como mínimo, la versión entregada incluye:
 | Base de datos | SQLite (por defecto, un fichero local) o MySQL, a elegir con `database_provider` |
 | Ficheros de modelos | Gestionados por la propia aplicación |
 | Sesión | Cookie |
+| Entorno local | Docker Compose (`Cliso.Docker`): nginx sirve la UI y reenvía `/api` a la API; MySQL opcional |
 | Herramientas | Windows 10, Visual Studio Code, GitHub, Trello |
 
 ## Estructura del repositorio
@@ -90,7 +91,7 @@ Como mínimo, la versión entregada incluye:
 ```
 Proyecto/
 ├── .ai/           # Directrices de trabajo con el asistente (comunes, back, front y académicas)
-├── .claude/       # Skills del asistente (cliso-mensaje-commit y cliso-revisar-tarea) y plugin cliso-tracker (panel de progreso y cambios pendientes del README)
+├── .claude/       # Skills del asistente (cliso-mensaje-commit y cliso-revisar-tarea) y plugin cliso-tracker (panel de progreso, cambios pendientes del README y control de Docker)
 ├── .claude-plugin/  # marketplace.json: registra el plugin cliso-tracker
 ├── Cliso.API/     # API REST (FastAPI)
 │   ├── app/       # Código de la aplicación (ver "Arquitectura hexagonal del back")
@@ -101,6 +102,13 @@ Proyecto/
 │       ├── resources/    # img/icons (iconos SVG) y languages (textos multidioma)
 │       ├── styles.scss   # Estilos globales (importa src/styles/)
 │       └── styles/       # Tokens de diseño, breakpoints, rejilla, tema de Material, base y clases provisionales
+├── Cliso.Docker/  # Entorno local con Docker Compose (ver "Con Docker")
+│   ├── api/       # Dockerfile de la API y sus settings (SQLite y MySQL)
+│   ├── ui/        # Dockerfile de la UI (Node compila, nginx sirve) y nginx.conf
+│   ├── docker-compose.yml  # Servicios api, ui y db (MySQL, con perfil opcional)
+│   ├── .env.example        # Puertos y contraseña de MySQL (se copia a .env, que no se sube a git)
+│   ├── cliso-docker.bat    # Arranca y detiene servicios sueltos (lo usa el panel de Cliso)
+│   └── README.md           # Detalle de uso
 ├── Documentation/ # Documentación del proyecto
 │   ├── Database/  # Diseño de la base de datos: diagrama UML .drawio
 │   └── UI/        # Diseño de la interfaz: guía de estilo y diagramas .drawio
@@ -153,7 +161,8 @@ Implementado hasta ahora (`Cliso.UI/src/app`):
 - **Parámetros de la aplicación** (`ApplicationSettingsManager`): guarda un parámetro por cada valor de
   `ApplicationSettingsParameter` (`LANGUAGE`, `BIM_MODELS_DIRECTORY`), con valores por defecto hasta que se
   recuperen del API. Sus nombres, descripciones y observaciones están en los textos multidioma (`AS_*`).
-- **Acceso al API:** `DataAccessService` (solo `HttpClient` y la URL base, `Environment.API_URL`; todavía sin
+- **Acceso al API:** `DataAccessService` (solo `HttpClient` y la URL base, `Environment.API_URL`: `http://localhost:8000`
+  en desarrollo y la ruta relativa `/api` en el build de producción, que el servidor web reenvía a la API; todavía sin
   endpoints), `RequestUtils.AwaitRequest` y `HttpRequestCanceller`.
 - **Textos multidioma:** gallego, castellano e inglés (`LanguageGl`, `LanguageEs`, `LanguageEn`), con `LanguageManager`.
 - **Pendiente** (según los diagramas): login, editores de modelos, visualizaciones y usuarios, panel de Edición y
@@ -399,6 +408,34 @@ La aplicación queda disponible en <http://localhost:4200/>.
 
 Otros comandos: `ng build` (compilación de producción en `dist/`) y `ng test` (tests unitarios con Karma).
 
+### Con Docker (`Cliso.Docker`)
+
+Levanta la UI y la API sin instalar Python ni Node (hace falta Docker con Compose). Desde la carpeta `Cliso.Docker`:
+
+```bash
+docker compose up --build
+```
+
+La aplicación queda en <http://localhost:8080>. La UI se compila con `ng build` y la sirve nginx, que reenvía `/api` a
+la API (quitando el prefijo): el navegador solo habla con un origen y no hace falta CORS. La documentación interactiva
+de la API está en <http://localhost:8080/docs>. La API también se publica en el equipo (<http://localhost:8000>, puerto
+`API_PORT`) para poder apuntar a ella desde una web local con `ng serve`.
+
+- **Modo simple (por defecto):** UI + API con SQLite. La base de datos y los ficheros IFC se guardan en el volumen
+  `cliso-data` (`/app/data`) y el log en `cliso-logs`.
+- **Modo MySQL (opcional):** UI + API + MySQL. Se copia `.env.example` a `.env`, se pone
+  `CLISO_SETTINGS_FILE=settings.docker.mysql.json` y se arranca con `docker compose --profile mysql up --build`. La
+  contraseña de `settings.docker.mysql.json` debe coincidir con `MYSQL_ROOT_PASSWORD` de `.env`; el usuario necesita
+  permiso de `CREATE DATABASE`. Es una credencial de desarrollo local: no se usa fuera del equipo.
+- La API lee su configuración del fichero que indica `CLISO_SETTINGS` (`api/settings.docker.json` o
+  `api/settings.docker.mysql.json`, ambos con `is_demo` a `true`). nginx no limita el tamaño de los ficheros IFC.
+- `cliso-docker.bat <acción>` (y la pestaña **Docker** del panel de Cliso) arranca o detiene solo lo que haga falta,
+  por ejemplo la API con MySQL, y muestra el estado de los servicios y si las imágenes deben reconstruirse. En modo
+  MySQL, la base de datos solo se publica en `127.0.0.1` (`MYSQL_PORT`).
+- `docker compose down` conserva los datos; con `-v` también borra los volúmenes.
+
+El detalle de uso está en `Cliso.Docker/README.md`.
+
 ## Configuración y modo demo
 
 Al arrancar, `StartupParametersManager.load()` lee `Cliso.API/settings.json` (o el fichero indicado en la variable de
@@ -471,12 +508,13 @@ los parámetros de arranque, y se llama a `DatabaseInitializer` (`app/initialize
   los `.sql`) y el usuario `admin` (con rol `ADMIN` y contraseña inicial `admin`, cámbiala), que se guarda desde
   Python con el repositorio porque su contraseña va hasheada. En modo demo carga además los datos de `DemoData`, que
   son objetos de dominio (`BIMModel` y `User`) guardados con los repositorios de la API, sin ficheros ni sentencias
-  SQL aparte: dos modelos y dos usuarios, `operator` (rol `OPERATOR`) y `viewer` (rol `VIEWER`), cuya contraseña es
+  SQL aparte: dos modelos (con su fichero IFC, que se copia desde `app/initializer/demo_models/` a la carpeta de modelos
+del parámetro `BIM_MODELS_DIRECTORY`, con nombre fijo) y dos usuarios, `operator` (rol `OPERATOR`) y `viewer` (rol `VIEWER`), cuya contraseña es
   su propio nick. Estos usuarios iniciales no pasan por las reglas de contraseña del servicio.
 - Si algo falla después de crearla, **la borra**, para no dejar una base de datos a medias que el siguiente arranque
   daría por buena. Es la única vez que el arranque borra una base de datos, y siempre una que acaba de crear.
 
-Los modelos demo no tienen fichero IFC (`file_name` vacío) hasta que se sube uno. Cualquier error de base de datos
+Cualquier error de base de datos
 detiene el arranque. La carpeta `data/` (ficheros SQLite) no se versiona.
 
 ### Parámetros de la aplicación

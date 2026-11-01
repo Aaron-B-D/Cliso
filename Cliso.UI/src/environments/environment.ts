@@ -2,8 +2,8 @@
 export class Environment {
 	//#region PUBLIC CONSTANTS
 
-	/** URL base del API. Provisional: hay que poner la del servidor real antes de desplegar. */
-	public static readonly API_URL: string = 'http://localhost:8000';
+	/** URL base del API: ruta relativa, que el servidor web reenvía a la API. */
+	public static readonly API_URL: string = '/api';
 
 	//#endregion PUBLIC CONSTANTS
 }

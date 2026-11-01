@@ -1,7 +1,7 @@
 import { atom, read, update } from 'claude-code'
 import type { Register } from 'claude-code'
 
-import type { Block, ReadmeState, Report, Task } from '../types'
+import type { Block, ContainersState, DockerState, ReadmeState, Report, ServiceInfo, Task } from '../types'
 // Los cambios del README se calculan con git, sin guardar nada por usuario: así valen en cualquier clon del repositorio.
 
 const PANE = 'cliso-tracker'
@@ -27,6 +27,25 @@ const shown = atom({ plugin: 'cliso-tracker', key: 'shown' } as const, true, { s
 
 // Estado del README: cuándo se actualizó por última vez y los cambios pendientes de pasarle (calculados con git).
 const readme = atom({ plugin: 'cliso-tracker', key: 'readme' } as const, null, { shape: 'readme-2' })
+
+// Si las imágenes de Docker necesitan reconstruirse: lo calcula el botón del panel, no se guarda por usuario.
+const docker = atom({ plugin: 'cliso-tracker', key: 'docker' } as const, null, { shape: 'docker-2' })
+
+// Servicios de Docker en marcha, IP local y operación en curso: se consultan con el script Cliso.Docker/cliso-docker.bat.
+const EMPTY_CONTAINERS: ContainersState = {
+  checkedAt: 0,
+  ip: '',
+  services: [],
+  busy: '',
+  message: '',
+  isMessageError: false,
+  error: '',
+}
+const containers = atom({ plugin: 'cliso-tracker', key: 'containers' } as const, EMPTY_CONTAINERS, { shape: 'containers-1' })
+
+// Pestaña del panel ('progress' o 'docker') y subpestaña de Docker ('services' o 'images').
+const tab = atom({ plugin: 'cliso-tracker', key: 'tab' } as const, 'progress', { shape: 'tab-1' })
+const dockerTab = atom({ plugin: 'cliso-tracker', key: 'dockerTab' } as const, 'services', { shape: 'dockerTab-1' })
 
 type Entry = { name: string; kind: string; mtimeMs: number }
 
@@ -241,28 +260,17 @@ async function git($: any, base: string, args: string[]): Promise<string | null>
 }
 
 /**
- * Calcula con git qué ha cambiado en el proyecto desde el último commit que tocó el README, sin guardar nada: así
- * vale en cualquier clon del repositorio. Si el README tiene cambios sin commitear, solo cuentan los ficheros
- * modificados después de editarlo (lo anterior se supone ya aplicado). Cuesta unas pocas llamadas a git.
+ * Ficheros nuevos, modificados y eliminados del árbol de trabajo frente a un commit (incluye lo commiteado, lo que
+ * aún no y lo no seguido por git). Sin commit de referencia, todos los ficheros de git cuentan como nuevos.
  */
-async function scanReadme($: any, base: string, now: number): Promise<void> {
-  if ((await git($, base, ['rev-parse', '--is-inside-work-tree'])) === null) {
-    await update($, readme, () => ({ isGit: false, syncedAt: 0, syncedCommit: '', added: [], changed: [], removed: [] }))
-
-    return
-  }
-  const last = ((await git($, base, ['log', '-1', '--format=%H %ct', '--', 'README.md'])) ?? '').trim().split(' ')
-  const syncedCommit = last[0] ?? ''
-  const syncedAt = syncedCommit === '' ? 0 : Number(last[1]) * 1000
-
+async function changesSince($: any, base: string, commit: string): Promise<{ added: Set<string>; changed: Set<string>; removed: Set<string> }> {
   const added = new Set<string>()
   const changed = new Set<string>()
   const removed = new Set<string>()
-  if (syncedCommit === '') {
+  if (commit === '') {
     lines(await git($, base, ['ls-files'])).forEach(path => added.add(path))
   } else {
-    // Árbol de trabajo frente al commit del README: incluye lo commiteado y lo que aún no.
-    for (const line of lines(await git($, base, ['diff', '--name-status', '-M', syncedCommit]))) {
+    for (const line of lines(await git($, base, ['diff', '--name-status', '-M', commit]))) {
       const [code = '', first = '', second = ''] = line.split('\t')
       const status = code.charAt(0)
       if (status === 'A') {
@@ -280,6 +288,26 @@ async function scanReadme($: any, base: string, now: number): Promise<void> {
     }
   }
   lines(await git($, base, ['ls-files', '--others', '--exclude-standard'])).forEach(path => added.add(path))
+
+  return { added, changed, removed }
+}
+
+/**
+ * Calcula con git qué ha cambiado en el proyecto desde el último commit que tocó el README, sin guardar nada: así
+ * vale en cualquier clon del repositorio. Si el README tiene cambios sin commitear, solo cuentan los ficheros
+ * modificados después de editarlo (lo anterior se supone ya aplicado). Cuesta unas pocas llamadas a git.
+ */
+async function scanReadme($: any, base: string, now: number): Promise<void> {
+  if ((await git($, base, ['rev-parse', '--is-inside-work-tree'])) === null) {
+    await update($, readme, () => ({ isGit: false, syncedAt: 0, syncedCommit: '', added: [], changed: [], removed: [] }))
+
+    return
+  }
+  const last = ((await git($, base, ['log', '-1', '--format=%H %ct', '--', 'README.md'])) ?? '').trim().split(' ')
+  const syncedCommit = last[0] ?? ''
+  const syncedAt = syncedCommit === '' ? 0 : Number(last[1]) * 1000
+
+  const { added, changed, removed } = await changesSince($, base, syncedCommit)
 
   const isReadmeDirty = added.has('README.md') || changed.has('README.md')
   let readmeAt = 0
@@ -379,6 +407,208 @@ async function requestReadme($: any): Promise<void> {
   }
 }
 
+// Lo que entra en cada imagen o en la configuración de Docker: al cambiar, hay que reconstruir o revisar.
+const DOCKER_API = /^Cliso\.API\/(app\/.*|requirements\.txt)$/
+const DOCKER_UI = /^Cliso\.UI\/(src\/.*|public\/.*|package(-lock)?\.json|angular\.json|tsconfig[^/]*\.json)$/
+// Parámetros de arranque: si cambian, puede que haya que reflejarlos en los settings.docker*.json.
+const DOCKER_CONFIG = /^Cliso\.API\/(settings\.json|app\/config\/.*)$/
+// Máximo de ficheros que se nombran por categoría en el panel.
+const MAX_SHOWN = 5
+
+/** Si un cambio puede afectar a Docker: no dependencias ni cachés, ni tests ni documentación (no entran en las imágenes). */
+const isDockerTracked = (path: string): boolean =>
+  !path.split('/').slice(0, -1).some(dir => SKIP_DIRS.has(dir)) && !/\.(spec\.ts|md)$/i.test(path)
+
+// Script que lanza docker compose con los argumentos de cada acción (se puede usar también a mano).
+const DOCKER_SCRIPT = 'Cliso.Docker\\cliso-docker.bat'
+const DOCKER_TIMEOUT = 10 * 60 * 1000
+// Cada cuánto se consulta el estado de los servicios mientras el panel de Docker se ha usado.
+const DOCKER_REFRESH = 20 * 1000
+const SETTINGS_DOCKER = /^Cliso\.Docker\/api\/settings\.docker[^/]*\.json$/
+
+/** Ejecuta una acción de `cliso-docker.bat`; lanza el error si el script no se puede ejecutar. */
+async function dockerScript($: any, action: string): Promise<{ exitCode: number; stdout: string; stderr: string }> {
+  const script = `${String(base).replace(/\//g, '\\')}\\${DOCKER_SCRIPT}`
+  const result = await $.process.run(['cmd.exe', '/c', script, action], { timeoutMs: DOCKER_TIMEOUT })
+
+  return { exitCode: result.exitCode, stdout: String(result.stdout), stderr: String(result.stderr) }
+}
+
+/** Fecha (ms) de la última construcción de las imágenes de la API y la web; 0 si la imagen no existe. */
+async function imageDates($: any): Promise<{ api: number; ui: number }> {
+  const dates = { api: 0, ui: 0 }
+  const { stdout } = await dockerScript($, 'images')
+  for (const line of lines(stdout)) {
+    const match = /\[([^\]]*)\]\s+(\S+)/.exec(line)
+    const name = match?.[1] ?? ''
+    const time = Number(match?.[2]) * 1000
+    if (!Number.isNaN(time)) {
+      if (/-api:/.test(name)) {
+        dates.api = time
+      } else if (/-ui:/.test(name)) {
+        dates.ui = time
+      }
+    }
+  }
+
+  return dates
+}
+
+/**
+ * Comprueba si las imágenes de la API y la web necesitan reconstruirse: los ficheros que entran en cada una y se han
+ * modificado después de crearla. La configuración de arranque cuenta si cambió después de editar los
+ * `settings.docker*.json`.
+ */
+async function scanDocker($: any, base: string, now: number): Promise<void> {
+  const empty: DockerState = { hasDocker: true, checkedAt: now, apiBuiltAt: 0, uiBuiltAt: 0, api: [], ui: [], config: [] }
+  if (!(await $.fs.exists(`${base}/Cliso.Docker`))) {
+    await update($, docker, () => ({ ...empty, hasDocker: false }))
+
+    return
+  }
+  const built = await imageDates($)
+  const modified = new Map<string, number>()
+  await walk($, base, '', modified, 0)
+  let settingsAt = 0
+  for (const [path, mtime] of modified) {
+    if (SETTINGS_DOCKER.test(path)) {
+      settingsAt = Math.max(settingsAt, mtime)
+    }
+  }
+  const pick = (re: RegExp, since: number): string[] =>
+    [...modified]
+      .filter(([path, mtime]) => re.test(path) && isDockerTracked(path) && mtime > since)
+      .map(([path]) => path)
+      .sort()
+  const state: DockerState = {
+    ...empty,
+    apiBuiltAt: built.api,
+    uiBuiltAt: built.ui,
+    api: built.api === 0 ? [] : pick(DOCKER_API, built.api),
+    ui: built.ui === 0 ? [] : pick(DOCKER_UI, built.ui),
+    config: pick(DOCKER_CONFIG, settingsAt),
+  }
+  await update($, docker, () => state)
+}
+
+/** Ficheros nombrados de una categoría, con cuántos más hay si pasan del máximo. */
+const shownFiles = (paths: string[]): string =>
+  paths.slice(0, MAX_SHOWN).join(', ') + (paths.length > MAX_SHOWN ? ` (y ${paths.length - MAX_SHOWN} más)` : '')
+
+/** Si hay que reconstruir alguna imagen, construir las que faltan o revisar la configuración de Docker. */
+const needsDocker = (s: DockerState): boolean =>
+  s.hasDocker && (s.apiBuiltAt === 0 || s.uiBuiltAt === 0 || s.api.length + s.ui.length + s.config.length > 0)
+
+/** Calcula al momento si las imágenes necesitan reconstruirse. */
+async function checkDocker($: any): Promise<void> {
+  if (base !== null) {
+    try {
+      await scanDocker($, base, await $.clock.now())
+    } catch (error) {
+      await setContainers($, { message: `No se pudo comprobar las imágenes: ${String(error)}`, isMessageError: true })
+    }
+  }
+}
+
+// Servicios de Docker Compose, en el orden en que se muestran.
+const SERVICES = [
+  { id: 'api', name: 'API' },
+  { id: 'ui', name: 'Web' },
+  { id: 'db', name: 'MySQL' },
+]
+
+type PsRow = { Service?: string; State?: string; Health?: string; Labels?: string; Publishers?: { PublishedPort?: number }[] }
+
+/** Servicios que devuelve `docker compose ps --format json` (un JSON por línea, o una lista según la versión). */
+function parseServices(output: string): ServiceInfo[] {
+  const text = output.trim()
+  const rows: PsRow[] = []
+  if (text.startsWith('[')) {
+    try {
+      rows.push(...(JSON.parse(text) as PsRow[]))
+    } catch {
+      // No es un JSON válido: se muestran los servicios como parados.
+    }
+  } else {
+    for (const line of lines(text)) {
+      try {
+        rows.push(JSON.parse(line) as PsRow)
+      } catch {
+        // Línea que no es JSON (aviso de docker): se ignora.
+      }
+    }
+  }
+
+  return rows.map(row => {
+    const labels = row.Labels ?? ''
+    const ports = (row.Publishers ?? []).map(p => p.PublishedPort ?? 0).filter(port => port > 0)
+
+    return {
+      service: row.Service ?? '',
+      state: row.State ?? '',
+      health: row.Health ?? '',
+      ports: [...new Set(ports)],
+      // Docker Desktop anota en las etiquetas el fichero de configuración montado: dice la base de datos de la API.
+      database: labels.includes('settings.docker.mysql.json') ? 'mysql' : labels.includes('settings.docker.json') ? 'sqlite' : '',
+    }
+  })
+}
+
+/** Cambia parte del estado de los servicios del panel. */
+async function setContainers($: any, patch: Partial<ContainersState>): Promise<void> {
+  await update($, containers, (c: ContainersState) => ({ ...c, ...patch }))
+}
+
+let isRefreshing = false
+// Se activa al usar el panel de Docker: desde entonces el estado se refresca solo.
+let isWatchingDocker = false
+
+/** Consulta qué servicios de Docker existen y la IP local del equipo. */
+async function refreshContainers($: any): Promise<void> {
+  if (base === null || isRefreshing) {
+    return
+  }
+  isRefreshing = true
+  isWatchingDocker = true
+  try {
+    const ps = await dockerScript($, 'ps')
+    if (ps.exitCode !== 0) {
+      const reason = lines(ps.stderr).slice(-2).join(' ')
+      await setContainers($, { error: `Docker no responde: ¿está abierto Docker Desktop? ${reason}`, services: [], checkedAt: await $.clock.now() })
+
+      return
+    }
+    const ip = (await dockerScript($, 'ip')).stdout.trim()
+    await setContainers($, { error: '', ip, services: parseServices(ps.stdout), checkedAt: await $.clock.now() })
+  } catch (error) {
+    await setContainers($, { error: `No se pudo ejecutar el script de Docker: ${String(error)}`, services: [] })
+  } finally {
+    isRefreshing = false
+  }
+}
+
+/** Lanza una acción de `cliso-docker.bat` (arrancar, detener, reconstruir) y refresca el estado al terminar. */
+async function runDockerAction($: any, action: string, label: string): Promise<void> {
+  if (base === null || (await read($, containers)).busy !== '') {
+    return
+  }
+  await setContainers($, { busy: label, message: '', isMessageError: false })
+  try {
+    const result = await dockerScript($, action)
+    // Compose escribe su progreso en la salida de error: solo se muestra si la acción falla.
+    const detail = lines(result.stderr).slice(-3).join(' ').slice(0, 300)
+    await setContainers($, {
+      message: result.exitCode === 0 ? `✓ ${label}` : `✗ ${label}: ${detail}`,
+      isMessageError: result.exitCode !== 0,
+    })
+  } catch (error) {
+    await setContainers($, { message: `✗ ${label}: ${String(error)}`, isMessageError: true })
+  } finally {
+    await setContainers($, { busy: '' })
+  }
+  await refreshContainers($)
+}
+
 const percent = (b: Block): number =>
   b.tasks.length === 0 ? 0 : Math.round((b.tasks.filter(t => t.isDone).length / b.tasks.length) * 100)
 
@@ -394,6 +624,7 @@ const stamp = (ms: number): string => new Date(ms).toISOString().slice(0, 16).re
 // Raíz del proyecto Cliso; null si la sesión no está dentro de este repositorio.
 let base: string | null = null
 let cancel: (() => void) | undefined
+let cancelDocker: (() => void) | undefined
 let isStarting = false
 
 async function findBase($: any): Promise<string | null> {
@@ -449,7 +680,7 @@ async function start($: any): Promise<void> {
     base = found
     await $.command.register({
       name: 'cliso-tracker',
-      description: 'Abre el panel de Cliso (progreso del proyecto y cambios pendientes del README)',
+      description: 'Abre el panel de Cliso (progreso del proyecto, cambios pendientes del README y control de Docker)',
     })
     const saved = (await $.store.get('report')) as Report | undefined
     if (saved !== undefined && saved.root === base) {
@@ -464,9 +695,260 @@ async function start($: any): Promise<void> {
     cancel = $.clock.every(HOUR, () => {
       void runIfStale($)
     })
+    cancelDocker?.()
+    cancelDocker = $.clock.every(DOCKER_REFRESH, () => {
+      if (isWatchingDocker) {
+        void refreshContainers($)
+      }
+    })
   } finally {
     isStarting = false
   }
+}
+
+type Elements = { Box: any; Text: any; Button: any }
+
+/** Fila de pestañas: la elegida se marca con el botón principal (de color) y las demás van atenuadas. */
+function tabBar(el: Elements, prefix: string, items: { id: string; label: string }[], current: string, onSelect: (id: string) => void) {
+  const { Box, Button } = el
+
+  return (
+    <Box gap="sm" marginBottom={1}>
+      {items.map(item => (
+        <Button
+          key={`${prefix}-${item.id}`}
+          label={item.label}
+          variant={item.id === current ? 'primary' : 'secondary'}
+          dimColor={item.id !== current}
+          onPress={() => onSelect(item.id)}
+        />
+      ))}
+    </Box>
+  )
+}
+
+// Ancho (en celdas) del texto de un tooltip; el cuadro mide 4 más por el borde y el relleno.
+const TIP_WIDTH = 34
+
+/** Tooltip: un cuadro con la explicación que aparece sobre el botón al pasar el puntero (`offset`: celdas a la izquierda del botón). */
+function withTip(el: Elements, id: string, text: string, offset: number, button: any) {
+  const { Box, Text } = el
+  const textLines = Math.ceil(text.length / TIP_WIDTH)
+
+  return (
+    <Box key={`tip-${id}`}>
+      {button}
+      <Box
+        position="absolute"
+        top={-(textLines + 2)}
+        left={-offset}
+        display="none"
+        hover={{ display: 'flex' }}
+        width={TIP_WIDTH + 4}
+        borderStyle="round"
+        borderColor="gray"
+        backgroundColor="#1f2328"
+        paddingX={1}
+      >
+        <Text>{text}</Text>
+      </Box>
+    </Box>
+  )
+}
+
+// Botones de la pestaña de servicios: cada grupo arranca (según la base de datos) o detiene lo suyo.
+type DockerButton = { action: string; label: string; what: string; tip: string }
+type DockerGroup = { name: string; starts: DockerButton[]; stop: DockerButton }
+const GROUPS: DockerGroup[] = [
+  {
+    name: 'Todo',
+    starts: [
+      { action: 'up-all-sqlite', label: '▶ SQLite', what: 'Arrancar web y API con SQLite', tip: 'Arranca la web y la API con SQLite (la base de datos es un fichero en un volumen).' },
+      { action: 'up-all-mysql', label: '▶ MySQL', what: 'Arrancar web, API y MySQL', tip: 'Arranca la web, la API y MySQL. La API espera a que la base de datos esté lista.' },
+    ],
+    stop: { action: 'stop-all', label: '■ Detener', what: 'Detener todo', tip: 'Detiene la web, la API y MySQL. Los datos se conservan.' },
+  },
+  {
+    name: 'API',
+    starts: [
+      { action: 'up-api-sqlite', label: '▶ SQLite', what: 'Arrancar la API con SQLite', tip: 'Solo la API, con SQLite. Para apuntarle una web local.' },
+      { action: 'up-api-mysql', label: '▶ MySQL', what: 'Arrancar la API con MySQL', tip: 'Solo la API, con MySQL. Arranca antes la base de datos y espera a que esté lista.' },
+    ],
+    stop: { action: 'stop-api', label: '■ Detener', what: 'Detener la API', tip: 'Detiene solo la API.' },
+  },
+  {
+    name: 'Web',
+    starts: [{ action: 'up-ui', label: '▶ Arrancar', what: 'Arrancar la web', tip: 'Solo la web (nginx). Reenvía /api a la API cuando esté arrancada.' }],
+    stop: { action: 'stop-ui', label: '■ Detener', what: 'Detener la web', tip: 'Detiene solo la web.' },
+  },
+  {
+    name: 'MySQL',
+    starts: [{ action: 'up-db', label: '▶ Arrancar', what: 'Arrancar MySQL', tip: 'Solo la base de datos MySQL, accesible desde este equipo en el puerto 3307.' }],
+    stop: { action: 'stop-db', label: '■ Detener', what: 'Detener MySQL', tip: 'Detiene solo MySQL. Los datos se conservan en su volumen.' },
+  },
+]
+
+/** Estado de un servicio: parado o arrancado, con la dirección a la que apuntar (la IP local, no localhost). */
+function serviceLine(el: Elements, service: { id: string; name: string }, c: ContainersState) {
+  const { Box, Text } = el
+  const found = c.services.find(s => s.service === service.id)
+  const isUp = found !== undefined && found.state !== 'exited' && found.state !== 'created' && found.state !== 'dead'
+  let status = '○ parada'
+  let color = 'gray'
+  if (isUp && found !== undefined) {
+    if (found.state === 'restarting' || found.health === 'starting') {
+      status = '◐ arrancando'
+      color = 'yellow'
+    } else if (found.health === 'unhealthy') {
+      status = '● no sana'
+      color = 'red'
+    } else {
+      status = found.health === 'healthy' ? '● arrancada · sana' : '● arrancada'
+      color = 'green'
+    }
+  }
+  const database = isUp && service.id === 'api' ? found?.database : ''
+  const port = found?.ports[0]
+  let address = ''
+  if (isUp && port !== undefined) {
+    address = service.id === 'db' ? `127.0.0.1:${port} (solo este equipo)` : `http://${c.ip === '' ? 'localhost' : c.ip}:${port}`
+  }
+
+  return (
+    <Box key={`service-${service.id}`} borderStyle="round" borderColor={color} paddingX="sm" flexDirection="column">
+      <Box gap="sm">
+        <Box width={7}>
+          <Text bold>{service.name}</Text>
+        </Box>
+        <Text color={color}>{status}</Text>
+        {database !== undefined && database !== '' && <Text dimColor>· {database === 'mysql' ? 'MySQL' : 'SQLite'}</Text>}
+      </Box>
+      {address !== '' && <Text color="cyan">{address}</Text>}
+    </Box>
+  )
+}
+
+/** Subpanel de arrancar y detener: una fila por grupo, con sus botones. */
+function servicesPanel($: any, el: Elements) {
+  const { Box, Text, Button } = el
+  // Columna del nombre del grupo y ancho de cada botón, en celdas: sirven para alinear el tooltip con el borde del panel.
+  const NAME_WIDTH = 8
+  const BUTTON_WIDTH = 13
+  const button = (item: DockerButton, variant: string, index: number) =>
+    withTip(
+      el,
+      item.action,
+      item.tip,
+      NAME_WIDTH + index * BUTTON_WIDTH,
+      <Button key={item.action} label={item.label} variant={variant} onPress={() => runDockerAction($, item.action, item.what)} />
+    )
+
+  return (
+    <Box flexDirection="column" gap="sm">
+      {GROUPS.map(group => (
+        <Box key={`group-${group.name}`} gap="sm" alignItems="center">
+          <Box width={NAME_WIDTH}>
+            <Text bold>{group.name}</Text>
+          </Box>
+          {group.starts.map((start, index) => button(start, 'primary', index))}
+          {button(group.stop, 'secondary', group.starts.length)}
+        </Box>
+      ))}
+    </Box>
+  )
+}
+
+/** Subpanel de imágenes: si hay que reconstruirlas y el botón para hacerlo. */
+function imagesPanel($: any, el: Elements, state: DockerState | null) {
+  const { Box, Text, Button } = el
+  const imageLine = (name: string, builtAt: number, files: string[]) => (
+    <Text color={builtAt === 0 || files.length > 0 ? 'yellow' : 'green'}>
+      {builtAt === 0
+        ? `Imagen de ${name}: sin construir (se construye al arrancarla)`
+        : files.length === 0
+          ? `Imagen de ${name}: al día (construida ${stamp(builtAt)})`
+          : `Imagen de ${name}: reconstruir (${files.length}): ${shownFiles(files)}`}
+    </Text>
+  )
+
+  return (
+    <Box flexDirection="column">
+      {state === null ? (
+        <Text dimColor>Sin comprobar todavía.</Text>
+      ) : !state.hasDocker ? (
+        <Text color="yellow">No existe la carpeta Cliso.Docker.</Text>
+      ) : (
+        <Box flexDirection="column">
+          <Text dimColor>Comprobado: {stamp(state.checkedAt)}</Text>
+          {imageLine('la API', state.apiBuiltAt, state.api)}
+          {imageLine('la web', state.uiBuiltAt, state.ui)}
+          <Text color={state.config.length === 0 ? 'green' : 'yellow'}>
+            {state.config.length === 0
+              ? 'Configuración de arranque: sin cambios'
+              : `Configuración de arranque: revisa los settings.docker*.json (${state.config.length}): ${shownFiles(state.config)}`}
+          </Text>
+          <Text color={needsDocker(state) ? 'yellow' : 'green'}>
+            {needsDocker(state) ? 'Las imágenes necesitan actualizarse: reconstruye y arranca de nuevo.' : 'Las imágenes están al día.'}
+          </Text>
+        </Box>
+      )}
+      <Box gap="sm" marginTop={1}>
+        {withTip(
+          el,
+          'check-docker',
+          'Mira si hay ficheros modificados después de construir cada imagen.',
+          0,
+          <Button key="check-docker" label="Comprobar" variant="primary" onPress={() => checkDocker($)} />
+        )}
+        {withTip(
+          el,
+          'build-docker',
+          'Reconstruye las imágenes de la API y la web. Después, arranca de nuevo los servicios para usarlas.',
+          14,
+          <Button key="build-docker" label="Reconstruir imágenes" variant="secondary" onPress={() => runDockerAction($, 'build', 'Reconstruir las imágenes')} />
+        )}
+      </Box>
+    </Box>
+  )
+}
+
+/** Pestaña de Docker: estado de los servicios arriba y, debajo, las subpestañas Servicios e Imágenes. */
+function dockerPane($: any, el: Elements, c: ContainersState, state: DockerState | null, sub: string) {
+  const { Box, Text, Button } = el
+  const checked = c.checkedAt === 0 ? 'sin comprobar' : new Date(c.checkedAt).toTimeString().slice(0, 8)
+
+  return (
+    <Box flexDirection="column" gap="xs">
+      <Box gap="sm" alignItems="center" justifyContent="space-between">
+        <Box flexDirection="column">
+          <Text bold>Docker</Text>
+          <Box gap="xs">
+            <Text dimColor>IP local</Text>
+            <Text bold color="cyan">{c.ip === '' ? 'sin red' : c.ip}</Text>
+            <Text dimColor>· {checked}</Text>
+          </Box>
+        </Box>
+        <Button key="refresh-docker" label="Actualizar" variant="secondary" onPress={() => refreshContainers($)} />
+      </Box>
+      {c.error !== '' && <Text color="red">{c.error}</Text>}
+      {SERVICES.map(service => serviceLine(el, service, c))}
+      {c.busy !== '' && <Text color="yellow">… {c.busy} (puede tardar unos minutos)</Text>}
+      {c.message !== '' && <Text color={c.isMessageError ? 'red' : 'green'}>{c.message}</Text>}
+      <Box marginTop={1} flexDirection="column">
+        {tabBar(
+          el,
+          'docker-tab',
+          [
+            { id: 'services', label: 'Servicios' },
+            { id: 'images', label: 'Imágenes' },
+          ],
+          sub,
+          id => update($, dockerTab, () => id)
+        )}
+        {sub === 'images' ? imagesPanel($, el, state) : servicesPanel($, el)}
+      </Box>
+    </Box>
+  )
 }
 
 export const register: Register = on => {
@@ -531,13 +1013,42 @@ export const register: Register = on => {
     const current = await read($, report)
     const expanded = await read($, open)
     const readmeState = await read($, readme)
+    const dockerState = await read($, docker)
+    const containersState = await read($, containers)
+    const currentTab = await read($, tab)
+    const currentDockerTab = await read($, dockerTab)
+    const isProgress = currentTab !== 'docker'
 
-    if (current === null) {
+    if (isProgress && current === null) {
       return <Text dimColor>Calculando el progreso del proyecto…</Text>
+    }
+    // La primera vez que se abre la pestaña de Docker se consultan los servicios.
+    if (!isProgress && containersState.checkedAt === 0 && containersState.error === '') {
+      void refreshContainers($)
+    }
+    const tabs = tabBar(
+      { Box, Text, Button },
+      'tab',
+      [
+        { id: 'progress', label: 'Progreso' },
+        { id: 'docker', label: 'Docker' },
+      ],
+      currentTab,
+      id => update($, tab, () => id)
+    )
+
+    if (!isProgress || current === null) {
+      return (
+        <Box flexDirection="column">
+          {tabs}
+          {dockerPane($, { Box, Text, Button }, containersState, dockerState, currentDockerTab)}
+        </Box>
+      )
     }
 
     return (
       <Box flexDirection="column">
+        {tabs}
         <Text dimColor>
           Última comprobación: {stamp(current.checkedAt)} · siguiente antes de {stamp(current.checkedAt + 24 * HOUR)}
         </Text>

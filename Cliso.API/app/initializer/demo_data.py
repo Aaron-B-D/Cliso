@@ -1,3 +1,6 @@
+from pathlib import Path;
+from typing import ClassVar;
+
 from app.domain.models import BIMModel, User, UserRole;
 from app.utils import PasswordUtils;
 
@@ -5,8 +8,16 @@ from app.utils import PasswordUtils;
 class DemoData:
 	"""Datos de demostración, escritos como objetos de dominio.
 
-	Clase estática: no se instancia. Los modelos no tienen fichero IFC (`file_name` vacío) hasta que se sube uno.
+	Clase estática: no se instancia. Cada modelo lleva el nombre de su fichero IFC, que está en la carpeta `demo_models`
+	junto a este módulo.
 	"""
+
+	# region PRIVATE CONSTANTS
+
+	_FILES_DIRECTORY: ClassVar[Path] = Path(__file__).resolve().parent / "demo_models";
+	"""Carpeta con los ficheros IFC de los modelos demo."""
+
+	# endregion PRIVATE CONSTANTS
 
 	# region PUBLIC STATIC METHODS
 
@@ -41,20 +52,37 @@ class DemoData:
 	def get_bim_models() -> list[BIMModel]:
 		"""Devuelve los modelos BIM de demostración, sin guardar (sin `id`).
 
+		Cada modelo lleva un nombre de fichero guardado fijo (no aleatorio): así, cada base de datos demo nueva vuelve a
+		usar los mismos ficheros en disco en lugar de acumular copias.
+
 		Returns:
 			Los modelos demo.
 		"""
 		return [
 			BIMModel(
-				name="Edificio de oficinas",
-				description="Modelo BIM de ejemplo de un edificio de oficinas.",
-				file_name="",
+				name="Casa de muestra",
+				description="Vivienda unifamiliar de ejemplo (IFC 4).",
+				file_name="Ifc4_SampleHouse.ifc",
+				stored_file_name="demo_ifc4_sample_house.ifc",
 			),
 			BIMModel(
-				name="Puente peatonal",
-				description="Modelo BIM de ejemplo de un puente peatonal.",
-				file_name="",
+				name="Edificio dúplex",
+				description="Edificio de dos viviendas, modelo de arquitectura (IFC 2x3).",
+				file_name="Ifc2x3_Duplex_Architecture.ifc",
+				stored_file_name="demo_ifc2x3_duplex_architecture.ifc",
 			),
 		];
+
+	@staticmethod
+	def get_bim_model_file_path(model: BIMModel) -> Path:
+		"""Devuelve la ruta del fichero IFC de un modelo demo.
+
+		Args:
+			model: Modelo demo (uno de los que devuelve `get_bim_models`).
+
+		Returns:
+			La ruta del fichero, que se llama como el `file_name` del modelo.
+		"""
+		return DemoData._FILES_DIRECTORY / model.file_name;
 
 	# endregion PUBLIC STATIC METHODS

@@ -1,0 +1,60 @@
+# Cliso en local: `docker compose up --build`.
+# Modo simple (por defecto): UI + API con SQLite en un volumen.
+# Modo MySQL: poner CLISO_SETTINGS_FILE=settings.docker.mysql.json en .env y usar `docker compose --profile mysql up --build`.
+
+services:
+  api:
+    build:
+      context: ../Cliso.API
+      dockerfile: ../Cliso.Docker/api/Dockerfile
+    environment:
+      CLISO_SETTINGS: /config/settings.json
+    # Publicada para poder apuntar a ella desde fuera (por ejemplo, una web local con `ng serve`).
+    ports:
+      - "${API_PORT:-8000}:8000"
+    volumes:
+      - ./api/${CLISO_SETTINGS_FILE:-settings.docker.json}:/config/settings.json:ro
+      - cliso-data:/app/data
+      - cliso-logs:/app/logs
+    # En modo simple el servicio db no está activo y la dependencia se ignora.
+    depends_on:
+      db:
+        condition: service_healthy
+        required: false
+    restart: unless-stopped
+
+  ui:
+    build:
+      context: ../Cliso.UI
+      dockerfile: ../Cliso.Docker/ui/Dockerfile
+    ports:
+      - "${UI_PORT:-8080}:80"
+    volumes:
+      - ./ui/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    restart: unless-stopped
+
+  db:
+    profiles: [mysql]
+    image: mysql:${MYSQL_VERSION:-8.0}
+    # Autenticación clásica: el conector de la API (PyMySQL) no lleva el paquete que exige caching_sha2_password.
+    # Esta opción existe en MySQL 8.0 y se eliminó en 8.4: con MYSQL_VERSION=8.4 el contenedor no arranca.
+    command: --default-authentication-plugin=mysql_native_password
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-cliso_dev}
+    # Solo accesible desde este equipo (la contraseña es de desarrollo): sirve para una API local que use esta base de datos.
+    ports:
+      - "127.0.0.1:${MYSQL_PORT:-3307}:3306"
+    volumes:
+      - cliso-mysql:/var/lib/mysql
+    healthcheck:
+      # Por TCP (127.0.0.1): el servidor temporal de la inicialización no escucha en red y por socket daría «sano» antes de tiempo.
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p$$MYSQL_ROOT_PASSWORD"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    restart: unless-stopped
+
+volumes:
+  cliso-data:
+  cliso-logs:
+  cliso-mysql:

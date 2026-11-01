@@ -1,6 +1,6 @@
 {
   "name": "cliso-tracker",
-  "version": "0.2.0",
-  "description": "Panel de ayudas del proyecto Cliso: progreso (back, front y requisitos académicos) y cambios pendientes del README. Solo actúa dentro del repositorio Cliso.",
+  "version": "0.3.0",
+  "description": "Panel de ayudas del proyecto Cliso: progreso (back, front y requisitos académicos), cambios pendientes del README y control de Docker (arrancar y detener servicios, estado e IP, comprobar si las imágenes necesitan reconstruirse). Solo actúa dentro del repositorio Cliso.",
   "types": "./types/index.d.ts"
 }

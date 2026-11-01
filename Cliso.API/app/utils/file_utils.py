@@ -1,3 +1,4 @@
+import shutil;
 from pathlib import Path;
 from typing import ClassVar;
 
@@ -29,6 +30,19 @@ class FileUtils:
 			OSError: Si no se puede crear.
 		"""
 		directory.mkdir(parents=True, exist_ok=True);
+
+	@staticmethod
+	def copy(source: Path, destination: Path) -> None:
+		"""Copia un fichero. Si el destino ya existe, lo sustituye.
+
+		Args:
+			source: Fichero a copiar.
+			destination: Ruta de la copia (la carpeta debe existir).
+
+		Raises:
+			OSError: Si no se puede copiar.
+		"""
+		shutil.copyfile(source, destination);
 
 	@staticmethod
 	def delete(path: Path) -> None:

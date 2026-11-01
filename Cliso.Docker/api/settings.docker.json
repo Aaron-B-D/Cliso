@@ -1,0 +1,6 @@
+{
+	"is_demo": true,
+	"database_provider": "sqlite",
+	"sqlite_directory": "data",
+	"log_file_path": "logs/cliso.log"
+}

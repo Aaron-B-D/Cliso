@@ -1,0 +1,11 @@
+{
+	"is_demo": true,
+	"database_provider": "mysql",
+	"sqlite_directory": "data",
+	"log_file_path": "logs/cliso.log",
+	"mysql_host": "db",
+	"mysql_port": 3306,
+	"mysql_user": "root",
+	"mysql_password": "cliso_dev",
+	"mysql_database": "cliso"
+}

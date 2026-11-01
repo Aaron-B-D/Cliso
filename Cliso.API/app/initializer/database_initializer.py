@@ -1,13 +1,14 @@
 from typing import ClassVar;
 
 from app.adapters.outbound.persistence import DatabaseAdapterBase, DatabaseError, DatabaseOperationError;
-from app.application.exceptions import PersistenceError, UserError;
-from app.application.ports.outbound import BIMModelRepositoryBase, UserRepositoryBase;
+from app.adapters.outbound.storage import LocalBIMModelFileStorage;
+from app.application.exceptions import ApplicationParameterError, FileStorageError, PersistenceError, UserError;
+from app.application.ports.outbound import ApplicationParameterRepositoryBase, BIMModelRepositoryBase, UserRepositoryBase;
 from app.application.use_cases import UserService;
-from app.domain.models import User, UserRole;
+from app.domain.models import ApplicationParameterType, User, UserRole;
 from app.initializer.demo_data import DemoData;
 from app.logger import Logger;
-from app.utils import PasswordUtils;
+from app.utils import PasswordUtils, PathUtils;
 
 
 class DatabaseInitializer:
@@ -15,7 +16,8 @@ class DatabaseInitializer:
 
 	Una base de datos que ya existe no se toca nunca. Una que se acaba de crear lleva siempre los datos básicos (entre
 	ellos, los parámetros de la aplicación y el usuario administrador) y, en modo demo, además los datos de
-	demostración, que se guardan con los repositorios de la aplicación.
+	demostración, que se guardan con los repositorios de la aplicación (los ficheros IFC de los modelos, en la carpeta de
+	modelos de los parámetros de la aplicación).
 	"""
 
 	# region PRIVATE CONSTANTS
@@ -30,6 +32,7 @@ class DatabaseInitializer:
 	def __init__(
 		self,
 		database: DatabaseAdapterBase,
+		application_parameter_repository: ApplicationParameterRepositoryBase,
 		bim_model_repository: BIMModelRepositoryBase,
 		user_repository: UserRepositoryBase,
 		is_demo: bool,
@@ -38,12 +41,16 @@ class DatabaseInitializer:
 
 		Args:
 			database: Adaptador de la base de datos que se prepara.
+			application_parameter_repository: Repositorio del que se lee la carpeta de los ficheros de los modelos BIM demo.
 			bim_model_repository: Repositorio con el que se guardan los modelos BIM demo.
 			user_repository: Repositorio con el que se guardan el administrador y los usuarios demo.
 			is_demo: Si es True, tras los datos básicos se cargan los datos de demostración.
 		"""
 		self._database = database;
 		"""Adaptador de la base de datos que se prepara."""
+
+		self._application_parameter_repository = application_parameter_repository;
+		"""Repositorio del que se lee la carpeta de los ficheros de los modelos BIM demo."""
 
 		self._bim_model_repository = bim_model_repository;
 		"""Repositorio con el que se guardan los modelos BIM demo."""
@@ -106,17 +113,25 @@ class DatabaseInitializer:
 			raise DatabaseOperationError(f"No se pudo crear el usuario administrador: {error}") from error;
 
 	def _load_demo_data(self) -> None:
-		"""Guarda los datos de demostración con los repositorios.
+		"""Guarda los datos de demostración con los repositorios y copia los ficheros IFC de los modelos a su carpeta.
+
+		La carpeta de los ficheros es la de los parámetros de la aplicación, que ya están cargados con los datos básicos.
 
 		Raises:
-			DatabaseOperationError: Si algún dato no se puede guardar.
+			DatabaseOperationError: Si algún dato no se puede guardar o algún fichero no se puede copiar.
 		"""
 		try:
 			for user in DemoData.get_users():
 				self._user_repository.add(user);
+
+			bim_models_directory = PathUtils.resolve(
+				self._application_parameter_repository.get_by_type(ApplicationParameterType.BIM_MODELS_DIRECTORY).value
+			);
+			file_storage = LocalBIMModelFileStorage(bim_models_directory);
 			for model in DemoData.get_bim_models():
 				self._bim_model_repository.add(model);
-		except (PersistenceError, UserError) as error:
+				file_storage.import_file(model.stored_file_name, DemoData.get_bim_model_file_path(model));
+		except (ApplicationParameterError, FileStorageError, PersistenceError, UserError) as error:
 			raise DatabaseOperationError(f"No se pudieron cargar los datos demo: {error}") from error;
 
 	# endregion PRIVATE METHODS

@@ -22,6 +22,19 @@ class BIMModelFileStorageBase(ABC):
 		"""
 
 	@abstractmethod
+	def import_file(self, stored_file_name: str, source: Path) -> None:
+		"""Guarda una copia de un fichero que ya está en el disco. Si ya había uno con ese nombre, lo sustituye solo
+		cuando la copia está completa.
+
+		Args:
+			stored_file_name: Nombre con el que se guarda el fichero.
+			source: Ruta del fichero a copiar.
+
+		Raises:
+			FileStorageError: Si no se puede copiar el fichero (el anterior, si lo había, se conserva).
+		"""
+
+	@abstractmethod
 	def get_path(self, stored_file_name: str) -> Path:
 		"""Devuelve la ruta de un fichero guardado.
 

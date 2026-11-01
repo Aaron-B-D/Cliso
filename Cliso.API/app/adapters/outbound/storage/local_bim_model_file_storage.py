@@ -67,6 +67,30 @@ class LocalBIMModelFileStorage(BIMModelFileStorageBase):
 			except OSError as error:
 				Logger.warning(f"No se pudo borrar el fichero temporal {temp_path}: {error}");
 
+	def import_file(self, stored_file_name: str, source: Path) -> None:
+		"""Guarda una copia de un fichero que ya está en el disco.
+
+		Igual que `save`, se copia primero a un fichero temporal y solo cuando está completo sustituye al anterior.
+
+		Raises:
+			FileStorageError: Si no se puede copiar el fichero.
+		"""
+		final_path = self._get_file_path(stored_file_name);
+		temp_path = final_path.with_name(final_path.name + self._TEMP_EXTENSION);
+
+		try:
+			FileUtils.create_directory(self._directory);
+			FileUtils.copy(source, temp_path);
+			temp_path.replace(final_path);
+		except OSError as error:
+			raise FileStorageError(f"No se pudo copiar el fichero '{source}' como '{stored_file_name}': {error}") from error;
+		finally:
+			# Si la copia ha ido bien el temporal ya no existe; si ha fallado, lo borramos.
+			try:
+				FileUtils.delete(temp_path);
+			except OSError as error:
+				Logger.warning(f"No se pudo borrar el fichero temporal {temp_path}: {error}");
+
 	def get_path(self, stored_file_name: str) -> Path:
 		"""Devuelve la ruta de un fichero guardado.
 

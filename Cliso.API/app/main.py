@@ -86,7 +86,9 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None]:
 			bim_model_repository = SQLiteBIMModelRepository(database);
 			user_repository = SQLiteUserRepository(database);
 
-		DatabaseInitializer(database, bim_model_repository, user_repository, startup.is_demo).initialize();
+		DatabaseInitializer(
+			database, application_parameter_repository, bim_model_repository, user_repository, startup.is_demo
+		).initialize();
 
 		application_parameter_service = ApplicationParameterService(application_parameter_repository);
 		language = application_parameter_service.get_parameter(ApplicationParameterType.LANGUAGE).value;

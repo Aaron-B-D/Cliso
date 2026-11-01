@@ -1,0 +1,4 @@
+# Los ficheros que se copian o montan en contenedores Linux deben tener saltos de línea LF.
+Cliso.Docker/** text eol=lf
+# Los scripts de Windows necesitan CRLF.
+Cliso.Docker/*.bat text eol=crlf
