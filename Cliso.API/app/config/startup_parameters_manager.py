@@ -67,12 +67,36 @@ class StartupParametersManager:
 			parameters.mysql_user = StartupParametersManager._read(raw, "mysql_user", str, parameters.mysql_user);
 			parameters.mysql_password = StartupParametersManager._read(raw, "mysql_password", str, parameters.mysql_password);
 			parameters.mysql_database = StartupParametersManager._read(raw, "mysql_database", str, parameters.mysql_database);
+			parameters.allowed_origins = StartupParametersManager._read_origins(raw, parameters.allowed_origins);
 
 		return parameters;
 
 	# endregion PUBLIC STATIC METHODS
 
 	# region PRIVATE STATIC METHODS
+
+	@staticmethod
+	def _read_origins(raw: dict[str, Any], default: list[str]) -> list[str]:
+		"""Lee el parámetro `allowed_origins` del JSON comprobando que es una lista de textos.
+
+		Args:
+			raw: Contenido del fichero de configuración.
+			default: Orígenes que se usan si la clave no está en el fichero.
+
+		Returns:
+			Los orígenes del fichero, o `default` si la clave no está.
+
+		Raises:
+			StartupParametersValueError: Si el valor no es una lista de textos.
+		"""
+		result = default;
+		if "allowed_origins" in raw:
+			value: object = raw["allowed_origins"];
+			is_valid = isinstance(value, list) and all(isinstance(item, str) for item in cast(list[object], value));
+			if not is_valid:
+				raise StartupParametersValueError(f"El parámetro 'allowed_origins' debe ser una lista de textos, pero vale '{value}'.");
+			result = [str(item) for item in cast(list[object], value)];
+		return result;
 
 	@staticmethod
 	def _read_provider(raw: dict[str, Any], default: DatabaseProvider) -> DatabaseProvider:

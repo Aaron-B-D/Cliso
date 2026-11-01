@@ -1,0 +1,19 @@
+@use '@angular/material' as mat;
+
+// Botón de aceptar de una acción destructiva: secundario con texto y borde de peligro, como pide la guía de estilo.
+.cd_accept-danger {
+	@include mat.button-overrides(
+		(
+			outlined-label-text-color: var(--color-danger),
+			outlined-outline-color: var(--color-danger)
+		)
+	);
+}
+
+.cd_actions {
+	gap: var(--space-2);
+}
+
+.cd_message {
+	color: var(--color-text);
+}

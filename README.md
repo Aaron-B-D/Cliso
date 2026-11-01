@@ -78,7 +78,9 @@ Como mínimo, la versión entregada incluye:
 
 | Parte | Tecnología |
 |---|---|
-| Front (`Cliso.UI`) | Angular 20 (TypeScript) |
+| Front (`Cliso.UI`) | Angular 20 (TypeScript) con Angular Material |
+| Visor 3D (front) | ThatOpen Components, sobre three.js y web-ifc: carga y muestra modelos IFC |
+| Fechas (front) | Temporal, con `temporal-polyfill` (hasta que los navegadores y TypeScript lo traigan de serie) |
 | Back (`Cliso.API`) | FastAPI (Python) |
 | Base de datos | SQLite (por defecto, un fichero local) o MySQL, a elegir con `database_provider` |
 | Ficheros de modelos | Gestionados por la propia aplicación |
@@ -115,7 +117,8 @@ Proyecto/
 └── README.md
 ```
 
-Todavía no hay carpeta de tests (ni en el back ni en el front, más allá del test que genera Angular).
+El back todavía no tiene tests. El front tiene los suyos como ficheros `*.spec.ts` junto al código (conversión de
+fechas y modelo BIM, además del test que genera Angular); por defecto no se escriben, solo para comportamientos delicados.
 
 La memoria del proyecto (formato `.odt`) se encuentra en la carpeta `Documentation`.
 
@@ -124,7 +127,9 @@ La memoria del proyecto (formato `.odt`) se encuentra en la carpeta `Documentati
 La guía completa está en [`Documentation/UI/[Diseño] Cliso.UI - Guía de estilo.md`](<Documentation/UI/[Diseño] Cliso.UI - Guía de estilo.md>). Lo esencial:
 
 - **Estilo inspirado en X:** fondo negro, texto blanco y grises; el blanco es el único acento y los colores solo se
-  usan para estados (error, éxito). Bordes finos en lugar de sombras, botones y campos en píldora.
+  usan para estados (error, éxito). Bordes finos en lugar de sombras, botones y campos en píldora. Única excepción:
+  las fichas de las listas de los editores llevan un borde y una sombra sólida y sin desenfoque (`--shadow-item`),
+  para que se distingan unas de otras.
 - **Solo tema oscuro.** Tipografía del sistema, tamaño base de 15 px.
 - **Mobile-first y rejilla de Bootstrap** (solo las columnas, `Cliso.UI/src/styles/_grid.scss`): se diseña primero
   para móvil y todo es redimensionable. Los breakpoints están en `Cliso.UI/src/styles/_breakpoints.scss`, el alto de
@@ -136,12 +141,27 @@ La guía completa está en [`Documentation/UI/[Diseño] Cliso.UI - Guía de esti
   viven en `Cliso.UI/src/resources/languages/` y los gestiona `LanguageManager`.
 - **Estructura del código del front** (`Cliso.UI/src`): `app/core` (arranque y guard de rutas), `app/modules` (una
   carpeta por pantalla), `app/shared` (lo común: definiciones, modelos, servicios, utilidades), `resources` (imágenes
-  y textos multidioma) y `styles`. Las llamadas al API pasan por `DataAccessService` y se esperan con
-  `RequestUtils.AwaitRequest`. Las normas
+  y textos multidioma) y `styles`. Las llamadas al API pasan por `DataAccessService`, agrupadas por concepto
+  (`BimModels`...), y se esperan con `RequestUtils.AwaitRequest` (o `AwaitRequestWithProgress`, para subir y descargar
+  ficheros con su porcentaje). Las normas
   de código (nombres, regiones, control de flujo, comentarios, HTML y CSS) están en `.ai/directrices-front.md`. El
   formato lo fija Prettier (tabuladores, 130 columnas) y `npm run lint` pasa ESLint sobre `src`.
 - **Tokens de diseño** (colores, espaciado, formas) como propiedades CSS en `Cliso.UI/src/styles/_variables.scss`;
   los componentes los leen con `var(--color-...)` y no llevan valores sueltos.
+- **Editores** (modelos, y después visualizaciones y usuarios): modal redimensionable con lista y buscador a la
+  izquierda (con un splitter siempre visible, plegable), detalle en pestañas a la derecha y un pie solo con iconos
+  pequeños: añadir, editar y borrar y, mientras se edita, guardar y descartar. El detalle es de solo lectura hasta
+  pulsar editar, y con cambios sin guardar se pide confirmación antes de cerrar, cambiar de ficha o descartar.
+  Comparten el esqueleto `EditorShell` (en `shared/components`), que da al detalle su alto como contenedor (`cqh`)
+  para que lo aprovechen los elementos de dentro (por ejemplo, la previsualización).
+- **Avisos y confirmaciones:** `NotificationService` muestra un toast arriba al centro (3 s) con el color de su nivel
+  (peligro en rojo, éxito en verde, aviso con borde blanco, informativo con el borde normal) y
+  `ConfirmDialogService` hace preguntas de aceptar o cancelar. En un borrado, el botón de aceptar (en rojo) va a la
+  izquierda del de cancelar.
+- **Fechas:** el API manda texto ISO 8601 y el front trabaja con fechas con las que se puede operar. El constructor
+  de cada model acepta cualquier `DateInput` (texto, número, `Date` o un tipo de Temporal) y `DateUtils.Parse` lo
+  convierte en un `Temporal.ZonedDateTime`. El texto sin zona (como lo manda hoy el back) se entiende como hora local
+  del navegador.
 - El diseño de pantallas está en los diagramas `.drawio` de `Documentation/UI/` (barra de herramientas, editor y home).
   Cada uno incluye páginas «(móvil)» de ≈ 360 px que sirven de referencia de responsividad: la barra lateral pasa a
   barra superior con menú desplegable, el Home muestra las fichas en una columna con los paneles apilados, y los
@@ -151,9 +171,10 @@ La guía completa está en [`Documentation/UI/[Diseño] Cliso.UI - Guía de esti
 
 Implementado hasta ahora (`Cliso.UI/src/app`):
 
-- **Shell y navegación:** la aplicación arranca en `/home`, con la barra lateral (botón de inicio y usuario actual
-  abajo; en móvil, barra superior con menú desplegable) y el buscador de modelos y visualizaciones a la derecha, aún
-  sin lógica. Rutas en `app.routes.ts` (`AppRoute`); las pantallas protegidas llevan `AuthGuard`, que por ahora deja
+- **Shell y navegación:** la aplicación arranca en `/home`, con la barra lateral (botón de inicio, botón *Edición* y
+  usuario actual abajo; en móvil, barra superior con menú desplegable en el que *Edición* se despliega como un
+  acordeón) y el buscador de modelos y visualizaciones a la derecha, aún sin lógica. *Edición* abre un panel a la
+  derecha de su botón con *Modelos* (activo) y *Visualizaciones* y *Usuarios* (deshabilitados hasta que existan). Rutas en `app.routes.ts` (`AppRoute`); las pantallas protegidas llevan `AuthGuard`, que por ahora deja
   pasar siempre.
 - **Arranque** (`AppBootstrapUtils`): fija el idioma con el parámetro de la aplicación y establece un usuario por
   defecto, porque aún no hay inicio de sesión. Pendiente: ejecutarlo tras el login y recuperar del API los
@@ -161,12 +182,57 @@ Implementado hasta ahora (`Cliso.UI/src/app`):
 - **Parámetros de la aplicación** (`ApplicationSettingsManager`): guarda un parámetro por cada valor de
   `ApplicationSettingsParameter` (`LANGUAGE`, `BIM_MODELS_DIRECTORY`), con valores por defecto hasta que se
   recuperen del API. Sus nombres, descripciones y observaciones están en los textos multidioma (`AS_*`).
-- **Acceso al API:** `DataAccessService` (solo `HttpClient` y la URL base, `Environment.API_URL`: `http://localhost:8000`
-  en desarrollo y la ruta relativa `/api` en el build de producción, que el servidor web reenvía a la API; todavía sin
-  endpoints), `RequestUtils.AwaitRequest` y `HttpRequestCanceller`.
+- **Editor de modelos BIM** (`modules/bimModelEditor`, se abre desde *Edición → Modelos*): lista de modelos con
+  buscador (con una barra de carga mientras llegan, y vacía si no se pueden recuperar), detalle con las pestañas
+  *General* (nombre, descripción, observaciones y carga del fichero IFC, que se sube al guardar con su porcentaje) y
+  *Previsualización* (visor 3D, que ocupa casi todo el alto de la pestaña y muestra también el fichero elegido
+  aunque aún no se haya subido, por ejemplo al añadir un modelo). Añadir (que abre la pestaña *General*), editar y
+  borrar (borrado lógico, con confirmación), con un aviso de éxito en cada caso. Mientras se guarda o se borra, el
+  diálogo no se puede cerrar (ni con Escape ni pulsando fuera), para no cancelar la operación a medias. Las fichas de la lista llevan borde
+  y sombra sólida; la lista tiene su propio scroll vertical. El editor
+  se descarga aparte al mostrarse la barra lateral, y el visor 3D, que es lo pesado, solo al abrir *Previsualización*
+  (`@defer`), para que el modal abra sin esperas.
+- **Visor 3D reutilizable** (`shared/components/bimViewer`, motor en `BimViewerManager`): carga un IFC (`Blob`) con
+  ThatOpen, lo encuadra, permite orbitar y acercar y emite el punto del modelo (en coordenadas del mundo) sobre el
+  que se hace clic, que servirá para los marcadores de las visualizaciones. Muestra la descarga con su porcentaje, el
+  procesado, el estado vacío y el error. El fondo y la rejilla salen de los tokens (`--color-bg`, `--color-border`) y
+  se pueden cambiar con el parámetro `Style`. El `.wasm` de `web-ifc` y el worker de ThatOpen se sirven como assets
+  (`angular.json`, carpeta `thatopen/`).
+- **Componentes compartidos** (`shared/components`): `EditorShell` (esqueleto de los editores), `ConfirmDialog` y el
+  visor 3D.
+- **Acceso al API:** `DataAccessService` agrupa las llamadas por concepto; hoy `BimModels` (listar, obtener, crear,
+  modificar, borrar, y subir y descargar el IFC, con progreso). La URL base, `Environment.API_URL`, es
+  `http://localhost:8000` en desarrollo y la ruta relativa `/api` en el build de producción, que el servidor web
+  reenvía a la API. Cada concepto tiene su DTO (`dtos.definitions.ts`, campos como los manda el API), su model
+  (`shared/models`) y su mapper (`shared/utils/mappers`). También `RequestUtils` (`AwaitRequest` y
+  `AwaitRequestWithProgress`) y `HttpRequestCanceller`.
+- **Fechas:** `DateUtils` y el tipo `DateInput`, con tests.
+- **Avisos y confirmaciones:** `NotificationService` y `ConfirmDialogService` (ver «Diseño de la interfaz»).
 - **Textos multidioma:** gallego, castellano e inglés (`LanguageGl`, `LanguageEs`, `LanguageEn`), con `LanguageManager`.
-- **Pendiente** (según los diagramas): login, editores de modelos, visualizaciones y usuarios, panel de Edición y
-  Configuración, catálogo de modelos en el Home y visor 3D.
+- **Pendiente** (según los diagramas): login, editores de visualizaciones (con los marcadores) y de usuarios,
+  Configuración, y el catálogo de modelos y el visor en el Home. Con `ng serve` (front en `localhost:4200`, API en
+  `localhost:8000`) el navegador solo deja pasar las llamadas si el API autoriza ese origen (CORS): en modo demo
+  acepta todos y, si no, solo los de `allowed_origins` (ver «Configuración y modo demo»). Con Docker no hace falta,
+  porque nginx sirve la UI y reenvía `/api`.
+
+### Decisiones técnicas del front (para la memoria)
+
+- **Visor 3D con ThatOpen** (sobre three.js y web-ifc): es lo que carga IFC directamente en el navegador, sin
+  convertirlo antes. Pesa mucho (el chunk del visor ronda los 5 MB), así que el motor está aislado del resto: un
+  manager sin Angular (`BimViewerManager`), un componente fino que lo envuelve y una carga diferida (`@defer`) que
+  solo lo descarga al abrir la previsualización. El editor abre sin esperarlo.
+- **`web-ifc` fijado a la 0.0.77:** la 0.0.78 publicada es inconsistente (su JS llama a `StreamMeshes` con 4
+  argumentos y su `.wasm` espera 3) y la carga del IFC falla. Todas las versiones de las librerías del visor van sin
+  rango (exactas) en `package.json`.
+- **Temporal en vez de moment, luxon o `Date`:** es la API nueva del lenguaje (fechas inmutables y con aritmética),
+  aún sin soporte en todos los navegadores ni tipos en TypeScript 5.9, y Angular 20 impide subir a TypeScript 6; por
+  eso se usa su polyfill, que se retirará sin tocar el resto del código.
+- **Avisos con `MatSnackBar`** en lugar de una librería de toasts (Notyf, que se usó en otro proyecto): Material ya
+  está instalado y las directrices piden pocas dependencias.
+- **Tests solo donde hay lógica delicada:** la conversión de fechas y el model BIM. El resto del comportamiento de
+  la interfaz se comprobó a mano, en escritorio y a 360 px.
+- **Tamaño del bundle:** el inicial (≈ 750 kB) lo forman Angular, Material y el CDK, no el visor; el aviso del
+  presupuesto está en 800 kB.
 
 ## Clases: objetos de dominio y DTO
 
@@ -328,6 +394,7 @@ tecnología, y todo lo externo (HTTP, bases de datos) se conecta a él mediante 
 ```
 Cliso.API/app/
 ├── main.py                       # Raíz de composición: elige los adaptadores y los conecta
+├── app_startup_configurator.py   # AppStartupConfigurator (estático): CORS y respuestas HTTP a las excepciones, que solo se registran al crear la aplicación
 ├── config/                       # StartupParameters (parámetros de arranque), StartupParametersManager (estático, lee el JSON) y DatabaseProvider
 ├── logger.py                     # Logger estático: escribe en fichero (info, warning, error)
 ├── utils/                        # PathUtils (rutas), FileUtils (carpetas y ficheros) y PasswordUtils (hash y requisitos de contraseña), estáticas
@@ -404,9 +471,17 @@ npm install
 ng serve
 ```
 
-La aplicación queda disponible en <http://localhost:4200/>.
+La aplicación queda disponible en <http://localhost:4200/> y llama al API en la URL de `Cliso.UI/src/environments/`
+(`http://localhost:8000`). El API debe autorizar el origen de `ng serve` (CORS): en modo demo, que es el de
+`settings.json` por defecto, acepta todos; con `is_demo` a `false` hay que añadir `http://localhost:4200` a
+`allowed_origins`. Para probar la aplicación completa en local también se puede usar Docker (abajo). Con la caché vacía, la primera vez el servidor de desarrollo recarga la página unas veces
+mientras prepara las dependencias: conviene esperar a que termine antes de usarla. El servidor de desarrollo
+trabaja sin HMR (`"hmr": false` en `angular.json`): con HMR, Angular carga de golpe todos los `@defer` y el visor 3D
+dejaría de cargarse aparte.
 
-Otros comandos: `ng build` (compilación de producción en `dist/`) y `ng test` (tests unitarios con Karma).
+Otros comandos: `ng build` (compilación de producción en `dist/`; el motor 3D queda en un chunk aparte, y el aviso de
+tamaño del bundle inicial está en 800 kB), `ng test` (tests unitarios con Karma; necesita Chrome, y para una sola
+pasada sin interfaz, `ng test --watch=false --browsers=ChromeHeadless`) y `npm run lint` (ESLint, que debe dar 0 avisos).
 
 ### Con Docker (`Cliso.Docker`)
 
@@ -441,8 +516,11 @@ El detalle de uso está en `Cliso.Docker/README.md`.
 Al arrancar, `StartupParametersManager.load()` lee `Cliso.API/settings.json` (o el fichero indicado en la variable de
 entorno `CLISO_SETTINGS`) y devuelve los `StartupParameters`. Si el fichero no existe se usan los valores por defecto;
 las claves que faltan toman su valor por defecto y las desconocidas se ignoran. Son solo los parámetros imprescindibles
-para arrancar (abrir la base de datos y escribir el log); el resto de la configuración (idioma, carpeta de los modelos
-BIM...) vive en la tabla `application_parameter`.
+para arrancar (abrir la base de datos, escribir el log y decidir qué webs pueden llamar a la API); el resto de la
+configuración (idioma, carpeta de los modelos BIM...) vive en la tabla `application_parameter`. Como el CORS se
+configura al crear la aplicación, antes del `lifespan`, `AppStartupConfigurator.register_cors()` (en
+`app/app_startup_configurator.py`) lee estos parámetros por su cuenta y registra el middleware; el `lifespan` los
+vuelve a leer para elegir los adaptadores.
 
 ```json
 {
@@ -454,7 +532,8 @@ BIM...) vive en la tabla `application_parameter`.
 	"mysql_port": 3306,
 	"mysql_user": "",
 	"mysql_password": "",
-	"mysql_database": "cliso"
+	"mysql_database": "cliso",
+	"allowed_origins": []
 }
 ```
 
@@ -465,6 +544,7 @@ BIM...) vive en la tabla `application_parameter`.
 | `sqlite_directory` | Carpeta de los ficheros SQLite (relativa a `Cliso.API` si no es absoluta). Se crea si no existe. | `data` |
 | `log_file_path` | Fichero de log (relativo a `Cliso.API` si no es absoluto). Se crea la carpeta si no existe. | `logs/cliso.log` |
 | `mysql_host`, `mysql_port`, `mysql_user`, `mysql_password`, `mysql_database` | Conexión a MySQL (solo con `database_provider` a `mysql`). | `localhost`, `3306`, vacío, vacío, `cliso` |
+| `allowed_origins` | Lista de orígenes completos (`http://host:puerto`) de las webs que pueden llamar a la API desde el navegador (CORS). Con `is_demo` a `true` se aceptan todos y se ignora. Con la lista vacía no se autoriza ninguno, que es lo correcto cuando la web se sirve desde el mismo origen (como detrás de nginx). Debe ser una lista de textos. | `[]` |
 
 El nombre de la base de datos depende del modo: en modo demo es `cliso-demo_<fecha de hoy>` con cualquier proveedor
 (en SQLite, el fichero `<sqlite_directory>/cliso-demo_<fecha>.db`); en modo real es `cliso` (fichero `cliso.db`) en
@@ -551,15 +631,15 @@ que cualquiera pueda pedir cualquier servicio. Los servicios usan el repositorio
 Los repositorios
 traducen cualquier fallo de la base de datos a `PersistenceError` (`app/application/exceptions/`), que no depende de la
 tecnología. Los routers no capturan errores: las excepciones se escapan y las traducen a HTTP los handlers de
-`ExceptionHandlers` (`adapters/inbound/rest`), que `main.py` registra por bloques de código de respuesta en
-`register_exception_handlers()`: las de «no encontrado» (`BIMModelNotFoundError`, `BIMModelContentNotFoundError`,
+`ExceptionHandlers` (`adapters/inbound/rest`), que se registran por bloques de código de respuesta en
+`AppStartupConfigurator.register_exception_handlers()`: las de «no encontrado» (`BIMModelNotFoundError`, `BIMModelContentNotFoundError`,
 `UserNotFoundError`, `ApplicationParameterNotFoundError`) → 404; los datos no válidos (`BIMModelValidationError`,
 `UserValidationError`) → 400, y `UserPasswordValidationError` → 400 también, con los códigos de los requisitos que
 falla; `UserProtectedError` → 403; `UserAlreadyExistsError` → 409; y `PersistenceError` y `FileStorageError` → 500 (se
 registra en el log y al cliente no se le da el detalle). Cualquier otra excepción no prevista también responde 500 y
 se registra en el log.
 Un endpoint nuevo no necesita `try/except`; si aparece una excepción nueva, se
-añade una línea en `register_exception_handlers()`.
+añade una línea en `register_exception_handlers()` de `AppStartupConfigurator`.
 
 ### Servicio de usuarios
 
@@ -668,7 +748,9 @@ Las normas completas están en `.ai/` (`directrices.md` común, `directrices-bac
 - Idioma: español en comentarios, docstrings, README y mensajes; los nombres de código, en inglés.
 - Back: `snake_case` (clases en `PascalCase`), sangría con tabuladores, punto y coma al final de cada sentencia,
   regiones, sin returns tempranos, una clase por fichero y tipado estricto con `pyright`.
-- Front: lo fija su `.editorconfig` (Prettier con tabuladores y 130 columnas; ESLint con `npm run lint`).
+- Front: lo fija su `.editorconfig` (Prettier con tabuladores y 130 columnas; ESLint con `npm run lint`), con regiones
+  en cada clase (los decoradores de Angular, `@Input` y `@Output` entre ellos, en una región `DECORATORS` arriba del
+  todo), fechas con Temporal y sin RxJS ni signals fuera de la capa HTTP.
 - Cada campo/clase documentado con docstring (back) o comentario de documentación (front).
 - Antes de subir una tarea, `/cliso-revisar-tarea` la revisa contra la tarjeta de Trello y las directrices (con un
   comprobador automático de estilo, esquemas, dependencias y limpieza); `/cliso-mensaje-commit` redacta el mensaje

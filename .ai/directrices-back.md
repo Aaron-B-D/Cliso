@@ -118,6 +118,7 @@ privado (los auxiliares); y cada método privado después de quienes lo usan.
 ```
 Cliso.API/app/
 ├── main.py            # Raíz de composición: elige adaptadores y los conecta (lifespan)
+├── app_startup_configurator.py  # AppStartupConfigurator (estático): CORS y respuestas HTTP a las excepciones, que solo se registran al crear la app
 ├── config/            # StartupParameters + StartupParametersManager (estático) + exceptions/
 ├── logger.py          # Logger estático (info, warning, error) en fichero
 ├── utils/             # PathUtils y FileUtils (estáticas): rutas y operaciones sobre carpetas y ficheros
@@ -160,10 +161,11 @@ implementaciones en los adaptadores.
   servicios que sus endpoints necesitan. No hay proveedor global de servicios: `main.py` crea los servicios (con el
   repositorio que toque) y se los entrega a cada router.
 - **Errores en los endpoints:** los routers no llevan `try/except`. Las excepciones se traducen a HTTP en
-  `ExceptionHandlers` (`adapters/inbound/rest`) y se registran en `register_exception_handlers()` de `main.py`, en
-  bloques por código de respuesta. Excepción nueva = un handler (si hace falta) y una línea ahí.
-- Los parámetros de arranque se leen una vez con `StartupParametersManager.load()`, y `main.py` los reparte (no
-  hay acceso global a ellos). Los parámetros de la aplicación se leen de la tabla, con su servicio, tras preparar la
+  `ExceptionHandlers` (`adapters/inbound/rest`) y se registran en `AppStartupConfigurator.register_exception_handlers()`
+  (`app/app_startup_configurator.py`), en bloques por código de respuesta. Excepción nueva = un handler (si hace falta) y una línea ahí.
+- Los parámetros de arranque se leen con `StartupParametersManager.load()` y se reparten sin acceso global: el
+  `lifespan` de `main.py` los lee para elegir los adaptadores, y `AppStartupConfigurator.register_cors()` los lee aparte
+  porque el CORS se configura antes de que arranque el `lifespan`. Los parámetros de la aplicación se leen de la tabla, con su servicio, tras preparar la
   base de datos.
 
 ## Diseño de la base de datos

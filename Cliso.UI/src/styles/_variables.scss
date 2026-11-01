@@ -38,4 +38,5 @@
 	--radius-item: 8px; // Elementos resaltados de listas y menús (el activo de la barra lateral)
 	--radius-pill: 9999px;
 	--border: 1px solid var(--color-border);
+	--shadow-item: 0.25rem 0.25rem 0 var(--color-bg); // Sombra sólida y sin desenfoque de las fichas de las listas
 }

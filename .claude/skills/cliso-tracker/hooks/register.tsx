@@ -37,11 +37,13 @@ const EMPTY_CONTAINERS: ContainersState = {
   ip: '',
   services: [],
   busy: '',
+  busySince: 0,
+  now: 0,
   message: '',
   isMessageError: false,
   error: '',
 }
-const containers = atom({ plugin: 'cliso-tracker', key: 'containers' } as const, EMPTY_CONTAINERS, { shape: 'containers-1' })
+const containers = atom({ plugin: 'cliso-tracker', key: 'containers' } as const, EMPTY_CONTAINERS, { shape: 'containers-3' })
 
 // Pestaña del panel ('progress' o 'docker') y subpestaña de Docker ('services' o 'images').
 const tab = atom({ plugin: 'cliso-tracker', key: 'tab' } as const, 'progress', { shape: 'tab-1' })
@@ -424,6 +426,10 @@ const DOCKER_SCRIPT = 'Cliso.Docker\\cliso-docker.bat'
 const DOCKER_TIMEOUT = 10 * 60 * 1000
 // Cada cuánto se consulta el estado de los servicios mientras el panel de Docker se ha usado.
 const DOCKER_REFRESH = 20 * 1000
+// Cada cuánto avanza la barra de espera de una operación de Docker, y sus medidas (en celdas).
+const WAIT_TICK = 1000
+const WAIT_BAR_WIDTH = 24
+const WAIT_BAR_BLOCK = 6
 const SETTINGS_DOCKER = /^Cliso\.Docker\/api\/settings\.docker[^/]*\.json$/
 
 /** Ejecuta una acción de `cliso-docker.bat`; lanza el error si el script no se puede ejecutar. */
@@ -517,7 +523,7 @@ const SERVICES = [
   { id: 'db', name: 'MySQL' },
 ]
 
-type PsRow = { Service?: string; State?: string; Health?: string; Labels?: string; Publishers?: { PublishedPort?: number }[] }
+type PsRow = { Service?: string; Image?: string; State?: string; Health?: string; Labels?: string; Publishers?: { PublishedPort?: number }[] }
 
 /** Servicios que devuelve `docker compose ps --format json` (un JSON por línea, o una lista según la versión). */
 function parseServices(output: string): ServiceInfo[] {
@@ -550,6 +556,8 @@ function parseServices(output: string): ServiceInfo[] {
       ports: [...new Set(ports)],
       // Docker Desktop anota en las etiquetas el fichero de configuración montado: dice la base de datos de la API.
       database: labels.includes('settings.docker.mysql.json') ? 'mysql' : labels.includes('settings.docker.json') ? 'sqlite' : '',
+      // Si la etiqueta de la imagen ya apunta a otra más nueva, Docker muestra el identificador (sha256:...) en vez del nombre.
+      isOutdated: (row.Image ?? '').startsWith('sha256:'),
     }
   })
 }
@@ -592,21 +600,60 @@ async function runDockerAction($: any, action: string, label: string): Promise<v
   if (base === null || (await read($, containers)).busy !== '') {
     return
   }
-  await setContainers($, { busy: label, message: '', isMessageError: false })
+  const startedAt = await $.clock.now()
+  await setContainers($, { busy: label, busySince: startedAt, now: startedAt, message: '', isMessageError: false })
+  // Mientras dura la operación, el reloj del panel avanza cada segundo para que la barra de espera se mueva.
+  const stopClock = $.clock.every(WAIT_TICK, async () => {
+    await setContainers($, { now: await $.clock.now() })
+  })
   try {
     const result = await dockerScript($, action)
     // Compose escribe su progreso en la salida de error: solo se muestra si la acción falla.
     const detail = lines(result.stderr).slice(-3).join(' ').slice(0, 300)
     await setContainers($, {
-      message: result.exitCode === 0 ? `✓ ${label}` : `✗ ${label}: ${detail}`,
+      message:
+        result.exitCode !== 0
+          ? `✗ ${label}: ${detail}`
+          : action === 'build'
+            ? `✓ ${label}. Los servicios en marcha siguen con la imagen antigua: arráncalos de nuevo para usar la nueva.`
+            : `✓ ${label}`,
       isMessageError: result.exitCode !== 0,
     })
   } catch (error) {
     await setContainers($, { message: `✗ ${label}: ${String(error)}`, isMessageError: true })
   } finally {
-    await setContainers($, { busy: '' })
+    stopClock()
+    await setContainers($, { busy: '', busySince: 0 })
   }
   await refreshContainers($)
+}
+
+/** Texto de la barra de espera: un bloque que va y viene, porque Docker no informa del porcentaje que lleva. */
+function waitBar(seconds: number): string {
+  const span = WAIT_BAR_WIDTH - WAIT_BAR_BLOCK
+  const step = seconds % (span * 2)
+  const position = step <= span ? step : span * 2 - step
+
+  return '░'.repeat(position) + '█'.repeat(WAIT_BAR_BLOCK) + '░'.repeat(span - position)
+}
+
+/** Tiempo transcurrido como `m:ss`. */
+function elapsedText(seconds: number): string {
+  return `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}`
+}
+
+/** Copia un texto al portapapeles de Windows; solo se usa con direcciones que arma el propio panel (sin comillas). */
+async function copyText($: any, text: string): Promise<void> {
+  const result = await $.process.run(['powershell.exe', '-NoProfile', '-Command', `Set-Clipboard -Value '${text}'`], { timeoutMs: 15000 })
+  $.ui.toast(result.exitCode === 0 ? `Copiado: ${text}` : 'No se pudo copiar al portapapeles.', { timeoutMs: 3000 })
+}
+
+/** Abre una dirección en el navegador predeterminado. */
+async function openUrl($: any, url: string): Promise<void> {
+  const result = await $.process.run(['cmd.exe', '/c', 'start', url], { timeoutMs: 15000 })
+  if (result.exitCode !== 0) {
+    $.ui.toast('No se pudo abrir el navegador.', { timeoutMs: 3000 })
+  }
 }
 
 const percent = (b: Block): number =>
@@ -789,14 +836,18 @@ const GROUPS: DockerGroup[] = [
 ]
 
 /** Estado de un servicio: parado o arrancado, con la dirección a la que apuntar (la IP local, no localhost). */
-function serviceLine(el: Elements, service: { id: string; name: string }, c: ContainersState) {
-  const { Box, Text } = el
+function serviceLine($: any, el: Elements, service: { id: string; name: string }, c: ContainersState) {
+  const { Box, Text, Button } = el
   const found = c.services.find(s => s.service === service.id)
   const isUp = found !== undefined && found.state !== 'exited' && found.state !== 'created' && found.state !== 'dead'
   let status = '○ parada'
   let color = 'gray'
+  const isOutdated = isUp && found !== undefined && found.isOutdated
   if (isUp && found !== undefined) {
-    if (found.state === 'restarting' || found.health === 'starting') {
+    if (isOutdated) {
+      status = '⚠ imagen antigua'
+      color = 'yellow'
+    } else if (found.state === 'restarting' || found.health === 'starting') {
       status = '◐ arrancando'
       color = 'yellow'
     } else if (found.health === 'unhealthy') {
@@ -823,13 +874,20 @@ function serviceLine(el: Elements, service: { id: string; name: string }, c: Con
         <Text color={color}>{status}</Text>
         {database !== undefined && database !== '' && <Text dimColor>· {database === 'mysql' ? 'MySQL' : 'SQLite'}</Text>}
       </Box>
-      {address !== '' && <Text color="cyan">{address}</Text>}
+      {address !== '' && (
+        <Box gap="sm" alignItems="center">
+          <Text color="cyan">{address}</Text>
+          {service.id !== 'db' && <Button key={`copy-${service.id}`} label="Copiar" variant="secondary" onPress={() => copyText($, address)} />}
+          {service.id !== 'db' && <Button key={`open-${service.id}`} label="Abrir" variant="secondary" onPress={() => openUrl($, address)} />}
+        </Box>
+      )}
+      {isOutdated && <Text color="yellow">Se reconstruyó la imagen después de crear este contenedor: detén y vuelve a arrancar para recrearlo.</Text>}
     </Box>
   )
 }
 
-/** Subpanel de arrancar y detener: una fila por grupo, con sus botones. */
-function servicesPanel($: any, el: Elements) {
+/** Subpanel de arrancar y detener: una fila por grupo, con sus botones (atenuados y sin efecto mientras hay una operación en curso). */
+function servicesPanel($: any, el: Elements, isBusy: boolean) {
   const { Box, Text, Button } = el
   // Columna del nombre del grupo y ancho de cada botón, en celdas: sirven para alinear el tooltip con el borde del panel.
   const NAME_WIDTH = 8
@@ -840,7 +898,7 @@ function servicesPanel($: any, el: Elements) {
       item.action,
       item.tip,
       NAME_WIDTH + index * BUTTON_WIDTH,
-      <Button key={item.action} label={item.label} variant={variant} onPress={() => runDockerAction($, item.action, item.what)} />
+      <Button key={item.action} label={item.label} variant={variant} dimColor={isBusy} onPress={() => runDockerAction($, item.action, item.what)} />
     )
 
   return (
@@ -858,8 +916,8 @@ function servicesPanel($: any, el: Elements) {
   )
 }
 
-/** Subpanel de imágenes: si hay que reconstruirlas y el botón para hacerlo. */
-function imagesPanel($: any, el: Elements, state: DockerState | null) {
+/** Subpanel de imágenes: si hay que reconstruirlas y el botón para hacerlo (atenuado y sin efecto mientras hay una operación en curso). */
+function imagesPanel($: any, el: Elements, state: DockerState | null, isBusy: boolean) {
   const { Box, Text, Button } = el
   const imageLine = (name: string, builtAt: number, files: string[]) => (
     <Text color={builtAt === 0 || files.length > 0 ? 'yellow' : 'green'}>
@@ -905,7 +963,7 @@ function imagesPanel($: any, el: Elements, state: DockerState | null) {
           'build-docker',
           'Reconstruye las imágenes de la API y la web. Después, arranca de nuevo los servicios para usarlas.',
           14,
-          <Button key="build-docker" label="Reconstruir imágenes" variant="secondary" onPress={() => runDockerAction($, 'build', 'Reconstruir las imágenes')} />
+          <Button key="build-docker" label="Reconstruir imágenes" variant="secondary" dimColor={isBusy} onPress={() => runDockerAction($, 'build', 'Reconstruir las imágenes')} />
         )}
       </Box>
     </Box>
@@ -916,6 +974,8 @@ function imagesPanel($: any, el: Elements, state: DockerState | null) {
 function dockerPane($: any, el: Elements, c: ContainersState, state: DockerState | null, sub: string) {
   const { Box, Text, Button } = el
   const checked = c.checkedAt === 0 ? 'sin comprobar' : new Date(c.checkedAt).toTimeString().slice(0, 8)
+  const isBusy = c.busy !== ''
+  const waitSeconds = Math.max(0, Math.floor((c.now - c.busySince) / WAIT_TICK))
 
   return (
     <Box flexDirection="column" gap="xs">
@@ -931,8 +991,15 @@ function dockerPane($: any, el: Elements, c: ContainersState, state: DockerState
         <Button key="refresh-docker" label="Actualizar" variant="secondary" onPress={() => refreshContainers($)} />
       </Box>
       {c.error !== '' && <Text color="red">{c.error}</Text>}
-      {SERVICES.map(service => serviceLine(el, service, c))}
-      {c.busy !== '' && <Text color="yellow">… {c.busy} (puede tardar unos minutos)</Text>}
+      {SERVICES.map(service => serviceLine($, el, service, c))}
+      {c.busy !== '' && (
+        <Box flexDirection="column">
+          <Text color="yellow">… {c.busy} (puede tardar unos minutos)</Text>
+          <Text color="yellow">
+            {waitBar(waitSeconds)} {elapsedText(waitSeconds)}
+          </Text>
+        </Box>
+      )}
       {c.message !== '' && <Text color={c.isMessageError ? 'red' : 'green'}>{c.message}</Text>}
       <Box marginTop={1} flexDirection="column">
         {tabBar(
@@ -945,7 +1012,7 @@ function dockerPane($: any, el: Elements, c: ContainersState, state: DockerState
           sub,
           id => update($, dockerTab, () => id)
         )}
-        {sub === 'images' ? imagesPanel($, el, state) : servicesPanel($, el)}
+        {sub === 'images' ? imagesPanel($, el, state, isBusy) : servicesPanel($, el, isBusy)}
       </Box>
     </Box>
   )

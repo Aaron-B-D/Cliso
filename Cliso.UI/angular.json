@@ -33,6 +33,16 @@
 								"glob": "**/*",
 								"input": "src/resources/img",
 								"output": "img"
+							},
+							{
+								"glob": "web-ifc.wasm",
+								"input": "node_modules/web-ifc",
+								"output": "thatopen"
+							},
+							{
+								"glob": "worker.mjs",
+								"input": "node_modules/@thatopen/fragments/dist/Worker",
+								"output": "thatopen"
 							}
 						],
 						"styles": ["src/styles.scss"]
@@ -42,7 +52,7 @@
 							"budgets": [
 								{
 									"type": "initial",
-									"maximumWarning": "700kB",
+									"maximumWarning": "800kB",
 									"maximumError": "1MB"
 								},
 								{
@@ -74,7 +84,8 @@
 							"buildTarget": "Cliso.UI:build:production"
 						},
 						"development": {
-							"buildTarget": "Cliso.UI:build:development"
+							"buildTarget": "Cliso.UI:build:development",
+							"hmr": false
 						}
 					},
 					"defaultConfiguration": "development"

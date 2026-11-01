@@ -1,0 +1,192 @@
+@use 'styles/breakpoints';
+
+// Móvil: ocupa toda la pantalla y muestra la lista o el detalle (nunca los dos).
+// Desde `md`: ventana con la lista a la izquierda, el detalle a la derecha y una barra para cambiar el ancho.
+.editorShellDir {
+	background-color: var(--color-surface);
+	display: flex;
+	flex-direction: column;
+	height: 100dvh;
+	overflow: hidden; // Lo que no cabe se recorta dentro de las esquinas redondeadas; cada panel gestiona su propio scroll
+	width: 100vw;
+}
+
+.es_body {
+	display: flex;
+	flex: 1;
+	min-height: 0;
+}
+
+.es_detail {
+	display: none;
+	flex: 1;
+	flex-direction: column;
+	min-height: 0;
+	min-width: 0;
+}
+
+.es_detail_back {
+	align-self: flex-start;
+}
+
+// Icono y texto centrados en vertical (Material los deja en línea, sobre la línea base)
+.es_detail_back_content {
+	align-items: center;
+	display: flex;
+	gap: var(--space-2);
+}
+
+.es_detail_content {
+	container-type: size; // Deja que el contenido proyectado use el alto disponible (`cqh`)
+	flex: 1;
+	min-height: 0;
+	overflow-y: auto; // El detalle puede ser más alto que la ventana
+	padding: var(--space-4);
+}
+
+.es_footer {
+	border-top: var(--border);
+	display: flex;
+	gap: var(--space-2);
+	justify-content: flex-end;
+	padding: var(--space-2) var(--space-4);
+
+	button:disabled > .es_icon {
+		opacity: 0.5;
+	}
+}
+
+.es_header {
+	align-items: center;
+	border-bottom: var(--border);
+	display: flex;
+	gap: var(--space-2);
+	padding: var(--space-2) var(--space-2) var(--space-2) var(--space-4);
+}
+
+.es_icon {
+	height: 1.5rem;
+	width: 1.5rem;
+}
+
+.es_selector {
+	display: flex;
+	flex: 1;
+	flex-direction: column;
+	min-height: 0;
+	min-width: 0;
+}
+
+.es_selector-collapsed {
+	align-items: center;
+	gap: var(--space-2);
+	padding-block: var(--space-2);
+}
+
+.es_selector_bar {
+	align-items: center;
+	display: flex;
+	gap: var(--space-2);
+	padding: var(--space-3);
+}
+
+.es_selector_list {
+	flex: 1;
+	min-height: 0;
+	overflow-y: auto; // La lista puede tener más fichas de las que caben
+	padding: var(--space-2);
+}
+
+.es_selector_search {
+	flex: 1;
+	min-width: 0;
+}
+
+.es_selector_search_icon {
+	padding-inline: var(--space-4) var(--space-2);
+}
+
+// Una línea siempre visible en el centro de la barra; al pasar el cursor o enfocarla se aclara
+.es_splitter {
+	background-image: linear-gradient(var(--color-muted), var(--color-muted));
+	background-position: center;
+	background-repeat: no-repeat;
+	background-size: 2px 100%;
+	cursor: col-resize;
+	touch-action: none; // El arrastre con el dedo mueve la barra, no la página
+	width: var(--space-2);
+
+	&:hover,
+	&:focus-visible {
+		background-color: var(--color-hover);
+		background-image: linear-gradient(var(--color-white), var(--color-white));
+	}
+
+	&:focus-visible {
+		outline: 2px solid var(--color-white);
+		outline-offset: -2px;
+	}
+}
+
+// Franja del nombre del editor cuando la lista está plegada
+.es_strip_title {
+	color: var(--color-muted);
+	margin: 0;
+	writing-mode: vertical-rl;
+}
+
+.es_title {
+	flex: 1;
+	font-size: var(--font-size-h3);
+	margin: 0;
+	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+// En móvil, con un elemento abierto se ve su detalle en lugar de la lista
+.es_root-detail {
+	.es_selector {
+		display: none;
+	}
+
+	.es_detail {
+		display: flex;
+	}
+}
+
+@media (min-width: breakpoints.$md) {
+	.editorShellDir {
+		height: min(40rem, 85dvh);
+		max-height: 100dvh;
+		max-width: 100vw;
+		min-height: 20rem; // Por debajo no caben el pie y el detalle
+		min-width: 30rem; // Por debajo no caben la lista y el detalle
+		resize: both; // El usuario cambia el tamaño de la ventana arrastrando la esquina
+		width: min(60rem, 92vw);
+	}
+
+	.es_root-maximized {
+		height: 100dvh;
+		resize: none;
+		width: 100vw;
+	}
+
+	.es_selector,
+	.es_root-detail .es_selector {
+		display: flex;
+		flex: 0 0 auto;
+		width: var(--es-selector-width);
+	}
+
+	.es_selector-collapsed,
+	.es_root-detail .es_selector-collapsed {
+		width: var(--touch-target);
+	}
+
+	.es_detail,
+	.es_root-detail .es_detail {
+		display: flex;
+	}
+}

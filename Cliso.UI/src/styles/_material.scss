@@ -30,10 +30,12 @@
 	);
 
 	// Listas (barra lateral): el elemento resaltado (activo o con el ratón encima) es un rectángulo redondeado, no una cápsula.
+	// Un elemento deshabilitado solo se atenúa: sin la capa gris de estado que Material le pinta por defecto.
 	@include mat.list-overrides(
 		(
 			active-indicator-shape: var(--radius-item),
-			list-item-container-shape: var(--radius-item)
+			list-item-container-shape: var(--radius-item),
+			list-item-disabled-state-layer-opacity: 0
 		)
 	);
 

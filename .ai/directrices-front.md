@@ -80,7 +80,7 @@ regiones, una clase por fichero...) **no se aplican aquí**.
   `ngOnDestroy`...) se escriben como él los exige.
 - **Regiones:** cada clase organiza sus miembros en regiones, solo las que tengan miembros, con el nombre en inglés y
   en MAYÚSCULAS y el cierre repitiéndolo (`//#region PUBLIC METHODS` ... `//#endregion PUBLIC METHODS`), en este
-  orden: `PUBLIC CONSTANTS`, `PRIVATE CONSTANTS`, `PUBLIC STATIC PROPERTIES`, `PRIVATE STATIC PROPERTIES`,
+  orden: `DECORATORS`, `PUBLIC CONSTANTS`, `PRIVATE CONSTANTS`, `PUBLIC STATIC PROPERTIES`, `PRIVATE STATIC PROPERTIES`,
   `PUBLIC PROPERTIES`, `PROTECTED PROPERTIES`, `PRIVATE PROPERTIES`, `EMITTERS`, `CONSTRUCTOR`, `ANGULAR LIFECYCLE`,
   `PUBLIC METHODS`, `PUBLIC STATIC METHODS`, `SUBSCRIBERS`, `PROTECTED METHODS`, `PRIVATE METHODS`,
   `PRIVATE STATIC METHODS`. Lo `protected` (solo en clases base) sigue la nomenclatura de lo privado. En
@@ -111,7 +111,9 @@ regiones, una clase por fichero...) **no se aplican aquí**.
 
 - **Estado con propiedades normales y `async`/`await`.** Sin signals ni RxJS (con `zone.js`, Angular refresca la
   pantalla tras un `await`). RxJS solo aparece en la capa HTTP: `DataAccessService` (devuelve los `Observable` de
-  `HttpClient`), `RequestUtils.AwaitRequest` y `HttpRequestCanceller`.
+  `HttpClient`), `RequestUtils.AwaitRequest` y `HttpRequestCanceller`. Única excepción acordada: `ConfirmDialogService`,
+  que convierte en promesa el `afterClosed()` de `MatDialog` (que solo ofrece un `Observable`) y así los componentes
+  siguen usando `await`.
 - **Llamadas al API:** solo a través de `DataAccessService`, y cada una se espera con
   `RequestUtils.AwaitRequest(llamada$, canceller)`. Devuelve un `TryGetResult` (`Success` es `false` si la petición
   se canceló; si no, `Result` trae la respuesta) y lanza el error si la petición falla. Se comprueba siempre
@@ -145,7 +147,11 @@ regiones, una clase por fichero...) **no se aplican aquí**.
   constantes ya calculadas. Textos (del i18n), nombres de icono, URLs y medidas salen siempre de variables o
   constantes del componente, nunca escritos a mano en el HTML. La estructura y las clases CSS sí.
 - **Manejadores y emisores:** los manejadores que llama la plantilla se llaman `OnNombreEvento()` y van en
-  `SUBSCRIBERS`. Los `@Output()` van en `EMITTERS`, y el método privado que emite es `emitNombreEvento()`.
+  `SUBSCRIBERS`. Los métodos privados que emiten (`emitNombreEvento()`) van en `EMITTERS`.
+- **Decoradores de Angular en `DECORATORS`:** toda propiedad con un decorador de Angular (`@Input()`, `@Output()`,
+  `@ViewChild()`, `@HostListener()`...) se declara en una región `//#region DECORATORS` que va **arriba del todo** de
+  la clase, antes de las constantes y de las demás propiedades. Dentro, por orden alfabético del nombre de la
+  propiedad. Las demás reglas (nombres, `@Input` en PascalCase y `@Output` en camelCase) no cambian.
 
 ## Normas específicas de un componente
 
@@ -328,6 +334,22 @@ Angular**:
   tipo después de la comprobación.
 - Si dudas entre Utils y Services: Utils, salvo que necesite la inyección de Angular.
 
+## Fechas
+
+- **El API manda texto; el front trabaja con fechas.** Los DTO llevan las fechas como `string` (ISO 8601). El
+  constructor del model acepta cualquier `DateInput` (texto, número, `Date` o un tipo de Temporal) y lo convierte al
+  instante con `DateUtils.Parse`: la propiedad del model es una fecha con la que se puede operar
+  (`Temporal.ZonedDateTime`), nunca un `string` ni un `Date`. El mapper solo pasa el texto del DTO al constructor.
+- **`DateInput` es la excepción acordada a «sin uniones de tipos»** (`shared/definitions/date.definitions.ts`): se usa
+  solo para recibir fechas, como el `MomentInput` de moment. Un valor que no se pueda convertir lanza un error.
+- **Temporal, con `temporal-polyfill`** (`import { Temporal } from 'temporal-polyfill';`). Es la API nueva del
+  lenguaje: las fechas son inmutables y se operan con `add`, `subtract`, `until`, `Temporal.ZonedDateTime.compare`...
+  No se añade moment, luxon, date-fns ni dayjs. Cuando los navegadores y TypeScript lo traigan de serie, se borrará el
+  polyfill y el resto del código no cambia.
+- **Sin zona en el texto del API = hora local del navegador.** Si en algún momento el API manda UTC (`Z`), `DateUtils`
+  ya lo entiende y lo convierte a la zona del navegador.
+- **Formato para mostrar:** con `toLocaleString` del idioma actual, nunca troceando el texto.
+
 ## Tests
 
 - **Por defecto no se crean tests (`*.spec.ts`)**: ni al escribir código nuevo ni al generar con `ng generate` (se
@@ -344,7 +366,9 @@ La guía de estilo (`Documentation/UI/[Diseño] Cliso.UI - Guía de estilo.md`) 
 - Colores de marca o de acento (el azul, por ejemplo). El único acento es el blanco; el rojo (`--color-danger`) y el
   verde (`--color-success`) solo existen para estados de error y éxito.
 - Sombras y elevación (se sustituyen por un borde de 1 px en `--color-border`), tema claro o conmutador de tema,
-  fuentes externas (se usa la del sistema; no se carga Roboto).
+  fuentes externas (se usa la del sistema; no se carga Roboto). Única excepción acordada: las fichas de las listas
+  de los selectores de los editores llevan, con su borde, la sombra sólida `--shadow-item`, porque sin ella no se
+  distinguen unas de otras; no se extiende a otros elementos (la barra lateral, por ejemplo, no la lleva).
 - Formas distintas de las fijadas: botones en píldora, campos y elementos resaltados de listas con 8 px, tarjetas y
   diálogos con 16 px.
 - Anular el contorno de foco (blanco, 2 px, siempre visible) o dejar el estado deshabilitado sin opacidad 0,5.
@@ -354,7 +378,8 @@ estilo. Lo no decidido (el diseño móvil de los paneles y el editor, la disposi
 decidas tú**: pregunta. El botón de Home se llama «Inicio» (`WEB_HOME`).
 
 **Diagramas:** se mantienen al día cuando cambia el diseño, junto con la guía y el README. Siguen la propia guía
-(lienzo negro, superficie `#16181C`, borde `#2F3336`, texto `#E7E9EA`/`#71767B`, acento blanco, sin sombras). Se
+(lienzo negro, superficie `#16181C`, borde `#2F3336`, texto `#E7E9EA`/`#71767B`, acento blanco, sin sombras salvo la
+de las fichas de los selectores, que es `shadow=1`). Se
 editan con `Edit` / `Write` (son XML); nombre `[Diseño] Cliso.UI - <pantalla>.drawio`.
 
 ## Comprobaciones antes de dar algo por hecho

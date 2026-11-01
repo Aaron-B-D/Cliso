@@ -1,0 +1,29 @@
+// Avisos (toast) de NotificationService: sobre --color-surface, con borde de 1 px (como los diálogos) y sin sombra.
+// El color solo existe para el éxito (verde) y el peligro (rojo), como en el resto de la aplicación; el aviso (warning)
+// lleva el borde en blanco y el informativo el borde normal.
+@use '@angular/material' as mat;
+
+.toast {
+	@include mat.snack-bar-overrides(
+		(
+			container-color: var(--color-surface),
+			container-shape: var(--radius-card),
+			supporting-text-color: var(--color-text)
+		)
+	);
+
+	border: var(--border);
+	border-radius: var(--radius-card);
+}
+
+.toast-danger {
+	border-color: var(--color-danger);
+}
+
+.toast-success {
+	border-color: var(--color-success);
+}
+
+.toast-warning {
+	border-color: var(--color-white);
+}

@@ -1,0 +1,33 @@
+<div class="bimViewerDir">
+	<div class="bv_canvas"
+		#container
+		aria-label="{{ CANVAS_TEXT }}"
+		role="img"
+	></div>
+	@if (ShowDownload) {
+		<section class="bv_overlay">
+			<p class="bv_overlay_text">{{ DownloadText }}</p>
+			<mat-progress-bar class="bv_overlay_progress"
+				mode="determinate"
+				[value]="DownloadPercent"
+			></mat-progress-bar>
+		</section>
+	} @else if (ShowProcessing) {
+		<section class="bv_overlay">
+			<p class="bv_overlay_text">{{ PROCESSING_TEXT }}</p>
+			<mat-progress-bar class="bv_overlay_progress"
+				mode="indeterminate"
+			></mat-progress-bar>
+		</section>
+	} @else if (ShowError) {
+		<section class="bv_overlay"
+			role="alert"
+		>
+			<p class="bv_overlay_text bv_overlay_text-error">{{ ERROR_TEXT }}</p>
+		</section>
+	} @else if (ShowEmpty) {
+		<section class="bv_overlay">
+			<p class="bv_overlay_text">{{ EMPTY_TEXT }}</p>
+		</section>
+	}
+</div>

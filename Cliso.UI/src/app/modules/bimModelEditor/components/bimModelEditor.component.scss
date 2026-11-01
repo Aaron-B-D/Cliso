@@ -1,0 +1,145 @@
+.bme_detail {
+	display: flex;
+	flex-direction: column;
+	gap: var(--space-3);
+}
+
+.bme_drop {
+	align-items: center;
+	border: 1px dashed var(--color-border);
+	border-radius: var(--radius-field);
+	color: var(--color-muted);
+	cursor: pointer;
+	display: flex;
+	flex-direction: column;
+	gap: var(--space-1);
+	justify-content: center;
+	min-height: var(--touch-target);
+	padding: var(--space-4);
+	text-align: center;
+
+	&:hover,
+	&:focus-within {
+		background-color: var(--color-hover);
+	}
+}
+
+// El selector de fichero real queda oculto (se abre pulsando la zona) pero accesible con el teclado
+.bme_drop_input {
+	border: 0;
+	clip-path: inset(50%);
+	height: 1px;
+	overflow: hidden;
+	position: absolute;
+	white-space: nowrap;
+	width: 1px;
+}
+
+.bme_empty {
+	color: var(--color-muted);
+	padding: var(--space-4);
+	text-align: center;
+}
+
+.bme_error {
+	color: var(--color-danger);
+}
+
+.bme_general {
+	display: flex;
+	flex-direction: column;
+	gap: var(--space-3);
+	padding-block: var(--space-4);
+}
+
+.bme_info {
+	color: var(--color-muted);
+	font-size: var(--font-size-small);
+	overflow-wrap: anywhere;
+}
+
+.bme_item {
+	align-items: center;
+	background-color: transparent;
+	border: var(--border);
+	border-radius: var(--radius-item);
+	box-shadow: var(--shadow-item);
+	color: var(--color-text);
+	cursor: pointer;
+	display: flex;
+	gap: var(--space-2);
+	justify-content: space-between;
+	min-height: var(--touch-target);
+	padding: var(--space-2) var(--space-3);
+	text-align: start;
+	width: 100%;
+
+	&:hover {
+		background-color: var(--color-hover);
+	}
+
+	&:focus-visible {
+		outline: 2px solid var(--color-white);
+	}
+}
+
+.bme_item-selected {
+	background-color: var(--color-hover);
+}
+
+.bme_item_arrow {
+	height: 1.5rem;
+	width: 1.5rem;
+}
+
+.bme_item_file {
+	color: var(--color-muted);
+	font-size: var(--font-size-small);
+}
+
+// Nombre y fichero se recortan con puntos suspensivos en vez de ensanchar la lista
+.bme_item_name,
+.bme_item_file {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.bme_item_text {
+	display: flex;
+	flex-direction: column;
+	min-width: 0;
+}
+
+.bme_list {
+	display: flex;
+	flex-direction: column;
+	gap: var(--space-3);
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.bme_loading {
+	display: flex;
+	flex-direction: column;
+	gap: var(--space-2);
+	padding: var(--space-4);
+}
+
+// Todo el alto del detalle menos la cabecera de las pestañas (3 rem en Material) y un margen
+.bme_preview {
+	height: calc(100cqh - 3.25rem);
+	padding-block: var(--space-4) 0;
+}
+
+// Descripción y observaciones se reparten el alto que queda del detalle (14 rem: pestañas, nombre, huecos y marcos de los campos)
+.bme_description {
+	height: max(4rem, calc((100cqh - 14rem) * 0.45));
+	resize: none;
+}
+
+.bme_observations {
+	height: max(4rem, calc((100cqh - 14rem) * 0.55));
+	resize: none;
+}

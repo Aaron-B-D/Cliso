@@ -7,7 +7,8 @@ se consigue con el contraste entre blanco, grises y negro.
 
 1. **Negro y blanco.** El negro es el lienzo; el blanco es la acción y el énfasis.
 2. **Los grises ordenan.** Lo secundario se atenúa; no se añaden colores para destacar.
-3. **Bordes finos en lugar de sombras.** Las superficies se separan con una línea de 1 px.
+3. **Bordes finos en lugar de sombras.** Las superficies se separan con una línea de 1 px. Única excepción: las
+   fichas de las listas de los selectores de los editores (ver «Sombra de las fichas»).
 4. **Esquinas redondeadas** en lo interactivo (botones en píldora, campos en rectángulo de esquinas suaves); moderadas en tarjetas.
 5. **Un solo color de acento: el blanco.** Los colores solo existen para estados (error, éxito).
 
@@ -47,6 +48,10 @@ texto secundario de tamaño normal o mayor.
 - Radios: tarjetas `16 px`, botones `9999 px` (píldora), campos y elementos resaltados de listas `8 px` (`--radius-field`, `--radius-item`).
 - Borde estándar: `1px solid var(--color-border)`.
 - Sin sombras. Las capas flotantes (menús, diálogos) usan fondo `--color-surface` y borde.
+- **Sombra de las fichas (única excepción):** las fichas de las listas de los selectores de los editores llevan,
+  además del borde de 1 px, una sombra sólida y sin desenfoque (`--shadow-item`, `0.25rem 0.25rem 0` en negro). Sin
+  ella no se distingue dónde empieza y acaba cada ficha. No se aplica a ningún otro elemento: la barra lateral, por
+  ejemplo, se distingue sin sombra.
 
 ## Componentes
 
@@ -79,8 +84,8 @@ texto secundario de tamaño normal o mayor.
 - **Barra lateral en móvil:** por debajo de `md` es una barra superior con un botón que despliega un menú
   (`mat-menu`); desde `md`, la columna fija de la izquierda.
 - **Editores en móvil:** por debajo de `md` el modal ocupa toda la pantalla, sin maximizar ni splitter, y el
-  selector y el detalle son dos pasos: lista (buscador, *+ Nuevo*, fichas con ›) y, al tocar una ficha, detalle con
-  `←` para volver. Pie fijo con *Cancelar* y *Guardar* a ancho completo.
+  selector y el detalle son dos pasos: lista (buscador y fichas con ›) y, al tocar una ficha, detalle con
+  `←` para volver. El pie sigue fijo abajo, con los mismos iconos que en escritorio.
 - **Paneles de la barra en móvil:** *Edición* se expande dentro del menú desplegable (acordeón) y *Cerrar sesión* va
   al final, junto al usuario.
 - **Home en móvil:** fichas en una columna y paneles de visualización apilados a ancho completo.
@@ -94,19 +99,27 @@ Estructura funcional de la aplicación. Los diagramas `.drawio` de esta carpeta 
 
 - Barra lateral con **Home** (el botón se llama «Inicio»), **Edición** y **Configuración**, y el **usuario**
   anclado abajo.
-- **Edición** abre un panel a su derecha con *Modelos*, *Visualizaciones* y *Usuarios*; cada uno abre su editor.
+- **Edición** abre un panel a la derecha de su botón (para dar a entender que es un nivel inferior) con *Modelos*,
+  *Visualizaciones* y *Usuarios*; cada uno abre su editor. Mientras está abierto, el botón queda resaltado a todo el
+  ancho de la barra. Lo que aún no existe aparece deshabilitado (atenuado, sin fondo).
 - El usuario abre un panel encima con *Cerrar sesión*. Los paneles se cierran al hacer clic fuera.
 - El botón activo o con el ratón encima se marca con `--color-hover`.
 
 ### Editores (diagrama «Editor», mismo esquema para los tres)
 
 - Modal (`MatDialog`) redimensionable, con maximizar/restaurar y cerrar; el título y las fichas dependen del tipo.
-- Izquierda, **selector**: buscador que filtra las fichas, botón *+ Nuevo* (deja el detalle en blanco) y fichas;
-  la seleccionada va resaltada. Un **splitter** arrastrable (con ancho mínimo y máximo) cambia su ancho y un botón
+- Izquierda, **selector**: buscador que filtra las fichas y fichas; la seleccionada va resaltada. Un **splitter**
+  arrastrable (con ancho mínimo y máximo, también con las flechas del teclado) cambia su ancho y un botón
   `«` lo pliega a una franja con el nombre del tipo; `»` lo restaura con el ancho anterior.
-- Derecha, **detalle** en pestañas (`mat-tab-group`); pie con *Cancelar* (descarta) y *Guardar* (persiste).
-- Pestañas: *Usuarios* → General y Permisos; *Modelos* → General (nombre, descripción y carga del fichero `.glb`,
-  `.gltf` u `.obj` arrastrando o con clic) y Previsualización (visor 3D); *Visualizaciones* → General (modelo,
+- Derecha, **detalle** en pestañas (`mat-tab-group`), de solo lectura mientras no se edita.
+- **Pie** del modal, sin botones de aceptar ni cancelar, solo con iconos pequeños:
+  - Sin editar: *Añadir* (deja el detalle en blanco y entra en edición), *Editar* y *Borrar* (estos dos solo valen
+    con un elemento seleccionado; borrar pide confirmación).
+  - En edición (también al añadir): *Guardar* y *Descartar* sustituyen a los otros tres.
+- **Cambios sin guardar:** cada editor lleva la marca de «sucio». Si la hay, cerrar el modal, cambiar de ficha,
+  añadir, volver a la lista o descartar piden confirmación antes de perder los cambios.
+- Pestañas: *Usuarios* → General y Permisos; *Modelos* → General (nombre, descripción, observaciones y carga del fichero IFC
+  (`.ifc`) arrastrando o con clic, que se sube al guardar) y Previsualización (visor 3D del IFC); *Visualizaciones* → General (modelo,
   nombre, descripción, observaciones) y Previsualización (visor con marcadores numerados, *+ Marcador* y su lista).
 
 ### Home (diagrama «Home»)
@@ -162,13 +175,14 @@ paleta para que no aparezca ningún tinte (ni azul ni violeta).
 | Barra de herramientas    | `mat-toolbar`                           | Negro, con línea inferior de 1 px                              |
 | Navegación lateral       | `mat-sidenav` / `mat-nav-list`          | Negro; elemento activo en `--color-hover`                      |
 | Tooltip                  | `matTooltip`                            | Superficie con borde de 1 px; en controles solo de icono       |
-| Avisos                   | `MatSnackBar`                           | Superficie con borde; texto en blanco                          |
+| Avisos (toast)           | `MatSnackBar` vía `NotificationService` | Arriba al centro, 3 s. Borde según el nivel: rojo (peligro), verde (éxito), blanco (aviso) o normal (info) |
 | Insignia, etiqueta       | `mat-chip` (o `.badge` propia)          | Píldora con borde gris                                         |
 | Carga                    | `mat-progress-bar`, `mat-progress-spinner` | Blanco sobre gris                                           |
 
 ### Criterios de aspecto
 
-- **Elevación:** ninguna. Material 3 sugiere sombras y capas tonales; se sustituyen por bordes de 1 px.
+- **Elevación:** ninguna. Material 3 sugiere sombras y capas tonales; se sustituyen por bordes de 1 px. Única
+  excepción: la sombra sólida de las fichas de los selectores de los editores (ver «Sombra de las fichas»).
 - **Forma:** botones en píldora (radio completo), campos y elementos resaltados de listas con 8 px, tarjetas y
   diálogos con 16 px; el resto de formas de Material se alinean con esos valores.
 - **Densidad:** normal en formularios y páginas; **compacta** en el editor de visualizaciones y en la barra de

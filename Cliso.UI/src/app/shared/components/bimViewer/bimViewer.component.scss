@@ -1,0 +1,49 @@
+:host {
+	display: block;
+	height: 100%;
+	width: 100%;
+}
+
+.bimViewerDir {
+	background-color: var(--color-bg);
+	border: var(--border);
+	border-radius: var(--radius-field);
+	height: 100%;
+	min-height: 12rem; // Alto mínimo para que el modelo se pueda ver aunque el contenedor no dé altura
+	overflow: hidden; // El lienzo del motor no debe salirse de las esquinas redondeadas
+	position: relative;
+	width: 100%;
+}
+
+.bv_canvas {
+	height: 100%;
+	width: 100%;
+}
+
+// Cubre el lienzo con el mensaje del estado actual (vacío, descarga, procesado o error)
+.bv_overlay {
+	align-items: center;
+	background-color: var(--color-bg);
+	display: flex;
+	flex-direction: column;
+	gap: var(--space-3);
+	inset: 0;
+	justify-content: center;
+	padding: var(--space-4);
+	position: absolute;
+}
+
+.bv_overlay_progress {
+	max-width: 20rem;
+	width: 100%;
+}
+
+.bv_overlay_text {
+	color: var(--color-muted);
+	font-size: var(--font-size-base);
+	text-align: center;
+}
+
+.bv_overlay_text-error {
+	color: var(--color-danger);
+}

@@ -15,7 +15,12 @@ enum IconName {
 	RESTORE = 'restore',
 	UPLOAD = 'upload',
 	LOGOUT = 'logout',
-	MENU = 'menu'
+	MENU = 'menu',
+	DELETE = 'delete',
+	SAVE = 'save',
+	UNDO = 'undo',
+	ARROW_BACK = 'arrow-back',
+	CHEVRON_RIGHT = 'chevron-right'
 }
 
 //#endregion ENUMS

@@ -1,0 +1,123 @@
+<app-editor-shell class="bimModelEditorDir"
+	[HasSelection]="HasSelection"
+	[IsBusy]="IsBusy"
+	[IsEditing]="IsEditing"
+	[SearchLabel]="SEARCH_TEXT"
+	[ShowDetail]="HasDetail"
+	[Title]="TITLE_TEXT"
+	(addClicked)="OnAddClicked()"
+	(backClicked)="OnBackClicked()"
+	(closeRequested)="OnCloseRequested()"
+	(deleteClicked)="OnDeleteClicked()"
+	(discardClicked)="OnDiscardClicked()"
+	(editClicked)="OnEditClicked()"
+	(saveClicked)="OnSaveClicked()"
+	(searchChanged)="OnSearchChanged($event)"
+>
+	<div editorList>
+		@if (IsLoadingList) {
+			<div class="bme_loading">
+				<p class="bme_empty">{{ LOADING_TEXT }}</p>
+				<mat-progress-bar mode="indeterminate"></mat-progress-bar>
+			</div>
+		} @else if (HasItems) {
+			<ul class="bme_list">
+				@for (item of ListItems; track item.Model.Id) {
+					<li>
+						<button class="bme_item"
+							type="button"
+							[class.bme_item-selected]="item.IsSelected"
+							(click)="OnModelSelected(item.Model)"
+						>
+							<span class="bme_item_text">
+								<span class="bme_item_name">{{ item.Model.Name }}</span>
+								<span class="bme_item_file">{{ item.FileText }}</span>
+							</span>
+							<img class="bme_item_arrow d-md-none" alt="" [src]="ArrowIcon" />
+						</button>
+					</li>
+				}
+			</ul>
+		} @else {
+			<p class="bme_empty">{{ NO_MODELS_TEXT }}</p>
+		}
+	</div>
+	<div class="bme_detail" editorDetail>
+		@if (HasDetail) {
+			<mat-tab-group class="bme_tabs"
+				[selectedIndex]="TabIndex"
+				(selectedIndexChange)="OnTabIndexChanged($event)"
+			>
+				<mat-tab label="{{ GENERAL_TEXT }}">
+					<div class="bme_general">
+						<mat-form-field appearance="outline" subscriptSizing="dynamic">
+							<mat-label>{{ NAME_TEXT }}</mat-label>
+							<input matInput
+								[readonly]="IsReadOnly"
+								[value]="Draft.Name"
+								(input)="OnNameInput($event)"
+							/>
+						</mat-form-field>
+						@if (NameError) {
+							<p class="bme_error" role="alert">{{ NAME_REQUIRED_TEXT }}</p>
+						}
+						<mat-form-field appearance="outline" subscriptSizing="dynamic">
+							<mat-label>{{ DESCRIPTION_TEXT }}</mat-label>
+							<textarea class="bme_description" matInput
+								[readonly]="IsReadOnly"
+								[value]="Draft.Description"
+								(input)="OnDescriptionInput($event)"
+							></textarea>
+						</mat-form-field>
+						<mat-form-field appearance="outline" subscriptSizing="dynamic">
+							<mat-label>{{ OBSERVATIONS_TEXT }}</mat-label>
+							<textarea class="bme_observations" matInput
+								[readonly]="IsReadOnly"
+								[value]="Draft.Observations"
+								(input)="OnObservationsInput($event)"
+							></textarea>
+						</mat-form-field>
+						@if (IsEditing) {
+							<label class="bme_drop"
+								(dragover)="OnFileDragOver($event)"
+								(drop)="OnFileDropped($event)"
+							>
+								<input class="bme_drop_input" type="file"
+									[attr.accept]="FILE_EXTENSION"
+									(change)="OnFileSelected($event)"
+								/>
+								<span>{{ DROP_FILE_TEXT }}</span>
+								<span class="bme_info">{{ PendingFileText }}</span>
+							</label>
+						}
+						@if (ShowUpload) {
+							<p class="bme_info">{{ UploadText }}</p>
+							<mat-progress-bar mode="determinate"
+								[value]="UploadPercent"
+							></mat-progress-bar>
+						}
+					</div>
+				</mat-tab>
+				<mat-tab label="{{ PREVIEW_TEXT }}">
+					<ng-template matTabContent>
+						<div class="bme_preview">
+							<!-- El visor arrastra el motor 3D: se descarga aparte, solo al abrir esta pestaña, para que el editor abra enseguida -->
+							@defer (on immediate) {
+								<app-bim-viewer
+									[Content]="PreviewContent"
+									[DownloadProgress]="PreviewProgress"
+								/>
+							} @placeholder {
+								<p class="bme_empty">{{ LOADING_TEXT }}</p>
+							} @loading {
+								<p class="bme_empty">{{ LOADING_TEXT }}</p>
+							}
+						</div>
+					</ng-template>
+				</mat-tab>
+			</mat-tab-group>
+		} @else {
+			<p class="bme_empty">{{ NO_SELECTION_TEXT }}</p>
+		}
+	</div>
+</app-editor-shell>

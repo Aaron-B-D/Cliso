@@ -39,19 +39,23 @@ export type DockerState = {
 /**
  * Un servicio de Docker Compose tal y como lo ve `docker compose ps`: `state` (running, exited...), `health`
  * (healthy, unhealthy, starting o vacío), los puertos publicados en el equipo y, solo para la API, la base de datos
- * que usa (`sqlite`, `mysql` o vacío si no se sabe).
+ * que usa (`sqlite`, `mysql` o vacío si no se sabe) y si el contenedor se creó con una imagen que ya no es la actual
+ * (`isOutdated`: se reconstruyó la imagen después de crearlo y hay que recrearlo para usar la nueva).
  */
-export type ServiceInfo = { service: string; state: string; health: string; ports: number[]; database: string };
+export type ServiceInfo = { service: string; state: string; health: string; ports: number[]; database: string; isOutdated: boolean };
 
 /**
  * Estado de los servicios de Docker del panel: los que existen, la IP local del equipo, la operación en curso
- * (`busy`, vacío si no hay ninguna), el resultado de la última (`message`) y el error al consultar Docker (`error`).
+ * (`busy`, vacío si no hay ninguna, y cuándo empezó, `busySince`), el reloj que la barra de espera usa para avanzar
+ * (`now`), el resultado de la última operación (`message`) y el error al consultar Docker (`error`).
  */
 export type ContainersState = {
   checkedAt: number;
   ip: string;
   services: ServiceInfo[];
   busy: string;
+  busySince: number;
+  now: number;
   message: string;
   isMessageError: boolean;
   error: string;

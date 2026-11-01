@@ -1,0 +1,133 @@
+<section class="editorShellDir"
+	[class.es_root-detail]="ShowDetail"
+	[class.es_root-maximized]="IsMaximized"
+	[style.--es-selector-width]="SelectorWidthCss"
+>
+	<header class="es_header">
+		<h2 class="es_title">{{ Title }}</h2>
+		<button class="es_header_maximize d-none d-md-inline-flex" mat-icon-button
+			matTooltip="{{ MaximizeToggleText }}"
+			[attr.aria-label]="MaximizeToggleText"
+			(click)="OnMaximizeClicked()"
+		>
+			<img class="es_icon" alt="" [src]="MaximizeIcon" />
+		</button>
+		<button mat-icon-button
+			matTooltip="{{ CLOSE_TEXT }}"
+			[attr.aria-label]="CLOSE_TEXT"
+			(click)="OnCloseClicked()"
+		>
+			<img class="es_icon" alt="" [src]="CloseIcon" />
+		</button>
+	</header>
+	<div class="es_body">
+		<aside class="es_selector"
+			[class.es_selector-collapsed]="IsCollapsed"
+		>
+			@if (IsCollapsed) {
+				<button mat-icon-button
+					matTooltip="{{ EXPAND_TEXT }}"
+					[attr.aria-label]="EXPAND_TEXT"
+					(click)="OnCollapseClicked()"
+				>
+					<img class="es_icon" alt="" [src]="ExpandIcon" />
+				</button>
+				<p class="es_strip_title">{{ Title }}</p>
+			} @else {
+				<div class="es_selector_bar">
+					<mat-form-field class="es_selector_search" appearance="outline" subscriptSizing="dynamic">
+						<img class="es_selector_search_icon" matPrefix alt="" [src]="SearchIcon" />
+						<input matInput type="search"
+							[attr.aria-label]="SearchLabel"
+							[placeholder]="SearchLabel"
+							(input)="OnSearchInput($event)"
+						/>
+					</mat-form-field>
+					<button class="d-none d-md-inline-flex" mat-icon-button
+						matTooltip="{{ COLLAPSE_TEXT }}"
+						[attr.aria-label]="COLLAPSE_TEXT"
+						(click)="OnCollapseClicked()"
+					>
+						<img class="es_icon" alt="" [src]="CollapseIcon" />
+					</button>
+				</div>
+				<div class="es_selector_list">
+					<ng-content select="[editorList]" />
+				</div>
+			}
+		</aside>
+		<div class="es_splitter d-none d-md-block"
+			role="separator"
+			tabindex="0"
+			aria-orientation="vertical"
+			[attr.aria-label]="RESIZE_TEXT"
+			[attr.aria-valuemax]="SELECTOR_MAX_WIDTH"
+			[attr.aria-valuemin]="SELECTOR_MIN_WIDTH"
+			[attr.aria-valuenow]="SelectorWidth"
+			(keydown)="OnSplitterKeyDown($event)"
+			(pointercancel)="OnSplitterPointerUp()"
+			(pointerdown)="OnSplitterPointerDown($event)"
+			(pointermove)="OnSplitterPointerMove($event)"
+			(pointerup)="OnSplitterPointerUp()"
+		></div>
+		<section class="es_detail">
+			<button class="es_detail_back d-md-none" mat-button
+				[attr.aria-label]="BACK_TEXT"
+				(click)="OnBackClicked()"
+			>
+				<span class="es_detail_back_content">
+					<img class="es_icon" alt="" [src]="BackIcon" />
+					<span>{{ BACK_TEXT }}</span>
+				</span>
+			</button>
+			<div class="es_detail_content">
+				<ng-content select="[editorDetail]" />
+			</div>
+		</section>
+	</div>
+	<footer class="es_footer">
+		@if (IsEditing) {
+			<button mat-icon-button
+				matTooltip="{{ SAVE_TEXT }}"
+				[attr.aria-label]="SAVE_TEXT"
+				[disabled]="IsBusy"
+				(click)="OnSaveClicked()"
+			>
+				<img class="es_icon" alt="" [src]="SaveIcon" />
+			</button>
+			<button mat-icon-button
+				matTooltip="{{ DISCARD_TEXT }}"
+				[attr.aria-label]="DISCARD_TEXT"
+				[disabled]="IsBusy"
+				(click)="OnDiscardClicked()"
+			>
+				<img class="es_icon" alt="" [src]="DiscardIcon" />
+			</button>
+		} @else {
+			<button mat-icon-button
+				matTooltip="{{ ADD_TEXT }}"
+				[attr.aria-label]="ADD_TEXT"
+				[disabled]="IsBusy"
+				(click)="OnAddClicked()"
+			>
+				<img class="es_icon" alt="" [src]="AddIcon" />
+			</button>
+			<button mat-icon-button
+				matTooltip="{{ EDIT_TEXT }}"
+				[attr.aria-label]="EDIT_TEXT"
+				[disabled]="IsOperationDisabled"
+				(click)="OnEditClicked()"
+			>
+				<img class="es_icon" alt="" [src]="EditIcon" />
+			</button>
+			<button mat-icon-button
+				matTooltip="{{ DELETE_TEXT }}"
+				[attr.aria-label]="DELETE_TEXT"
+				[disabled]="IsOperationDisabled"
+				(click)="OnDeleteClicked()"
+			>
+				<img class="es_icon" alt="" [src]="DeleteIcon" />
+			</button>
+		}
+	</footer>
+</section>

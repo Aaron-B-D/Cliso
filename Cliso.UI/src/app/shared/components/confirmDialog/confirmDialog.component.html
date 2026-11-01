@@ -1,0 +1,20 @@
+<section class="confirmDialogDir">
+	<p class="cd_message" mat-dialog-content>{{ Message }}</p>
+	<footer class="cd_actions" mat-dialog-actions>
+		@if (IsDanger) {
+			<button class="cd_accept-danger" mat-stroked-button
+				(click)="OnAcceptClicked()"
+			>{{ ACCEPT_TEXT }}</button>
+			<button class="cd_cancel" mat-stroked-button
+				(click)="OnCancelClicked()"
+			>{{ CANCEL_TEXT }}</button>
+		} @else {
+			<button class="cd_cancel" mat-stroked-button
+				(click)="OnCancelClicked()"
+			>{{ CANCEL_TEXT }}</button>
+			<button class="cd_accept" mat-flat-button
+				(click)="OnAcceptClicked()"
+			>{{ ACCEPT_TEXT }}</button>
+		}
+	</footer>
+</section>

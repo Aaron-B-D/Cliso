@@ -10,6 +10,17 @@
 					<span>{{ HOME_TEXT }}</span>
 				</span>
 			</a>
+			<button mat-menu-item class="sid_menu_option" [attr.aria-expanded]="IsEditionExpanded" (click)="OnEditionToggleClicked($event)">
+				<span class="sid_menu_content">
+					<img class="sid_icon" [src]="EditionIcon" alt="" />
+					<span>{{ EDITION_TEXT }}</span>
+				</span>
+			</button>
+			@if (IsEditionExpanded) {
+				<button mat-menu-item class="sid_menu_option sid_menu_option-nested" (click)="OnBimModelsClicked()">{{ MODELS_TEXT }}</button>
+				<button mat-menu-item disabled class="sid_menu_option sid_menu_option-nested">{{ VISUALIZATIONS_TEXT }}</button>
+				<button mat-menu-item disabled class="sid_menu_option sid_menu_option-nested">{{ USERS_TEXT }}</button>
+			}
 			<button mat-menu-item disabled class="sid_menu_option">
 				<span class="sid_menu_content">
 					<img class="sid_icon" [src]="UserIcon" alt="" />
@@ -32,6 +43,35 @@
 				<img matListItemIcon [src]="HomeIcon" alt="" />
 				<span matListItemTitle>{{ HOME_TEXT }}</span>
 			</a>
+			<button
+				mat-list-item
+				cdkOverlayOrigin
+				class="sid_menu_item"
+				#editionOrigin="cdkOverlayOrigin"
+				[activated]="IsEditionPanelOpen"
+				[attr.aria-expanded]="IsEditionPanelOpen"
+				[attr.aria-label]="EDITION_TEXT"
+				(click)="OnEditionPanelToggled()"
+			>
+				<img matListItemIcon [src]="EditionIcon" alt="" />
+				<span matListItemTitle>{{ EDITION_TEXT }}</span>
+			</button>
+			<ng-template
+				cdkConnectedOverlay
+				cdkConnectedOverlayBackdropClass="cdk-overlay-transparent-backdrop"
+				[cdkConnectedOverlayHasBackdrop]="true"
+				[cdkConnectedOverlayOpen]="IsEditionPanelOpen"
+				[cdkConnectedOverlayOrigin]="editionOrigin"
+				[cdkConnectedOverlayPositions]="EditionPanelPositions"
+				(backdropClick)="OnEditionPanelClosed()"
+				(overlayKeydown)="OnEditionPanelKeyDown($event)"
+			>
+				<mat-action-list class="sid_panel floating-panel">
+					<button class="sid_panel_item" mat-list-item (click)="OnBimModelsClicked()">{{ MODELS_TEXT }}</button>
+					<button class="sid_panel_item" mat-list-item disabled>{{ VISUALIZATIONS_TEXT }}</button>
+					<button class="sid_panel_item" mat-list-item disabled>{{ USERS_TEXT }}</button>
+				</mat-action-list>
+			</ng-template>
 		</mat-nav-list>
 		<footer class="sid_user" matTooltip="{{ UserName }}">
 			<img class="sid_user_icon" [src]="UserIcon" alt="" />

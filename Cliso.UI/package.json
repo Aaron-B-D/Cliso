@@ -31,9 +31,15 @@
 		"@angular/material": "^20.2.14",
 		"@angular/platform-browser": "^20.3.0",
 		"@angular/router": "^20.3.0",
+		"@thatopen/components": "3.6.0",
+		"@thatopen/fragments": "3.6.0",
 		"bootstrap": "^5.3.8",
+		"camera-controls": "3.1.2",
 		"rxjs": "~7.8.0",
+		"temporal-polyfill": "1.0.6",
+		"three": "0.182.0",
 		"tslib": "^2.3.0",
+		"web-ifc": "0.0.77",
 		"zone.js": "~0.15.0"
 	},
 	"devDependencies": {
@@ -41,6 +47,7 @@
 		"@angular/cli": "^20.3.23",
 		"@angular/compiler-cli": "^20.3.0",
 		"@types/jasmine": "~5.1.0",
+		"@types/three": "0.182.0",
 		"angular-eslint": "^20.7.0",
 		"eslint": "^9.39.5",
 		"jasmine-core": "~5.9.0",

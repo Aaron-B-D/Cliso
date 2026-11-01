@@ -29,6 +29,32 @@
 	width: auto;
 }
 
+// Un botón (a diferencia del enlace) centra su texto: se alinea al inicio y ocupa todo el ancho para que el resaltado sea igual que el del enlace
+.sid_menu_item {
+	border: 0;
+	text-align: start;
+	width: 100%;
+}
+
+// Panel del apartado de edición, que sale a la derecha de su botón para marcar que es un nivel inferior
+.sid_panel {
+	background-color: var(--color-surface);
+	min-width: 12rem;
+	padding: var(--space-2);
+}
+
+// Entrada del panel: un botón deshabilitado trae un fondo gris por defecto, que aquí no se quiere (solo se atenúa)
+.sid_panel_item {
+	background-color: transparent;
+	border: 0;
+	text-align: start;
+}
+
+// Entradas desplegadas de un apartado del menú móvil: sangradas respecto a su apartado
+.sid_menu_option-nested {
+	padding-inline-start: var(--space-7);
+}
+
 .sid_nav {
 	border-right: var(--border);
 	flex-direction: column;

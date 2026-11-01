@@ -54,6 +54,9 @@ class StartupParameters:
 	mysql_database: str = "cliso";
 	"""Nombre de la base de datos real de MySQL."""
 
+	allowed_origins: list[str] = field(default_factory=list[str]);
+	"""Orígenes completos (`http://host:puerto`) de las webs autorizadas a llamar a la API desde el navegador. En modo demo se aceptan todos."""
+
 	@property
 	def log_file(self) -> Path:
 		"""Ruta absoluta del fichero de log."""

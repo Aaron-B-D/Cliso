@@ -6,7 +6,7 @@
       "name": "ng attach",
       "type": "chrome",
       "request": "launch",
-      "url": "http://localhost:4205/",
+      "url": "http://localhost:4200/",
       "webRoot": "${workspaceFolder}"
     },
     {

@@ -3,7 +3,7 @@ from contextlib import asynccontextmanager;
 
 from fastapi import FastAPI;
 
-from app.adapters.inbound.rest import ApplicationParameterRouter, BIMModelRouter, ExceptionHandlers, UserRouter;
+from app.adapters.inbound.rest import ApplicationParameterRouter, BIMModelRouter, UserRouter;
 from app.adapters.outbound.persistence import (
 	DatabaseAdapterBase,
 	DatabaseError,
@@ -17,20 +17,8 @@ from app.adapters.outbound.persistence import (
 	SQLiteUserRepository,
 );
 from app.adapters.outbound.storage import LocalBIMModelFileStorage;
-from app.application.exceptions import (
-	ApplicationParameterError,
-	ApplicationParameterNotFoundError,
-	BIMModelContentNotFoundError,
-	BIMModelNotFoundError,
-	BIMModelValidationError,
-	FileStorageError,
-	PersistenceError,
-	UserAlreadyExistsError,
-	UserNotFoundError,
-	UserPasswordValidationError,
-	UserProtectedError,
-	UserValidationError,
-);
+from app.app_startup_configurator import AppStartupConfigurator;
+from app.application.exceptions import ApplicationParameterError, PersistenceError;
 from app.application.ports.outbound import ApplicationParameterRepositoryBase, BIMModelRepositoryBase, UserRepositoryBase;
 from app.application.use_cases import ApplicationParameterService, BIMModelService, UserService;
 from app.config import DatabaseProvider, StartupParametersManager;
@@ -42,7 +30,7 @@ from app.utils import PathUtils;
 
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncGenerator[None]:
-	"""Arranque de la API (raíz de composición): lee la configuración, elige los adaptadores y prepara la base de datos.
+	"""Arranque de la API (raíz de composición): elige los adaptadores según la configuración y prepara la base de datos.
 
 	- Parámetros de arranque (`StartupParameters`, del fichero de configuración): solo lo imprescindible para arrancar.
 	  Proveedor (`database_provider`): SQLite (por defecto, un fichero local) o MySQL (en un servidor).
@@ -114,40 +102,6 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None]:
 	Logger.close();
 
 
-def register_exception_handlers(app: FastAPI) -> None:
-	"""Registra qué respuesta HTTP da la API a cada excepción que se escapa de un endpoint.
-
-	Los handlers se agrupan en bloques por código de respuesta. Si una excepción no está registrada, la recoge el
-	handler de `Exception` (500 genérico, con el motivo en el log). Una excepción registrada también cubre a sus subclases.
-
-	Args:
-		app: Aplicación FastAPI en la que se registran.
-	"""
-	# 404: no existe lo que se ha pedido.
-	app.add_exception_handler(ApplicationParameterNotFoundError, ExceptionHandlers.not_found);
-	app.add_exception_handler(BIMModelContentNotFoundError, ExceptionHandlers.not_found);
-	app.add_exception_handler(BIMModelNotFoundError, ExceptionHandlers.not_found);
-	app.add_exception_handler(UserNotFoundError, ExceptionHandlers.not_found);
-
-	# 400: los datos recibidos no son válidos.
-	app.add_exception_handler(BIMModelValidationError, ExceptionHandlers.bad_request);
-	app.add_exception_handler(UserValidationError, ExceptionHandlers.bad_request);
-	app.add_exception_handler(UserPasswordValidationError, ExceptionHandlers.password_requirements);
-
-	# 403: la operación no está permitida sobre lo indicado.
-	app.add_exception_handler(UserProtectedError, ExceptionHandlers.forbidden);
-
-	# 409: choca con algo que ya existe.
-	app.add_exception_handler(UserAlreadyExistsError, ExceptionHandlers.conflict);
-
-	# 500: falla el almacenamiento (se registra en el log y al cliente no se le da el detalle).
-	app.add_exception_handler(FileStorageError, ExceptionHandlers.file_storage_error);
-	app.add_exception_handler(PersistenceError, ExceptionHandlers.persistence_error);
-
-	# 500: cualquier otra excepción no prevista (se registra en el log y al cliente no se le da el detalle).
-	app.add_exception_handler(Exception, ExceptionHandlers.unexpected_error);
-
-
 app = FastAPI(
 	title="Cliso.RestAPI",
 	description="La API de la aplicación Cliso",
@@ -155,4 +109,5 @@ app = FastAPI(
 	lifespan=lifespan,
 );
 
-register_exception_handlers(app);
+AppStartupConfigurator.register_exception_handlers(app);
+AppStartupConfigurator.register_cors(app);
