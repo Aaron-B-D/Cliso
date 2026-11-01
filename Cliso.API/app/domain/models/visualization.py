@@ -1,4 +1,5 @@
-from dataclasses import dataclass;
+from dataclasses import dataclass, field;
+from datetime import datetime;
 
 
 @dataclass(kw_only=True)
@@ -10,10 +11,10 @@ class Visualization:
 	id: int | None = None;
 	"""Identificador único de la visualización (None mientras no se ha guardado)."""
 
-	owner_id: int;
+	user_id: int;
 	"""Identificador del usuario propietario. Solo él puede modificarla."""
 
-	model_id: int;
+	bim_model_id: int;
 	"""Identificador del modelo BIM sobre el que trabaja la visualización."""
 
 	name: str;
@@ -30,5 +31,11 @@ class Visualization:
 
 	active: bool = True;
 	"""Indica si la visualización está activa (True) o ha sido borrada (False)."""
+
+	creation_date: datetime = field(default_factory=datetime.now);
+	"""Fecha y hora de creación de la visualización."""
+
+	update_date: datetime | None = None;
+	"""Fecha y hora de la última modificación de la visualización (None si nunca se ha modificado)."""
 
 	# endregion PUBLIC PROPERTIES

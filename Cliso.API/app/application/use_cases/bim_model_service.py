@@ -90,11 +90,11 @@ class BIMModelService(BIMModelServiceBase):
 		return self._wrap(self._repository.add(model));
 
 	def update_bim_model(self, model_id: int, model: BIMModel) -> BIMModelWrapper:
-		"""Modifica los datos básicos (nombre y descripción) de un modelo BIM. No toca su fichero.
+		"""Modifica los datos básicos (nombre, descripción y observaciones) de un modelo BIM. No toca su fichero.
 
 		Args:
 			model_id: Identificador del modelo a modificar.
-			model: Modelo con los datos nuevos. Solo se usan su nombre y su descripción.
+			model: Modelo con los datos nuevos. Solo se usan su nombre, su descripción y sus observaciones.
 
 		Returns:
 			El modelo ya modificado, con el tamaño de su fichero.
@@ -109,6 +109,7 @@ class BIMModelService(BIMModelServiceBase):
 		stored = self._repository.get_by_id(model_id);
 		stored.name = name;
 		stored.description = model.description;
+		stored.observations = model.observations;
 		self._repository.update(stored);
 		return self._wrap(stored);
 
@@ -134,7 +135,7 @@ class BIMModelService(BIMModelServiceBase):
 		stored = self._repository.get_by_id(model_id);
 
 		# 2. Guardamos el fichero y, solo si ha ido bien, anotamos su nombre en el modelo.
-		await self._file_storage.save(model_id, content);
+		await self._file_storage.save(stored.stored_file_name, content);
 		stored.file_name = clean_file_name;
 		self._repository.update(stored);
 		return self._wrap(stored);
@@ -156,7 +157,7 @@ class BIMModelService(BIMModelServiceBase):
 		stored = self._repository.get_by_id(model_id);
 		if stored.file_name == "":
 			raise BIMModelContentNotFoundError(f"El modelo BIM {model_id} todavía no tiene fichero");
-		return self._file_storage.get_path(model_id);
+		return self._file_storage.get_path(stored.stored_file_name);
 
 	def delete_bim_model(self, model_id: int, force: bool) -> None:
 		"""Elimina un modelo BIM.
@@ -173,9 +174,10 @@ class BIMModelService(BIMModelServiceBase):
 		"""
 		if force:
 			# Con force, primero la base de datos y luego el fichero: si falla el fichero queda uno huérfano en disco,
-			# pero nunca un modelo apuntando a un fichero que ya no existe.
+			# pero nunca un modelo apuntando a un fichero que ya no existe. El nombre del fichero se lee antes de borrar.
+			stored = self._repository.get_by_id(model_id, include_inactive=True);
 			self._repository.delete(model_id);
-			self._file_storage.delete(model_id);
+			self._file_storage.delete(stored.stored_file_name);
 		else:
 			self._repository.deactivate(model_id);
 
@@ -196,15 +198,18 @@ class BIMModelService(BIMModelServiceBase):
 			FileStorageError: Si no se puede consultar el tamaño del fichero.
 		"""
 		file_size = 0;
-		if model.id is not None and model.file_name != "":
-			file_size = self._file_storage.get_size(model.id);
+		if model.file_name != "":
+			file_size = self._file_storage.get_size(model.stored_file_name);
 		return BIMModelWrapper(
 			id=model.id,
 			name=model.name,
 			description=model.description,
+			observations=model.observations,
 			file_name=model.file_name,
+			stored_file_name=model.stored_file_name,
 			active=model.active,
 			creation_date=model.creation_date,
+			update_date=model.update_date,
 			file_size=file_size,
 		);
 

@@ -22,8 +22,8 @@ class VisualizationMapper:
 		"""
 		return VisualizationDto(
 			id=visualization.id,
-			owner_id=visualization.owner_id,
-			model_id=visualization.model_id,
+			user_id=visualization.user_id,
+			bim_model_id=visualization.bim_model_id,
 			name=visualization.name,
 			description=visualization.description,
 			observations=visualization.observations,
@@ -31,21 +31,21 @@ class VisualizationMapper:
 		);
 
 	@staticmethod
-	def to_domain(dto: VisualizationDto, owner_id: int) -> Visualization:
+	def to_domain(dto: VisualizationDto, user_id: int) -> Visualization:
 		"""Convierte un DTO recibido por la API en una visualización de dominio, lista para guardar.
 
-		Ignora `id` y `owner_id` del DTO: el propietario no lo decide el cliente.
+		Ignora `id` y `user_id` del DTO: el propietario no lo decide el cliente.
 
 		Args:
 			dto: DTO recibido.
-			owner_id: Identificador del usuario que la crea, tomado de su sesión.
+			user_id: Identificador del usuario que la crea, tomado de su sesión.
 
 		Returns:
 			La visualización de dominio, activa y sin `id` hasta que se guarde.
 		"""
 		return Visualization(
-			owner_id=owner_id,
-			model_id=dto.model_id,
+			user_id=user_id,
+			bim_model_id=dto.bim_model_id,
 			name=dto.name,
 			description=dto.description,
 			observations=dto.observations,

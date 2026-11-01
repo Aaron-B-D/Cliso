@@ -9,10 +9,10 @@ class VisualizationDto(BaseModel):
 	id: int | None = None;
 	"""Identificador. Lo asigna el sistema; se ignora en la entrada."""
 
-	owner_id: int | None = None;
+	user_id: int | None = None;
 	"""Usuario propietario. Se toma de la sesión; se ignora en la entrada."""
 
-	model_id: int;
+	bim_model_id: int;
 	"""Modelo BIM sobre el que trabaja la visualización."""
 
 	name: str;

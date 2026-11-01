@@ -1,6 +1,8 @@
 from dataclasses import dataclass, field;
 from datetime import datetime;
 
+from app.domain.models.user_role import UserRole;
+
 
 @dataclass(kw_only=True)
 class User:
@@ -23,10 +25,16 @@ class User:
 	password: str;
 	"""Contraseña del usuario, ya hasheada (nunca en texto plano)."""
 
+	role: UserRole;
+	"""Rol del usuario: define qué puede hacer en la aplicación."""
+
 	active: bool = True;
 	"""Indica si el usuario está activo (True) o ha sido borrado (False)."""
 
 	creation_date: datetime = field(default_factory=datetime.now);
 	"""Fecha y hora de creación del usuario."""
+
+	update_date: datetime | None = None;
+	"""Fecha y hora de la última modificación del usuario (None si nunca se ha modificado)."""
 
 	# endregion PUBLIC PROPERTIES

@@ -1,4 +1,4 @@
-from app.application.exceptions.application_parameter_error import ApplicationParameterError;
+from app.application.exceptions.application_parameter.application_parameter_error import ApplicationParameterError;
 
 
 class ApplicationParameterNotFoundError(ApplicationParameterError):

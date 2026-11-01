@@ -33,8 +33,8 @@ https://trello.com/c/HLAUEpkX
      copiarlos.
 3. **Reúne los cambios hechos.** De esta conversación (ficheros creados, editados, movidos o borrados y lo que se ha
    decidido por el camino). Si la conversación se ha resumido, usa el resumen. Para confirmar qué hay realmente
-   preparado, mira `git -C "C:/Users/Trabajo/Documents/Ciclo/+++PROYECTO_DAW+++/GitHub/Subida" status --short` (solo
-   lectura). Si no tienes claro qué cambios son de esta tarea, pregunta.
+   preparado, mira `git status --short` desde la raíz del repositorio (solo lectura; los ficheros nuevos sin seguimiento
+   salen con `??`). Si no tienes claro qué cambios son de esta tarea, pregunta.
 4. **Redacta el resumen general**, no el detalle:
    - De 3 a 8 viñetas, cada una una idea completa de lo que ha cambiado, agrupando ficheros por tema (por ejemplo,
      «se añade el servicio de modelos BIM con subida y descarga del IFC por stream», no una línea por fichero).
@@ -54,4 +54,4 @@ https://trello.com/c/HLAUEpkX
 - Fiel a lo hecho: no cuentes como hecho lo que no lo está. Los elementos de la checklist que no se hayan cubierto no
   van en el resumen.
 - Breve: el mensaje debe leerse de un vistazo.
-- Solo lectura sobre `Subida`; no dejes ficheros temporales.
+- Solo lectura sobre el repositorio; no dejes ficheros temporales.

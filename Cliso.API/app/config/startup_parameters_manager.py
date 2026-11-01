@@ -1,14 +1,12 @@
 import json;
 import os;
 from pathlib import Path;
-from typing import Any, ClassVar, TypeVar, cast;
+from typing import Any, ClassVar, cast;
 
 from app.config.database_provider import DatabaseProvider;
 from app.config.exceptions import StartupParametersFileError, StartupParametersValueError;
 from app.config.startup_parameters import StartupParameters;
 from app.utils import PathUtils;
-
-_T = TypeVar("_T");
 
 
 class StartupParametersManager:
@@ -100,7 +98,7 @@ class StartupParametersManager:
 			) from error;
 
 	@staticmethod
-	def _read(raw: dict[str, Any], key: str, expected: type[_T], default: _T) -> _T:
+	def _read[T](raw: dict[str, Any], key: str, expected: type[T], default: T) -> T:
 		"""Lee un parámetro del JSON comprobando que es del tipo esperado.
 
 		Args:

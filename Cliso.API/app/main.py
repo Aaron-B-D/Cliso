@@ -3,16 +3,18 @@ from contextlib import asynccontextmanager;
 
 from fastapi import FastAPI;
 
-from app.adapters.inbound.rest import ApplicationParameterRouter, BIMModelRouter, ExceptionHandlers;
+from app.adapters.inbound.rest import ApplicationParameterRouter, BIMModelRouter, ExceptionHandlers, UserRouter;
 from app.adapters.outbound.persistence import (
 	DatabaseAdapterBase,
 	DatabaseError,
 	MySQLAdapter,
 	MySQLApplicationParameterRepository,
 	MySQLBIMModelRepository,
+	MySQLUserRepository,
 	SQLiteAdapter,
 	SQLiteApplicationParameterRepository,
 	SQLiteBIMModelRepository,
+	SQLiteUserRepository,
 );
 from app.adapters.outbound.storage import LocalBIMModelFileStorage;
 from app.application.exceptions import (
@@ -23,9 +25,14 @@ from app.application.exceptions import (
 	BIMModelValidationError,
 	FileStorageError,
 	PersistenceError,
+	UserAlreadyExistsError,
+	UserNotFoundError,
+	UserPasswordValidationError,
+	UserProtectedError,
+	UserValidationError,
 );
-from app.application.ports.outbound import ApplicationParameterRepositoryBase, BIMModelRepositoryBase;
-from app.application.use_cases import ApplicationParameterService, BIMModelService;
+from app.application.ports.outbound import ApplicationParameterRepositoryBase, BIMModelRepositoryBase, UserRepositoryBase;
+from app.application.use_cases import ApplicationParameterService, BIMModelService, UserService;
 from app.config import DatabaseProvider, StartupParametersManager;
 from app.domain.models import ApplicationParameterType;
 from app.initializer import DatabaseInitializer;
@@ -64,6 +71,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None]:
 	database: DatabaseAdapterBase;
 	application_parameter_repository: ApplicationParameterRepositoryBase;
 	bim_model_repository: BIMModelRepositoryBase;
+	user_repository: UserRepositoryBase;
 	try:
 		if startup.database_provider == DatabaseProvider.MYSQL:
 			database = MySQLAdapter(
@@ -71,12 +79,14 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None]:
 			);
 			application_parameter_repository = MySQLApplicationParameterRepository(database);
 			bim_model_repository = MySQLBIMModelRepository(database);
+			user_repository = MySQLUserRepository(database);
 		else:
 			database = SQLiteAdapter(startup.database_file);
 			application_parameter_repository = SQLiteApplicationParameterRepository(database);
 			bim_model_repository = SQLiteBIMModelRepository(database);
+			user_repository = SQLiteUserRepository(database);
 
-		DatabaseInitializer(database, bim_model_repository, startup.is_demo).initialize();
+		DatabaseInitializer(database, bim_model_repository, user_repository, startup.is_demo).initialize();
 
 		application_parameter_service = ApplicationParameterService(application_parameter_repository);
 		language = application_parameter_service.get_parameter(ApplicationParameterType.LANGUAGE).value;
@@ -90,6 +100,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None]:
 
 	app.include_router(ApplicationParameterRouter.create(application_parameter_service));
 	app.include_router(BIMModelRouter.create(BIMModelService(bim_model_repository, LocalBIMModelFileStorage(bim_models_directory))));
+	app.include_router(UserRouter.create(UserService(user_repository)));
 	Logger.info(
 		f"Arranque correcto (proveedor {startup.database_provider}, modo {'demo' if startup.is_demo else 'real'}, "
 		f"idioma {language})."
@@ -114,9 +125,18 @@ def register_exception_handlers(app: FastAPI) -> None:
 	app.add_exception_handler(ApplicationParameterNotFoundError, ExceptionHandlers.not_found);
 	app.add_exception_handler(BIMModelContentNotFoundError, ExceptionHandlers.not_found);
 	app.add_exception_handler(BIMModelNotFoundError, ExceptionHandlers.not_found);
+	app.add_exception_handler(UserNotFoundError, ExceptionHandlers.not_found);
 
 	# 400: los datos recibidos no son válidos.
 	app.add_exception_handler(BIMModelValidationError, ExceptionHandlers.bad_request);
+	app.add_exception_handler(UserValidationError, ExceptionHandlers.bad_request);
+	app.add_exception_handler(UserPasswordValidationError, ExceptionHandlers.password_requirements);
+
+	# 403: la operación no está permitida sobre lo indicado.
+	app.add_exception_handler(UserProtectedError, ExceptionHandlers.forbidden);
+
+	# 409: choca con algo que ya existe.
+	app.add_exception_handler(UserAlreadyExistsError, ExceptionHandlers.conflict);
 
 	# 500: falla el almacenamiento (se registra en el log y al cliente no se le da el detalle).
 	app.add_exception_handler(FileStorageError, ExceptionHandlers.file_storage_error);

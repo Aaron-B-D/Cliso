@@ -3,7 +3,17 @@
 from app.domain.models.application_parameter_type import ApplicationParameterType;
 from app.domain.models.application_parameter import ApplicationParameter;
 from app.domain.models.bim_model import BIMModel;
+from app.domain.models.password_requirement import PasswordRequirement;
+from app.domain.models.user_role import UserRole;
 from app.domain.models.user import User;
 from app.domain.models.visualization import Visualization;
 
-__all__ = ["ApplicationParameter", "ApplicationParameterType", "BIMModel", "User", "Visualization"];
+__all__ = [
+	"ApplicationParameter",
+	"ApplicationParameterType",
+	"BIMModel",
+	"PasswordRequirement",
+	"User",
+	"UserRole",
+	"Visualization",
+];

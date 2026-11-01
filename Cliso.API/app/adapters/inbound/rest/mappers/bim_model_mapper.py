@@ -25,6 +25,7 @@ class BIMModelMapper:
 			id=wrapper.id,
 			name=wrapper.name,
 			description=wrapper.description,
+			observations=wrapper.observations,
 			file_name=wrapper.file_name,
 			creation_date=wrapper.creation_date,
 			file_size=wrapper.file_size,
@@ -46,6 +47,7 @@ class BIMModelMapper:
 		return BIMModel(
 			name=dto.name,
 			description=dto.description,
+			observations=dto.observations,
 			file_name=file_name,
 		);
 

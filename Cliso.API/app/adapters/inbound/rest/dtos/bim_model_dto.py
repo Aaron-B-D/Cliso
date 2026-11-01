@@ -17,6 +17,9 @@ class BIMModelDto(BaseModel):
 	description: str = "";
 	"""Descripción del modelo."""
 
+	observations: str = "";
+	"""Observaciones adicionales sobre el modelo."""
+
 	file_name: str | None = None;
 	"""Nombre del fichero. Lo asigna la subida del fichero; se ignora en la entrada."""
 

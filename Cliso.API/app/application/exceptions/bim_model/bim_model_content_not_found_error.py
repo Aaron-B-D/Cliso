@@ -1,4 +1,4 @@
-from app.application.exceptions.bim_model_error import BIMModelError;
+from app.application.exceptions.bim_model.bim_model_error import BIMModelError;
 
 
 class BIMModelContentNotFoundError(BIMModelError):

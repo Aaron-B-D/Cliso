@@ -1,4 +1,5 @@
-from app.domain.models import BIMModel;
+from app.domain.models import BIMModel, User, UserRole;
+from app.utils import PasswordUtils;
 
 
 class DemoData:
@@ -8,6 +9,33 @@ class DemoData:
 	"""
 
 	# region PUBLIC STATIC METHODS
+
+	@staticmethod
+	def get_users() -> list[User]:
+		"""Devuelve los usuarios de demostración, sin guardar (sin `id`), uno por cada rol salvo el administrador.
+
+		La contraseña de cada uno es su propio nick, guardada hasheada. No pasan por las reglas de contraseña del
+		servicio de usuarios: son datos de demostración.
+
+		Returns:
+			Los usuarios demo.
+		"""
+		return [
+			User(
+				nick="operator",
+				name="Operador",
+				surname="Demo",
+				password=PasswordUtils.hash("operator"),
+				role=UserRole.OPERATOR,
+			),
+			User(
+				nick="viewer",
+				name="Visor",
+				surname="Demo",
+				password=PasswordUtils.hash("viewer"),
+				role=UserRole.VIEWER,
+			),
+		];
 
 	@staticmethod
 	def get_bim_models() -> list[BIMModel]:

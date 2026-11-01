@@ -15,11 +15,13 @@ from app.adapters.outbound.persistence.sqlite import (
 	SQLiteAdapter,
 	SQLiteApplicationParameterRepository,
 	SQLiteBIMModelRepository,
+	SQLiteUserRepository,
 );
 from app.adapters.outbound.persistence.mysql import (
 	MySQLAdapter,
 	MySQLApplicationParameterRepository,
 	MySQLBIMModelRepository,
+	MySQLUserRepository,
 );
 
 __all__ = [
@@ -35,7 +37,9 @@ __all__ = [
 	"MySQLAdapter",
 	"MySQLApplicationParameterRepository",
 	"MySQLBIMModelRepository",
+	"MySQLUserRepository",
 	"SQLiteAdapter",
 	"SQLiteApplicationParameterRepository",
 	"SQLiteBIMModelRepository",
+	"SQLiteUserRepository",
 ];

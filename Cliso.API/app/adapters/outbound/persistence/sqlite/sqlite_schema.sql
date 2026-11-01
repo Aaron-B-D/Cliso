@@ -14,26 +14,39 @@ CREATE TABLE user (
 	name          TEXT    NOT NULL,
 	surname       TEXT    NOT NULL,
 	password      TEXT    NOT NULL,
+	role          TEXT    NOT NULL,
 	active        INTEGER NOT NULL DEFAULT 1,
-	creation_date TEXT    NOT NULL
+	creation_date TEXT    NOT NULL,
+	update_date   TEXT
 );
 
 CREATE TABLE bim_model (
-	id            INTEGER PRIMARY KEY AUTOINCREMENT,
-	name          TEXT    NOT NULL,
-	description   TEXT    NOT NULL DEFAULT '',
-	file_name     TEXT    NOT NULL,
-	active        INTEGER NOT NULL DEFAULT 1,
-	creation_date TEXT    NOT NULL
+	id               INTEGER PRIMARY KEY AUTOINCREMENT,
+	name             TEXT    NOT NULL,
+	description      TEXT    NOT NULL DEFAULT '',
+	observations     TEXT    NOT NULL DEFAULT '',
+	file_name        TEXT    NOT NULL,
+	stored_file_name TEXT    NOT NULL UNIQUE,
+	active           INTEGER NOT NULL DEFAULT 1,
+	creation_date    TEXT    NOT NULL,
+	update_date      TEXT
 );
 
 CREATE TABLE visualization (
 	id            INTEGER PRIMARY KEY AUTOINCREMENT,
-	owner_id      INTEGER NOT NULL REFERENCES user(id),
-	model_id      INTEGER NOT NULL REFERENCES bim_model(id),
+	user_id       INTEGER NOT NULL REFERENCES user(id),
+	bim_model_id  INTEGER NOT NULL REFERENCES bim_model(id),
 	name          TEXT    NOT NULL,
 	description   TEXT    NOT NULL DEFAULT '',
 	observations  TEXT    NOT NULL DEFAULT '',
 	is_public     INTEGER NOT NULL DEFAULT 0,
-	active        INTEGER NOT NULL DEFAULT 1
+	active        INTEGER NOT NULL DEFAULT 1,
+	creation_date TEXT    NOT NULL,
+	update_date   TEXT
+);
+
+CREATE TABLE visualization_piece (
+	id               INTEGER PRIMARY KEY AUTOINCREMENT,
+	visualization_id INTEGER NOT NULL REFERENCES visualization(id) ON DELETE CASCADE,
+	content          TEXT    NOT NULL
 );

@@ -1,5 +1,4 @@
-"""Parámetros de arranque de la aplicación, leídos del fichero de configuración. No son los parámetros de la
-aplicación, que viven en la base de datos."""
+"""Parámetros de arranque de la aplicación, leídos del fichero de configuración."""
 
 from app.config.exceptions import StartupParametersError, StartupParametersFileError, StartupParametersValueError;
 from app.config.database_provider import DatabaseProvider;

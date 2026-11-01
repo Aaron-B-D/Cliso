@@ -51,7 +51,7 @@ class BIMModelRepositoryBase(ABC):
 
 	@abstractmethod
 	def update(self, model: BIMModel) -> None:
-		"""Guarda los cambios de nombre, descripción y nombre de fichero de un modelo BIM activo.
+		"""Guarda los cambios de nombre, descripción, observaciones y nombre de fichero de un modelo BIM activo. El nombre con el que se guarda el fichero en disco no cambia nunca.
 
 		Args:
 			model: Modelo con los datos nuevos (con `id`).

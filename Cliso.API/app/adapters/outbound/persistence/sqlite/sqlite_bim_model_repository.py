@@ -22,14 +22,23 @@ class SQLiteBIMModelRepository(BIMModelRepositoryBase):
 	_DESCRIPTION: ClassVar[str] = "description";
 	"""Columna `description` de la tabla `bim_model`."""
 
+	_OBSERVATIONS: ClassVar[str] = "observations";
+	"""Columna `observations` de la tabla `bim_model`."""
+
 	_FILE_NAME: ClassVar[str] = "file_name";
 	"""Columna `file_name` de la tabla `bim_model`."""
+
+	_STORED_FILE_NAME: ClassVar[str] = "stored_file_name";
+	"""Columna `stored_file_name` de la tabla `bim_model`."""
 
 	_ACTIVE: ClassVar[str] = "active";
 	"""Columna `active` de la tabla `bim_model`."""
 
 	_CREATION_DATE: ClassVar[str] = "creation_date";
 	"""Columna `creation_date` de la tabla `bim_model`."""
+
+	_UPDATE_DATE: ClassVar[str] = "update_date";
+	"""Columna `update_date` de la tabla `bim_model`."""
 
 	# endregion PRIVATE CONSTANTS
 
@@ -64,7 +73,8 @@ class SQLiteBIMModelRepository(BIMModelRepositoryBase):
 		try:
 			cursor = connection.cursor();
 			cursor.execute(
-				f"SELECT {self._ID}, {self._NAME}, {self._DESCRIPTION}, {self._FILE_NAME}, {self._ACTIVE}, {self._CREATION_DATE} "
+				f"SELECT {self._ID}, {self._NAME}, {self._DESCRIPTION}, {self._OBSERVATIONS}, {self._FILE_NAME}, "
+				f"{self._STORED_FILE_NAME}, {self._ACTIVE}, {self._CREATION_DATE}, {self._UPDATE_DATE} "
 				f"FROM bim_model WHERE {self._ACTIVE} = 1 ORDER BY {self._NAME}"
 			);
 			rows = cursor.fetchall();
@@ -89,7 +99,8 @@ class SQLiteBIMModelRepository(BIMModelRepositoryBase):
 
 		# 2. Ejecutamos la consulta. La conexión se cierra siempre (finally).
 		query = (
-			f"SELECT {self._ID}, {self._NAME}, {self._DESCRIPTION}, {self._FILE_NAME}, {self._ACTIVE}, {self._CREATION_DATE} "
+			f"SELECT {self._ID}, {self._NAME}, {self._DESCRIPTION}, {self._OBSERVATIONS}, {self._FILE_NAME}, "
+				f"{self._STORED_FILE_NAME}, {self._ACTIVE}, {self._CREATION_DATE}, {self._UPDATE_DATE} "
 			f"FROM bim_model WHERE {self._ID} = ?"
 		);
 		if not include_inactive:
@@ -127,9 +138,17 @@ class SQLiteBIMModelRepository(BIMModelRepositoryBase):
 		try:
 			cursor = connection.cursor();
 			cursor.execute(
-				f"INSERT INTO bim_model ({self._NAME}, {self._DESCRIPTION}, {self._FILE_NAME}, {self._ACTIVE}, {self._CREATION_DATE}) "
-				"VALUES (?, ?, ?, ?, ?)",
-				(model.name, model.description, model.file_name, 1 if model.active else 0, model.creation_date.isoformat()),
+				f"INSERT INTO bim_model ({self._NAME}, {self._DESCRIPTION}, {self._OBSERVATIONS}, {self._FILE_NAME}, "
+				f"{self._STORED_FILE_NAME}, {self._ACTIVE}, {self._CREATION_DATE}) VALUES (?, ?, ?, ?, ?, ?, ?)",
+				(
+					model.name,
+					model.description,
+					model.observations,
+					model.file_name,
+					model.stored_file_name,
+					1 if model.active else 0,
+					model.creation_date.isoformat(),
+				),
 			);
 			new_id = cursor.lastrowid;
 			connection.commit();
@@ -146,7 +165,7 @@ class SQLiteBIMModelRepository(BIMModelRepositoryBase):
 		return model;
 
 	def update(self, model: BIMModel) -> None:
-		"""Guarda los cambios de nombre, descripción y nombre de fichero de un modelo BIM activo.
+		"""Guarda los cambios de nombre, descripción, observaciones y nombre de fichero de un modelo BIM activo.
 
 		Raises:
 			BIMModelNotFoundError: Si no hay ningún modelo activo con ese `id`.
@@ -158,13 +177,15 @@ class SQLiteBIMModelRepository(BIMModelRepositoryBase):
 		except DatabaseError as error:
 			raise PersistenceError(f"No se pudo modificar el modelo BIM {model.id}: {error}") from error;
 
-		# 2. Modificamos la fila y confirmamos. Si falla, deshacemos. La conexión se cierra siempre (finally).
+		# 2. Modificamos la fila (anotando la fecha de modificación) y confirmamos. Si falla, deshacemos. La conexión se
+		#    cierra siempre (finally).
+		update_date = datetime.now();
 		try:
 			cursor = connection.cursor();
 			cursor.execute(
-				f"UPDATE bim_model SET {self._NAME} = ?, {self._DESCRIPTION} = ?, {self._FILE_NAME} = ? "
-				f"WHERE {self._ID} = ? AND {self._ACTIVE} = 1",
-				(model.name, model.description, model.file_name, model.id),
+				f"UPDATE bim_model SET {self._NAME} = ?, {self._DESCRIPTION} = ?, {self._OBSERVATIONS} = ?, "
+				f"{self._FILE_NAME} = ?, {self._UPDATE_DATE} = ? WHERE {self._ID} = ? AND {self._ACTIVE} = 1",
+				(model.name, model.description, model.observations, model.file_name, update_date.isoformat(), model.id),
 			);
 			modified_rows = cursor.rowcount;
 			connection.commit();
@@ -177,6 +198,7 @@ class SQLiteBIMModelRepository(BIMModelRepositoryBase):
 		# 3. Si no se ha modificado ninguna fila, el modelo no existe.
 		if modified_rows == 0:
 			raise BIMModelNotFoundError(f"No existe ningún modelo BIM activo con el identificador {model.id}");
+		model.update_date = update_date;
 
 	def deactivate(self, model_id: int) -> None:
 		"""Borra lógicamente un modelo BIM: lo deja inactivo y conserva todos sus datos.
@@ -195,8 +217,8 @@ class SQLiteBIMModelRepository(BIMModelRepositoryBase):
 		try:
 			cursor = connection.cursor();
 			cursor.execute(
-				f"UPDATE bim_model SET {self._ACTIVE} = 0 WHERE {self._ID} = ? AND {self._ACTIVE} = 1",
-				(model_id,),
+				f"UPDATE bim_model SET {self._ACTIVE} = 0, {self._UPDATE_DATE} = ? WHERE {self._ID} = ? AND {self._ACTIVE} = 1",
+				(datetime.now().isoformat(), model_id),
 			);
 			modified_rows = cursor.rowcount;
 			connection.commit();
@@ -227,7 +249,7 @@ class SQLiteBIMModelRepository(BIMModelRepositoryBase):
 		#    Si falla algo, deshacemos. La conexión se cierra siempre (finally).
 		try:
 			cursor = connection.cursor();
-			cursor.execute("DELETE FROM visualization WHERE model_id = ?", (model_id,));
+			cursor.execute("DELETE FROM visualization WHERE bim_model_id = ?", (model_id,));
 			cursor.execute(f"DELETE FROM bim_model WHERE {self._ID} = ?", (model_id,));
 			deleted_rows = cursor.rowcount;
 			if deleted_rows == 0:
@@ -265,9 +287,16 @@ class SQLiteBIMModelRepository(BIMModelRepositoryBase):
 			id=row[SQLiteBIMModelRepository._ID],
 			name=row[SQLiteBIMModelRepository._NAME],
 			description=row[SQLiteBIMModelRepository._DESCRIPTION],
+			observations=row[SQLiteBIMModelRepository._OBSERVATIONS],
 			file_name=row[SQLiteBIMModelRepository._FILE_NAME],
+			stored_file_name=row[SQLiteBIMModelRepository._STORED_FILE_NAME],
 			active=bool(row[SQLiteBIMModelRepository._ACTIVE]),
 			creation_date=datetime.fromisoformat(row[SQLiteBIMModelRepository._CREATION_DATE]),
+			update_date=(
+				None
+				if row[SQLiteBIMModelRepository._UPDATE_DATE] is None
+				else datetime.fromisoformat(row[SQLiteBIMModelRepository._UPDATE_DATE])
+			),
 		);
 
 	# endregion PRIVATE STATIC METHODS

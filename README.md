@@ -90,7 +90,7 @@ Como mínimo, la versión entregada incluye:
 ```
 Proyecto/
 ├── .ai/           # Directrices de trabajo con el asistente (comunes, back, front y académicas)
-├── .claude/       # Skills del asistente y plugin cliso-tracker (panel de progreso y cambios pendientes del README)
+├── .claude/       # Skills del asistente (cliso-mensaje-commit y cliso-revisar-tarea) y plugin cliso-tracker (panel de progreso y cambios pendientes del README)
 ├── .claude-plugin/  # marketplace.json: registra el plugin cliso-tracker
 ├── Cliso.API/     # API REST (FastAPI)
 │   ├── app/       # Código de la aplicación (ver "Arquitectura hexagonal del back")
@@ -166,7 +166,7 @@ Cada concepto (`BIMModel`, `User`, `Visualization`, `ApplicationParameter`) tien
 | Clase | Ubicación | Qué es |
 |---|---|---|
 | **Objeto de dominio** (dataclass) | `app/domain/models/` | Representa una fila de la base de datos dentro de la aplicación. Lo usan los casos de uso y lo devuelven los repositorios. |
-| **DTO** (Pydantic) | `app/adapters/inbound/rest/dtos/` | Lo que entra y sale por la API (`BIMModelDto`, `VisualizationDto`, `ApplicationParameterDto`, `ApplicationParametersDto`), sin campos internos. El de usuario se retiró con su servicio. |
+| **DTO** (Pydantic) | `app/adapters/inbound/rest/dtos/` | Lo que entra y sale por la API (`BIMModelDto`, `UserDto`, `UserCreationDto`, `UserModificationDto`, `VisualizationDto`, `ApplicationParameterDto`, `ApplicationParametersDto`), sin campos internos: el de usuario nunca lleva la contraseña, ni siquiera hasheada. |
 | **Mapper** (clase estática) | `app/adapters/inbound/rest/mappers/` | Convierte, campo a campo y de forma explícita, entre dominio y DTO (`to_dto`, `to_domain`). Sin conversión automática. |
 
 Además, un **wrapper** (`app/domain/wrappers/`) es un objeto de dominio con datos extra calculados al consultarlo:
@@ -189,34 +189,41 @@ Se describen a continuación los objetos de dominio.
 | `id` | `int` | Identificador único. |
 | `name` | `str` | Nombre del modelo. |
 | `description` | `str` | Descripción del modelo. |
-| `file_name` | `str` | Nombre del fichero asociado. |
+| `observations` | `str` | Observaciones adicionales. |
+| `file_name` | `str` | Nombre original del fichero asociado (vacío hasta que se sube uno). |
+| `stored_file_name` | `str` | Nombre aleatorio y único (`<uuid>.ifc`) con el que se guarda el fichero en disco. Se genera al crear el modelo y no cambia nunca. |
 | `active` | `bool` | `True` activo, `False` borrado (borrado lógico). |
 | `creation_date` | `datetime` | Fecha y hora de creación. |
+| `update_date` | `datetime \| None` | Fecha y hora de la última modificación (`None` si nunca se ha modificado). |
 
 ### `User` (implementado: `Cliso.API/app/domain/models/user.py`)
 
 | Campo | Tipo | Descripción |
 |---|---|---|
 | `id` | `int` | Identificador único. |
-| `nick` | `str` | Alias del usuario, **único**. |
+| `nick` | `str` | Alias del usuario, **único**, siempre en minúsculas y que no se puede cambiar. |
 | `name` | `str` | Nombre. |
 | `surname` | `str` | Apellidos. |
 | `password` | `str` | Contraseña ya hasheada (nunca en texto plano). |
+| `role` | `UserRole` | Rol del usuario: `ADMIN`, `OPERATOR` o `VIEWER`. |
 | `active` | `bool` | `True` activo, `False` borrado (borrado lógico). |
 | `creation_date` | `datetime` | Fecha y hora de creación. |
+| `update_date` | `datetime \| None` | Fecha y hora de la última modificación (`None` si nunca se ha modificado). |
 
 ### `Visualization` (implementado: `Cliso.API/app/domain/models/visualization.py`)
 
 | Campo | Tipo | Descripción |
 |---|---|---|
 | `id` | `int` | Identificador único. |
-| `owner_id` | `int` | Usuario propietario (único que puede modificarla). |
-| `model_id` | `int` | Modelo BIM sobre el que trabaja. |
+| `user_id` | `int` | Usuario propietario (único que puede modificarla). |
+| `bim_model_id` | `int` | Modelo BIM sobre el que trabaja. |
 | `name` | `str` | Nombre. |
 | `description` | `str` | Descripción. |
 | `observations` | `str` | Observaciones. |
 | `is_public` | `bool` | Si es `True`, otros usuarios pueden verla pero no modificarla. |
 | `active` | `bool` | `True` activa, `False` borrada (borrado lógico). |
+| `creation_date` | `datetime` | Fecha y hora de creación. |
+| `update_date` | `datetime \| None` | Fecha y hora de la última modificación (`None` si nunca se ha modificado). |
 
 ### `ApplicationParameter` (implementado: `Cliso.API/app/domain/models/application_parameter.py`)
 
@@ -226,8 +233,17 @@ Se describen a continuación los objetos de dominio.
 | `default_value` | `str` | Valor con el que se creó el parámetro. |
 | `value` | `str` | Valor actual (en la tabla, `current_value`). |
 
-> Los `id` son `int` en Python (sin límite de tamaño); el tipo `long` (64 bits, `BIGINT`) se aplicará en la
-> base de datos. La unicidad de `nick` se garantizará en base de datos y en los casos de uso.
+### Enumerados de usuario
+
+Son enumerados de texto (`StrEnum`), cada uno en su fichero de `Cliso.API/app/domain/models/`.
+
+| Enumerado | Valores | Para qué sirve |
+|---|---|---|
+| `UserRole` | `ADMIN`, `OPERATOR`, `VIEWER` | Rol de un usuario; se guarda como texto en `user.role`. Hay solo tres, para que los permisos sean sencillos. `ADMIN` ve y gestiona todo (modelos, usuarios, parámetros de la aplicación...); `OPERATOR` hace todo lo operativo con los modelos BIM y edita sus propias visualizaciones, pero no gestiona usuarios ni parámetros; `VIEWER` solo ve las visualizaciones públicas a las que se le da acceso. Los permisos todavía no se aplican: dependen del inicio de sesión. |
+| `PasswordRequirement` | `MIN_LENGTH`, `UPPERCASE`, `LOWERCASE`, `DIGIT`, `SYMBOL` | Requisito mínimo que debe cumplir una contraseña. Su valor es el código que recibe el cliente cuando la contraseña se rechaza, para que el front ponga el texto en cada idioma. |
+
+> Los `id` son `int` en Python (sin límite de tamaño); el tipo `long` (64 bits, `BIGINT`) se aplica en la
+> base de datos. La unicidad de `nick` la garantiza un `UNIQUE` en la base de datos (`UserAlreadyExistsError`).
 
 Relaciones: un usuario tiene muchas visualizaciones; un modelo BIM tiene muchas visualizaciones; cada
 visualización pertenece a un único usuario y a un único modelo.
@@ -242,17 +258,15 @@ El diagrama UML está en [`Documentation/Database/[Diseño] Cliso.API - Base de 
 (se abre con drawio). Distingue las tablas obligatorias de las opcionales (en esta versión todas son obligatorias) y
 marca en cursiva gris las columnas que admiten `NULL`.
 
-> Es el **diseño objetivo**. Los esquemas SQL y los objetos de dominio descritos arriba todavía no lo reflejan por
-> completo. La tabla `application_parameter` ya está implementada (esquema, repositorios y servicio). Diferencias
-> pendientes de implementar: `visualization.owner_id` y `model_id` pasan a
-> `user_id` y `bim_model_id`; `user` gana `role_id` y `update_date`; `bim_model` gana `observations`,
-> `stored_file_name` y `update_date`; `visualization` gana `creation_date` y `update_date`; y las tablas `role` y
-> `visualization_piece` son nuevas.
+> Los esquemas SQL (`sqlite_schema.sql` y `mysql_schema.sql`) reflejan por completo este diseño: mismas tablas y
+> columnas. Los repositorios y servicios ya existen para `application_parameter`, `user` y `bim_model`;
+> `visualization` y `visualization_piece` están en el esquema, pero todavía sin repositorios ni endpoints. Los
+> esquemas solo se aplican al **crear** la base de datos: una base de datos creada con un esquema anterior no se
+> migra, hay que borrarla y dejar que se cree de nuevo.
 
 | Tabla | Qué guarda |
 |---|---|
-| `role` | Perfiles de usuario. Por defecto `admin` y `user`. |
-| `user` | Usuarios, con su rol (`role_id`). |
+| `user` | Usuarios, con su rol (`role`: `ADMIN`, `OPERATOR` o `VIEWER`). |
 | `bim_model` | Modelos BIM y el fichero asociado. |
 | `visualization` | Visualización de un usuario (`user_id`) sobre un modelo (`bim_model_id`). |
 | `visualization_piece` | Piezas de una visualización (marcadores, colores, cámaras...), en JSON. |
@@ -262,17 +276,22 @@ Decisiones de diseño (para la memoria):
 
 - Nombres en `snake_case` y singular. Todos los `id` son `long` (`BIGINT`) autoincrementales. Las fechas son ISO en
   texto en SQLite y `DATETIME` en MySQL; `update_date` es opcional (`NULL` hasta la primera modificación).
-- **Borrado lógico** con `active` en `role`, `user`, `bim_model` y `visualization`. Las piezas se borran
-  físicamente, en cascada, al borrar su visualización.
-- `user.nick` es único **solo entre usuarios activos**: un nick de un usuario borrado se puede reutilizar. Un
-  `UNIQUE` normal no lo permite, así que se usa un índice único parcial en SQLite
-  (`WHERE active = 1`) y un índice funcional en MySQL 8 (`UNIQUE ((CASE WHEN active = 1 THEN nick END))`); además lo
-  comprueba el caso de uso.
-- `user.password` guarda el segundo hash con su sal dentro del mismo texto, sin columna aparte.
+- **Borrado lógico** con `active` en `user`, `bim_model` y `visualization`. Las piezas se borran
+  físicamente, en cascada, al borrar su visualización. Un usuario borrado lógicamente no se puede recuperar desde
+  la aplicación: habría que contactar con el técnico.
+- `user.nick` es único **entre todos los usuarios, activos o no** (un `UNIQUE` normal), se guarda siempre en
+  minúsculas (`Admin` y `admin` son el mismo) y **no se puede cambiar** una vez guardado.
+- `user.password` guarda el hash con su sal dentro del mismo texto, sin columna aparte: `scrypt$n$r$p$sal$hash`
+  (algoritmo `scrypt` de la librería estándar de Python, sin dependencias nuevas).
+- `user.role` es un enumerado guardado como texto, no una tabla: son solo tres roles fijos. Cubre el criterio
+  académico de perfiles o roles de usuario.
+- `update_date` (en `user`, `bim_model` y `visualization`) es `NULL` hasta la primera modificación; se rellena al
+  modificar y al borrar lógicamente. `creation_date` no cambia nunca.
 - **Visualizaciones compartidas:** `visualization.is_public` indica si la ven todos. Solo su propietario
   (`user_id`) puede modificarla; los demás, si es pública, solo pueden verla.
 - `bim_model.file_name` es el nombre original del fichero (el que verá el usuario) y `stored_file_name` el nombre
-  aleatorio único con el que se guarda en disco, para evitar colisiones y rutas adivinables.
+  aleatorio único (`<uuid>.ifc`) con el que se guarda en disco, para evitar colisiones y rutas adivinables. Se genera
+  al crear el modelo, aunque todavía no tenga fichero.
 - `visualization_piece.content` es un JSON cuya clase base indica el tipo de pieza; el tipo no es una columna.
 - `application_parameter` guarda `type` (único), `default_value` y `current_value` como texto, sin tipo: la
   aplicación los parsea según el parámetro. No guarda nombres ni descripciones: los pone el front, en cada idioma
@@ -281,7 +300,6 @@ Decisiones de diseño (para la memoria):
 - **Las sesiones no se guardan en base de datos:** viven en memoria de la API, en un gestor. Si la API se reinicia,
   todos los usuarios se desconectan; tampoco funcionaría con varios procesos (`--workers`), porque cada uno tendría
   su propia memoria. El tiempo de caducidad sale de `application_parameter`.
-- La tabla `role` cubre el criterio académico de perfiles o roles de usuario.
 
 Parámetros iniciales de `application_parameter` (los que carga la autoinstalación, en `sqlite_basic_data.sql` y
 `mysql_basic_data.sql`):
@@ -303,22 +321,22 @@ Cliso.API/app/
 ├── main.py                       # Raíz de composición: elige los adaptadores y los conecta
 ├── config/                       # StartupParameters (parámetros de arranque), StartupParametersManager (estático, lee el JSON) y DatabaseProvider
 ├── logger.py                     # Logger estático: escribe en fichero (info, warning, error)
-├── utils/                        # PathUtils (rutas) y FileUtils (carpetas y ficheros), estáticas
+├── utils/                        # PathUtils (rutas), FileUtils (carpetas y ficheros) y PasswordUtils (hash y requisitos de contraseña), estáticas
 ├── initializer/                  # DatabaseInitializer (prepara la base de datos al arrancar) y DemoData (datos demo como objetos de dominio)
 │
 ├── domain/                       # NÚCLEO: conceptos del negocio, sin dependencias externas
-│   ├── models/                   #   BIMModel, User, Visualization, ApplicationParameter (dataclasses) y el enumerado ApplicationParameterType
+│   ├── models/                   #   BIMModel, User, Visualization, ApplicationParameter (dataclasses) y los enumerados ApplicationParameterType, UserRole y PasswordRequirement
 │   └── wrappers/                 #   Objetos de dominio con datos calculados (BIMModelWrapper)
 │
 ├── application/                  # NÚCLEO: casos de uso y puertos
 │   ├── ports/
-│   │   ├── inbound/              #   Puertos de entrada: lo que se puede pedir a la aplicación (BIMModelServiceBase, ApplicationParameterServiceBase)
-│   │   └── outbound/             #   Puertos de salida: lo que la aplicación necesita (BIMModelRepositoryBase, BIMModelFileStorageBase, ApplicationParameterRepositoryBase)
-│   ├── use_cases/                #   Casos de uso (BIMModelService, ApplicationParameterService)
-│   └── exceptions/               #   Excepciones del contrato de los puertos (PersistenceError, FileStorageError, BIMModelNotFoundError, ApplicationParameterNotFoundError...)
+│   │   ├── inbound/              #   Puertos de entrada: lo que se puede pedir a la aplicación (BIMModelServiceBase, UserServiceBase, ApplicationParameterServiceBase)
+│   │   └── outbound/             #   Puertos de salida: lo que la aplicación necesita (BIMModelRepositoryBase, BIMModelFileStorageBase, UserRepositoryBase, ApplicationParameterRepositoryBase)
+│   ├── use_cases/                #   Casos de uso (BIMModelService, UserService, ApplicationParameterService)
+│   └── exceptions/               #   Excepciones del contrato de los puertos, agrupadas por tema: application_parameter/, bim_model/ y user/ (más PersistenceError y FileStorageError)
 │
 └── adapters/                     # EXTERIOR: conectan el núcleo con el mundo
-    ├── inbound/rest/             #   Adaptador de entrada: routers FastAPI (BIMModelRouter.create(service)...), ExceptionHandlers, dtos/ y mappers/
+    ├── inbound/rest/             #   Adaptador de entrada: routers FastAPI (BIMModelRouter.create(service), UserRouter...), ExceptionHandlers, dtos/ y mappers/
     └── outbound/                 #   Adaptadores de salida
         ├── storage/              #     Ficheros: LocalBIMModelFileStorage (carpeta del disco)
         └── persistence/          #     Base de datos
@@ -329,7 +347,9 @@ Cliso.API/app/
 ```
 
 Cada capa es dueña de sus excepciones: las guarda en un subdirectorio `exceptions/` de su propio namespace
-(`app/config/exceptions/` para los errores de los parámetros de arranque), que se reexporta desde el namespace.
+(`app/config/exceptions/` para los errores de los parámetros de arranque), que se reexporta desde el namespace. En la
+capa de aplicación, que tiene muchas, se agrupan además en subcarpetas por tema (`application_parameter/`,
+`bim_model/` y `user/`); aun así, desde fuera se importan todas de `app.application.exceptions`.
 
 Regla de dependencias: **todo apunta hacia el núcleo**. `adapters` depende de `application` y `domain`; `application`
 depende de `domain`; `domain` no importa nada de la aplicación. Nunca al revés. Los puertos son las interfaces:
@@ -347,7 +367,7 @@ StartupParametersFileError`). Una clase por fichero y, como mucho, tres capas de
 
 ### Requisitos
 
-- Python 3.11 o superior
+- Python 3.12 o superior (el código usa los genéricos con la sintaxis nativa, `def _read[T](...)`)
 - Node.js y npm (para Angular CLI)
 
 ### Back (`Cliso.API`)
@@ -363,6 +383,9 @@ uvicorn app.main:app --reload
 Documentación interactiva de la API: <http://127.0.0.1:8000/docs>
 
 > `requirements-dev.txt` instala lo mismo que `requirements.txt` y además `pyright`, para comprobar el tipado estricto.
+
+> Al crear la base de datos se crea el usuario `admin` (contraseña inicial `admin`); en modo demo, además, `operator` y
+> `viewer`. Una base de datos creada con una versión anterior del esquema no se migra: se borra y se vuelve a crear.
 
 ### Front (`Cliso.UI`)
 
@@ -444,9 +467,12 @@ Al arrancar (en el `lifespan` de `main.py`), se crea el adaptador y los reposito
 los parámetros de arranque, y se llama a `DatabaseInitializer` (`app/initializer/`):
 
 - Si la base de datos **ya existe**, no se toca (en modo demo, se reutiliza la del día).
-- Si **no existe**, la crea con sus tablas y carga siempre los datos básicos. En modo demo carga además los datos de
-  `DemoData`, que son objetos de dominio (`BIMModel`) guardados con los repositorios de la API, sin ficheros ni
-  sentencias SQL aparte.
+- Si **no existe**, la crea con sus tablas y carga siempre los datos básicos: los parámetros de la aplicación (desde
+  los `.sql`) y el usuario `admin` (con rol `ADMIN` y contraseña inicial `admin`, cámbiala), que se guarda desde
+  Python con el repositorio porque su contraseña va hasheada. En modo demo carga además los datos de `DemoData`, que
+  son objetos de dominio (`BIMModel` y `User`) guardados con los repositorios de la API, sin ficheros ni sentencias
+  SQL aparte: dos modelos y dos usuarios, `operator` (rol `OPERATOR`) y `viewer` (rol `VIEWER`), cuya contraseña es
+  su propio nick. Estos usuarios iniciales no pasan por las reglas de contraseña del servicio.
 - Si algo falla después de crearla, **la borra**, para no dejar una base de datos a medias que el siguiente arranque
   daría por buena. Es la única vez que el arranque borra una base de datos, y siempre una que acaba de crear.
 
@@ -484,18 +510,58 @@ implementada, así que se cambian en la base de datos.
 Cada router recibe solo el servicio (o servicios) que necesita, por constructor: no hay ningún proveedor global del
 que cualquiera pueda pedir cualquier servicio. Los servicios usan el repositorio que les haya dado `main.py`.
 
-> El servicio de usuarios (y con él el login y el modelo de contraseñas) se retiró por ser una versión muy primitiva;
-> se rehará aparte. El dominio `User` y la tabla `user` se conservan.
-
 Los repositorios
 traducen cualquier fallo de la base de datos a `PersistenceError` (`app/application/exceptions/`), que no depende de la
 tecnología. Los routers no capturan errores: las excepciones se escapan y las traducen a HTTP los handlers de
 `ExceptionHandlers` (`adapters/inbound/rest`), que `main.py` registra por bloques de código de respuesta en
-`register_exception_handlers()`: las de «no encontrado» (`BIMModelNotFoundError`, `BIMModelContentNotFoundError`, `ApplicationParameterNotFoundError`) → 404,
-`BIMModelValidationError` → 400, y `PersistenceError` y `FileStorageError` → 500 (se registra en el log y al
-cliente no se le da el detalle). Cualquier otra excepción no prevista también responde 500 y se registra en el log.
+`register_exception_handlers()`: las de «no encontrado» (`BIMModelNotFoundError`, `BIMModelContentNotFoundError`,
+`UserNotFoundError`, `ApplicationParameterNotFoundError`) → 404; los datos no válidos (`BIMModelValidationError`,
+`UserValidationError`) → 400, y `UserPasswordValidationError` → 400 también, con los códigos de los requisitos que
+falla; `UserProtectedError` → 403; `UserAlreadyExistsError` → 409; y `PersistenceError` y `FileStorageError` → 500 (se
+registra en el log y al cliente no se le da el detalle). Cualquier otra excepción no prevista también responde 500 y
+se registra en el log.
 Un endpoint nuevo no necesita `try/except`; si aparece una excepción nueva, se
 añade una línea en `register_exception_handlers()`.
+
+### Servicio de usuarios
+
+`UserService` (implementa el puerto `UserServiceBase`) usa el puerto de salida `UserRepositoryBase`
+(`SQLiteUserRepository` y `MySQLUserRepository`, con SQL escrito a mano) y `PasswordUtils` (`app/utils/`).
+`main.py` entrega el servicio a `UserRouter.create(service)`. El servicio trabaja con objetos de dominio `User`;
+`UserMapper` los convierte en `UserDto`, que nunca lleva la contraseña.
+
+| Endpoint | Qué hace | Respuestas |
+|---|---|---|
+| `GET /users` | Lista los usuarios activos (`UserDto`: `id`, `nick`, `name`, `surname`, `role`, `active`). | 200 |
+| `GET /users/{id}` | Devuelve un usuario activo. | 200, 404 (también si está desactivado) |
+| `POST /users` | Crea un usuario (`UserCreationDto`: `nick`, `name`, `surname`, `role`, `password` en texto plano). | 201, 400, 409 si el nick ya existe |
+| `PUT /users/{id}` | Modifica `name`, `surname` y `role`, y opcionalmente `password` (`UserModificationDto`; el `nick` debe ser el que ya tiene). Sin `password`, conserva la suya. | 200, 400, 403, 404 |
+| `DELETE /users/{id}?force=false` | Borrado lógico (`active = 0`): se conservan los datos y las visualizaciones. Con `force=true` se borran de verdad el usuario y sus visualizaciones. | 204, 403 si es `admin`, 404 |
+
+Reglas:
+
+- **Datos:** el `nick`, el nombre y los apellidos no pueden estar vacíos ni superar 50, 100 y 150 caracteres
+  (`UserValidationError` → 400). El nick se guarda sin espacios sobrantes y siempre en minúsculas, y no se puede
+  cambiar: un `PUT` con otro nick responde 400.
+- **Contraseña:** como mínimo 8 caracteres, con una mayúscula, una minúscula, un número y un símbolo. Se valida en el
+  servidor, al crear y al modificar, y se guarda hasheada con `scrypt` y una sal aleatoria (`PasswordUtils`). Si no
+  cumple, la respuesta 400 incluye los códigos de los requisitos incumplidos (`PasswordRequirement`), para que el
+  front muestre el texto en cada idioma:
+
+  ```json
+  {
+  	"detail": "La contraseña no cumple los requisitos: MIN_LENGTH, UPPERCASE",
+  	"requirements": ["MIN_LENGTH", "UPPERCASE"]
+  }
+  ```
+
+- **Usuario `admin`:** es el único punto de entrada garantizado, así que está protegido (`UserService.PROTECTED_NICK`):
+  no se puede borrar, ni lógica ni físicamente, ni cambiarle el rol (`UserProtectedError` → 403). Sí se pueden
+  cambiar su nombre, sus apellidos y su contraseña.
+- **Borrado:** la aplicación web solo hará borrado lógico. Un usuario desactivado no se puede recuperar desde la
+  aplicación (habría que contactar con el técnico); `force=true` queda para uso excepcional directo sobre la API.
+- **Pendiente para el login:** que un usuario no pueda borrarse a sí mismo, que uno desactivado no pueda entrar, que
+  la búsqueda por nick use minúsculas y la aplicación de los permisos de cada rol.
 
 ### Servicio de modelos BIM
 
@@ -509,8 +575,8 @@ el modelo con el tamaño de su fichero (`file_size`).
 |---|---|---|
 | `GET /bim-models` | Lista los modelos activos (`BIMModelDto`, con `file_size`). | 200 |
 | `GET /bim-models/{id}` | Devuelve un modelo activo. | 200, 404 |
-| `POST /bim-models` | Añade un modelo con sus datos básicos (`name`, `description`). `id`, `file_name` y `creation_date` los asigna el sistema. | 201, 400 si el nombre está vacío o supera 200 caracteres |
-| `PUT /bim-models/{id}` | Modifica `name` y `description`; no toca el fichero. | 200, 400, 404 |
+| `POST /bim-models` | Añade un modelo con sus datos básicos (`name`, `description`, `observations`). `id`, `file_name` y `creation_date` los asigna el sistema. | 201, 400 si el nombre está vacío o supera 200 caracteres |
+| `PUT /bim-models/{id}` | Modifica `name`, `description` y `observations`; no toca el fichero. | 200, 400, 404 |
 | `PUT /bim-models/{id}/content?file_name=x.ifc` | Sube el fichero IFC como cuerpo binario (`application/octet-stream`), recibido por trozos. Si ya había fichero, lo sustituye. | 200, 400 si el nombre no acaba en `.ifc` o lleva ruta, 404 |
 | `GET /bim-models/{id}/content` | Descarga el fichero IFC por trozos, con su nombre original. | 200, 404 si no existe el modelo o no tiene fichero |
 | `DELETE /bim-models/{id}?force=false` | Borrado lógico (`active = 0`): se conservan datos, visualizaciones y fichero. Con `force=true` se borran de verdad el modelo, sus visualizaciones y su fichero. | 204, 404 |
@@ -518,8 +584,9 @@ el modelo con el tamaño de su fichero (`file_size`).
 Notas de diseño:
 
 - Los `id` de la URL deben estar entre 1 y 2^63-1 (el rango de un `BIGINT`); fuera de ese rango la API responde 422.
-- El fichero se guarda como `<id>.ifc`: el nombre que envía el cliente solo se anota en `file_name`, así que nunca decide
-  dónde se escribe en disco. Se escribe primero en un `.tmp` y solo cuando está completo sustituye al anterior, de modo
+- El fichero se guarda con el nombre aleatorio único del modelo (`stored_file_name`, del tipo `<uuid>.ifc`): el nombre
+  que envía el cliente solo se anota en `file_name`, así que nunca decide dónde se escribe en disco. El almacenamiento
+  (`BIMModelFileStorageBase`) identifica cada fichero por ese nombre, no por el `id` del modelo. Se escribe primero en un `.tmp` y solo cuando está completo sustituye al anterior, de modo
   que una subida interrumpida no estropea el fichero que ya había.
 - Un modelo recién creado tiene `file_name` vacío hasta que se sube su fichero.
 - Con `force=true` se borra primero la base de datos (modelo y visualizaciones, en una sola transacción) y después el
@@ -565,6 +632,9 @@ Las normas completas están en `.ai/` (`directrices.md` común, `directrices-bac
   regiones, sin returns tempranos, una clase por fichero y tipado estricto con `pyright`.
 - Front: lo fija su `.editorconfig` (Prettier con tabuladores y 130 columnas; ESLint con `npm run lint`).
 - Cada campo/clase documentado con docstring (back) o comentario de documentación (front).
+- Antes de subir una tarea, `/cliso-revisar-tarea` la revisa contra la tarjeta de Trello y las directrices (con un
+  comprobador automático de estilo, esquemas, dependencias y limpieza); `/cliso-mensaje-commit` redacta el mensaje
+  del commit.
 
 ## Planificación y medios
 

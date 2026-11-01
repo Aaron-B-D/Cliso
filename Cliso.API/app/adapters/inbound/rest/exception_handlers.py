@@ -1,6 +1,7 @@
 from fastapi import Request;
 from fastapi.responses import JSONResponse;
 
+from app.application.exceptions import UserPasswordValidationError;
 from app.logger import Logger;
 
 
@@ -38,6 +39,52 @@ class ExceptionHandlers:
 			Respuesta 400 con el motivo.
 		"""
 		return JSONResponse(status_code=400, content={"detail": str(error)});
+
+	@staticmethod
+	async def password_requirements(request: Request, error: Exception) -> JSONResponse:
+		"""Responde 400 cuando una contraseña no cumple los requisitos mínimos, con los códigos de los que falla.
+
+		Args:
+			request: Petición que provocó la excepción.
+			error: Excepción de contraseña no válida.
+
+		Returns:
+			Respuesta 400 con el motivo y, en `requirements`, los códigos de los requisitos incumplidos.
+		"""
+		requirements: list[str] = [];
+		if isinstance(error, UserPasswordValidationError):
+			for requirement in error.requirements:
+				requirements.append(requirement.value);
+		else:
+			# Este handler solo se registra para UserPasswordValidationError: no hay códigos que añadir.
+			pass;
+		return JSONResponse(status_code=400, content={"detail": str(error), "requirements": requirements});
+
+	@staticmethod
+	async def forbidden(request: Request, error: Exception) -> JSONResponse:
+		"""Responde 403 cuando la operación pedida no está permitida sobre lo indicado.
+
+		Args:
+			request: Petición que provocó la excepción.
+			error: Excepción de «operación no permitida».
+
+		Returns:
+			Respuesta 403 con el motivo.
+		"""
+		return JSONResponse(status_code=403, content={"detail": str(error)});
+
+	@staticmethod
+	async def conflict(request: Request, error: Exception) -> JSONResponse:
+		"""Responde 409 cuando lo que se quiere crear o cambiar choca con algo que ya existe.
+
+		Args:
+			request: Petición que provocó la excepción.
+			error: Excepción de «ya existe».
+
+		Returns:
+			Respuesta 409 con el motivo.
+		"""
+		return JSONResponse(status_code=409, content={"detail": str(error)});
 
 	@staticmethod
 	async def file_storage_error(request: Request, error: Exception) -> JSONResponse:

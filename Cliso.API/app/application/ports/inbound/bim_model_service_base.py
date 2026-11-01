@@ -56,11 +56,11 @@ class BIMModelServiceBase(ABC):
 
 	@abstractmethod
 	def update_bim_model(self, model_id: int, model: BIMModel) -> BIMModelWrapper:
-		"""Modifica los datos básicos (nombre y descripción) de un modelo BIM. No toca su fichero.
+		"""Modifica los datos básicos (nombre, descripción y observaciones) de un modelo BIM. No toca su fichero.
 
 		Args:
 			model_id: Identificador del modelo a modificar.
-			model: Modelo con los datos nuevos. Solo se usan su nombre y su descripción.
+			model: Modelo con los datos nuevos. Solo se usan su nombre, su descripción y sus observaciones.
 
 		Returns:
 			El modelo ya modificado, con el tamaño de su fichero.

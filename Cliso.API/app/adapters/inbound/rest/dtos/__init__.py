@@ -3,11 +3,17 @@
 from app.adapters.inbound.rest.dtos.application_parameter_dto import ApplicationParameterDto;
 from app.adapters.inbound.rest.dtos.application_parameters_dto import ApplicationParametersDto;
 from app.adapters.inbound.rest.dtos.bim_model_dto import BIMModelDto;
+from app.adapters.inbound.rest.dtos.user_creation_dto import UserCreationDto;
+from app.adapters.inbound.rest.dtos.user_dto import UserDto;
+from app.adapters.inbound.rest.dtos.user_modification_dto import UserModificationDto;
 from app.adapters.inbound.rest.dtos.visualization_dto import VisualizationDto;
 
 __all__ = [
 	"ApplicationParameterDto",
 	"ApplicationParametersDto",
 	"BIMModelDto",
+	"UserCreationDto",
+	"UserDto",
+	"UserModificationDto",
 	"VisualizationDto",
 ];

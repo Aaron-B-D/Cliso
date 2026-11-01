@@ -9,26 +9,6 @@
           <mxGeometry x="40" y="0" width="700" height="30" as="geometry" />
         </mxCell>
 
-        <!-- role -->
-        <mxCell id="t_role" value="&amp;lt;&amp;lt;table&amp;gt;&amp;gt;&lt;br&gt;role" style="swimlane;fontStyle=1;align=center;verticalAlign=middle;childLayout=stackLayout;horizontal=1;startSize=44;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;html=1;fillColor=#1f2937;fontColor=#ffffff;strokeColor=#1f2937;swimlaneFillColor=#ffffff;fontSize=13;" vertex="1" parent="1">
-          <mxGeometry x="40" y="84" width="300" height="154" as="geometry" />
-        </mxCell>
-        <mxCell id="role_0" value="PK  id : long" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=6;spacingRight=4;overflow=hidden;rotatable=0;fontSize=12;fontStyle=1;fontColor=#111827;" vertex="1" parent="t_role">
-          <mxGeometry y="44" width="300" height="22" as="geometry" />
-        </mxCell>
-        <mxCell id="role_1" value="name : string  «unique»" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=6;spacingRight=4;overflow=hidden;rotatable=0;fontSize=12;fontColor=#111827;" vertex="1" parent="t_role">
-          <mxGeometry y="66" width="300" height="22" as="geometry" />
-        </mxCell>
-        <mxCell id="role_2" value="description : string = ''" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=6;spacingRight=4;overflow=hidden;rotatable=0;fontSize=12;fontColor=#111827;" vertex="1" parent="t_role">
-          <mxGeometry y="88" width="300" height="22" as="geometry" />
-        </mxCell>
-        <mxCell id="role_3" value="observations : string = ''" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=6;spacingRight=4;overflow=hidden;rotatable=0;fontSize=12;fontColor=#111827;" vertex="1" parent="t_role">
-          <mxGeometry y="110" width="300" height="22" as="geometry" />
-        </mxCell>
-        <mxCell id="role_4" value="active : bool = true" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=6;spacingRight=4;overflow=hidden;rotatable=0;fontSize=12;fontColor=#111827;" vertex="1" parent="t_role">
-          <mxGeometry y="132" width="300" height="22" as="geometry" />
-        </mxCell>
-
         <!-- user -->
         <mxCell id="t_user" value="&amp;lt;&amp;lt;table&amp;gt;&amp;gt;&lt;br&gt;user" style="swimlane;fontStyle=1;align=center;verticalAlign=middle;childLayout=stackLayout;horizontal=1;startSize=44;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;html=1;fillColor=#1f2937;fontColor=#ffffff;strokeColor=#1f2937;swimlaneFillColor=#ffffff;fontSize=13;" vertex="1" parent="1">
           <mxGeometry x="460" y="40" width="300" height="242" as="geometry" />
@@ -36,7 +16,7 @@
         <mxCell id="user_0" value="PK  id : long" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=6;spacingRight=4;overflow=hidden;rotatable=0;fontSize=12;fontStyle=1;fontColor=#111827;" vertex="1" parent="t_user">
           <mxGeometry y="44" width="300" height="22" as="geometry" />
         </mxCell>
-        <mxCell id="user_1" value="nick : string  «unique entre activos»" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=6;spacingRight=4;overflow=hidden;rotatable=0;fontSize=12;fontColor=#111827;" vertex="1" parent="t_user">
+        <mxCell id="user_1" value="nick : string  «unique, minúsculas, inmutable»" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=6;spacingRight=4;overflow=hidden;rotatable=0;fontSize=12;fontColor=#111827;" vertex="1" parent="t_user">
           <mxGeometry y="66" width="300" height="22" as="geometry" />
         </mxCell>
         <mxCell id="user_2" value="name : string" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=6;spacingRight=4;overflow=hidden;rotatable=0;fontSize=12;fontColor=#111827;" vertex="1" parent="t_user">
@@ -48,7 +28,7 @@
         <mxCell id="user_4" value="password : string  (hash con sal)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=6;spacingRight=4;overflow=hidden;rotatable=0;fontSize=12;fontColor=#111827;" vertex="1" parent="t_user">
           <mxGeometry y="132" width="300" height="22" as="geometry" />
         </mxCell>
-        <mxCell id="user_5" value="FK  role_id : long" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=6;spacingRight=4;overflow=hidden;rotatable=0;fontSize=12;fontColor=#111827;" vertex="1" parent="t_user">
+        <mxCell id="user_5" value="role : string  (ADMIN, OPERATOR, VIEWER)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=6;spacingRight=4;overflow=hidden;rotatable=0;fontSize=12;fontColor=#111827;" vertex="1" parent="t_user">
           <mxGeometry y="154" width="300" height="22" as="geometry" />
         </mxCell>
         <mxCell id="user_6" value="creation_date : datetime" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=6;spacingRight=4;overflow=hidden;rotatable=0;fontSize=12;fontColor=#111827;" vertex="1" parent="t_user">
@@ -160,16 +140,6 @@
         </mxCell>
 
         <!-- Relaciones -->
-        <mxCell id="e_role_user" value="asignado a" style="endArrow=none;html=1;edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#9ca3af;fontSize=11;fontColor=#111827;labelBackgroundColor=#ffffff;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="t_role" target="t_user">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="e_role_user_s" value="1" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=12;" vertex="1" connectable="0" parent="e_role_user">
-          <mxGeometry x="-0.8" relative="1" as="geometry"><mxPoint y="-12" as="offset" /></mxGeometry>
-        </mxCell>
-        <mxCell id="e_role_user_t" value="0..*" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=12;" vertex="1" connectable="0" parent="e_role_user">
-          <mxGeometry x="0.8" relative="1" as="geometry"><mxPoint y="-12" as="offset" /></mxGeometry>
-        </mxCell>
-
         <mxCell id="e_user_vis" value="propietario de" style="endArrow=none;html=1;edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#9ca3af;fontSize=11;fontColor=#111827;labelBackgroundColor=#ffffff;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="t_user" target="t_vis">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
@@ -206,8 +176,8 @@
         </mxCell>
 
         <!-- Notas -->
-        <mxCell id="notes" value="&lt;b&gt;Notas de diseño&lt;/b&gt;&lt;br&gt;• Todos los id son long (BIGINT) autoincrementales. Fechas: ISO en texto (SQLite) y DATETIME (MySQL).&lt;br&gt;• Borrado lógico con active en role, user, bim_model y visualization. visualization_piece se borra físicamente, en cascada.&lt;br&gt;• user.nick es único solo entre usuarios activos (índice único parcial en SQLite, índice funcional en MySQL; lo comprueba también el caso de uso).&lt;br&gt;• Solo el propietario (visualization.user_id) puede modificar una visualización; si is_public es true, el resto de usuarios solo puede verla.&lt;br&gt;• bim_model.file_name es el nombre original; stored_file_name es el nombre aleatorio único con el que se guarda el fichero en disco.&lt;br&gt;• visualization_piece.content es un JSON cuya base indica el tipo de pieza.&lt;br&gt;• application_parameter no tiene relaciones: guarda el tipo de parámetro y sus valores (texto), que la aplicación interpreta según el tipo; los nombres y descripciones los pone el front, en cada idioma. Los parámetros de arranque siguen en settings.json.&lt;br&gt;• Role: por defecto admin y user. Las sesiones no se guardan en base de datos: viven en memoria de la API." style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacingLeft=8;spacingTop=4;fillColor=#f9fafb;strokeColor=#9ca3af;fontSize=12;fontColor=#111827;" vertex="1" parent="1">
-          <mxGeometry x="40" y="660" width="1140" height="170" as="geometry" />
+        <mxCell id="notes" value="&lt;b&gt;Notas de diseño&lt;/b&gt;&lt;br&gt;• Todos los id son long (BIGINT) autoincrementales. Fechas: ISO en texto (SQLite) y DATETIME (MySQL).&lt;br&gt;• Borrado lógico con active en user, bim_model y visualization. visualization_piece se borra físicamente, en cascada.&lt;br&gt;• user.nick es único entre todos los usuarios, activos o no (UNIQUE), se guarda siempre en minúsculas y no se puede cambiar. update_date es NULL hasta la primera modificación.&lt;br&gt;• Solo el propietario (visualization.user_id) puede modificar una visualización; si is_public es true, el resto de usuarios solo puede verla.&lt;br&gt;• bim_model.file_name es el nombre original; stored_file_name es el nombre aleatorio único con el que se guarda el fichero en disco.&lt;br&gt;• visualization_piece.content es un JSON cuya base indica el tipo de pieza.&lt;br&gt;• application_parameter no tiene relaciones: guarda el tipo de parámetro y sus valores (texto), que la aplicación interpreta según el tipo; los nombres y descripciones los pone el front, en cada idioma. Los parámetros de arranque siguen en settings.json.&lt;br&gt;• user.role es un enumerado guardado como texto: ADMIN (ve y gestiona todo), OPERATOR (modelos y sus propias visualizaciones) y VIEWER (solo ve las visualizaciones públicas). El usuario admin existe siempre y no se puede borrar ni cambiarle el rol. Las sesiones no se guardan en base de datos: viven en memoria de la API." style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacingLeft=8;spacingTop=4;fillColor=#f9fafb;strokeColor=#9ca3af;fontSize=12;fontColor=#111827;" vertex="1" parent="1">
+          <mxGeometry x="40" y="660" width="1140" height="190" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>

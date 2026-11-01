@@ -69,7 +69,7 @@ class BIMModelRouter:
 
 		@router.post("", status_code=201)
 		def add_bim_model(dto: BIMModelDto) -> BIMModelDto:
-			"""Añade un modelo BIM con sus datos básicos (nombre y descripción). Responde 400 si el nombre no es válido.
+			"""Añade un modelo BIM con sus datos básicos (nombre, descripción y observaciones). Responde 400 si el nombre no es válido.
 
 			El fichero IFC se sube después, con `PUT /bim-models/{model_id}/content`.
 
@@ -85,13 +85,13 @@ class BIMModelRouter:
 		def update_bim_model(
 			model_id: Annotated[int, Path(ge=1, le=BIMModelRouter._MAX_ID)], dto: BIMModelDto
 		) -> BIMModelDto:
-			"""Modifica el nombre y la descripción de un modelo BIM. Responde 404 si no existe y 400 si el nombre no es válido.
+			"""Modifica el nombre, la descripción y las observaciones de un modelo BIM. Responde 404 si no existe y 400 si el nombre no es válido.
 
 			No toca el fichero IFC.
 
 			Args:
 				model_id: Identificador del modelo.
-				dto: Datos nuevos. Solo se usan `name` y `description`.
+				dto: Datos nuevos. Solo se usan `name`, `description` y `observations`.
 
 			Returns:
 				El modelo modificado.

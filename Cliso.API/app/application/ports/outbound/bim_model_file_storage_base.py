@@ -4,17 +4,17 @@ from pathlib import Path;
 
 
 class BIMModelFileStorageBase(ABC):
-	"""Contrato de almacenamiento de los ficheros IFC de los modelos BIM. Cada modelo tiene como mucho un fichero."""
+	"""Contrato de almacenamiento de los ficheros IFC de los modelos BIM. Cada fichero se identifica por el nombre con el que se guarda."""
 
 	# region PUBLIC METHODS
 
 	@abstractmethod
-	async def save(self, model_id: int, content: AsyncIterator[bytes]) -> None:
-		"""Guarda el fichero de un modelo, recibido por trozos, sin cargarlo entero en memoria. Si ya había uno, lo
+	async def save(self, stored_file_name: str, content: AsyncIterator[bytes]) -> None:
+		"""Guarda un fichero, recibido por trozos, sin cargarlo entero en memoria. Si ya había uno con ese nombre, lo
 		sustituye solo cuando el nuevo se ha guardado completo.
 
 		Args:
-			model_id: Identificador del modelo al que pertenece el fichero.
+			stored_file_name: Nombre con el que se guarda el fichero.
 			content: Contenido del fichero, por trozos.
 
 		Raises:
@@ -22,39 +22,39 @@ class BIMModelFileStorageBase(ABC):
 		"""
 
 	@abstractmethod
-	def get_path(self, model_id: int) -> Path:
-		"""Devuelve la ruta del fichero de un modelo.
+	def get_path(self, stored_file_name: str) -> Path:
+		"""Devuelve la ruta de un fichero guardado.
 
 		Args:
-			model_id: Identificador del modelo.
+			stored_file_name: Nombre con el que se guardó el fichero.
 
 		Returns:
 			La ruta del fichero guardado.
 
 		Raises:
-			BIMModelContentNotFoundError: Si el modelo no tiene fichero guardado.
+			BIMModelContentNotFoundError: Si no hay ningún fichero guardado con ese nombre.
 		"""
 
 	@abstractmethod
-	def get_size(self, model_id: int) -> int:
-		"""Devuelve el tamaño del fichero de un modelo.
+	def get_size(self, stored_file_name: str) -> int:
+		"""Devuelve el tamaño de un fichero guardado.
 
 		Args:
-			model_id: Identificador del modelo.
+			stored_file_name: Nombre con el que se guardó el fichero.
 
 		Returns:
-			El tamaño en bytes, o 0 si el modelo no tiene fichero guardado.
+			El tamaño en bytes, o 0 si no hay ningún fichero guardado con ese nombre.
 
 		Raises:
 			FileStorageError: Si no se puede consultar el fichero.
 		"""
 
 	@abstractmethod
-	def delete(self, model_id: int) -> None:
-		"""Borra el fichero de un modelo. Si no tenía, no hace nada.
+	def delete(self, stored_file_name: str) -> None:
+		"""Borra un fichero guardado. Si no existía, no hace nada.
 
 		Args:
-			model_id: Identificador del modelo.
+			stored_file_name: Nombre con el que se guardó el fichero.
 
 		Raises:
 			FileStorageError: Si no se puede borrar el fichero.
