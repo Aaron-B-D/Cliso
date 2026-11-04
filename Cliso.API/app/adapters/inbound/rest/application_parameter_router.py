@@ -1,10 +1,16 @@
+from typing import Annotated;
+
 from fastapi import APIRouter, Depends;
 
 from app.adapters.inbound.rest import SessionDependency;
-from app.adapters.inbound.rest.dtos import ApplicationParameterDto, ApplicationParametersDto;
+from app.adapters.inbound.rest.dtos import (
+	ApplicationParameterDto,
+	ApplicationParameterModificationDto,
+	ApplicationParametersDto,
+);
 from app.adapters.inbound.rest.mappers import ApplicationParameterMapper;
 from app.application.ports.inbound import ApplicationParameterServiceBase, AuthServiceBase;
-from app.domain.models import ApplicationParameterType;
+from app.domain.models import ApplicationParameterType, Session;
 
 
 class ApplicationParameterRouter:
@@ -27,10 +33,11 @@ class ApplicationParameterRouter:
 		Returns:
 			El router, listo para incluirlo en la aplicación.
 		"""
+		require_session = SessionDependency(auth_service).require_session;
 		router = APIRouter(
 			prefix="/application-parameters",
 			tags=["Parámetros de la aplicación"],
-			dependencies=[Depends(SessionDependency(auth_service).require_session)],
+			dependencies=[Depends(require_session)],
 		);
 
 		@router.get("")
@@ -53,6 +60,29 @@ class ApplicationParameterRouter:
 				El parámetro pedido.
 			"""
 			return ApplicationParameterMapper.to_parameter_dto(service.get_parameter(parameter_type));
+
+		@router.put("/{parameter_type}")
+		def update_parameter(
+			session: Annotated[Session, Depends(require_session)],
+			parameter_type: ApplicationParameterType,
+			dto: ApplicationParameterModificationDto,
+		) -> ApplicationParameterDto:
+			"""Modifica el valor actual de un parámetro de la aplicación.
+
+			Responde 400 si el valor no es válido para el tipo del parámetro, 403 si el rol no permite modificarlos y
+			404 si no existe. Su valor por defecto no cambia.
+
+			Args:
+				session: Sesión del usuario que lo modifica.
+				parameter_type: Tipo del parámetro (por ejemplo, LANGUAGE).
+				dto: Valor nuevo.
+
+			Returns:
+				El parámetro modificado.
+			"""
+			return ApplicationParameterMapper.to_parameter_dto(
+				service.update_parameter(session, parameter_type, dto.value)
+			);
 
 		return router;
 

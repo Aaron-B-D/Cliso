@@ -9,6 +9,9 @@ class Permission(StrEnum):
 	USERS_MANAGE = "USERS_MANAGE";
 	"""Gestionar usuarios: consultarlos, crearlos, modificarlos y borrarlos."""
 
+	APPLICATION_PARAMETERS_EDIT = "APPLICATION_PARAMETERS_EDIT";
+	"""Modificar los parámetros de la aplicación (consultarlos puede cualquier usuario con sesión)."""
+
 	BIM_MODELS_READ = "BIM_MODELS_READ";
 	"""Consultar los modelos BIM y descargar sus ficheros."""
 

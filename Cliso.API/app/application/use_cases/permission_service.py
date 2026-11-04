@@ -17,6 +17,7 @@ class PermissionService(PermissionServiceBase):
 	_ROLE_PERMISSIONS: ClassVar[dict[UserRole, list[Permission]]] = {
 		UserRole.ADMIN: [
 			Permission.USERS_MANAGE,
+			Permission.APPLICATION_PARAMETERS_EDIT,
 			Permission.BIM_MODELS_READ,
 			Permission.BIM_MODELS_EDIT,
 			Permission.BIM_MODELS_DELETE,

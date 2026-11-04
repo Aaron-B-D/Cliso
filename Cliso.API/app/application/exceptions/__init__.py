@@ -1,6 +1,10 @@
 """Excepciones de la capa de aplicación: las del contrato de los puertos."""
 
-from app.application.exceptions.application_parameter import ApplicationParameterError, ApplicationParameterNotFoundError;
+from app.application.exceptions.application_parameter import (
+	ApplicationParameterError,
+	ApplicationParameterNotFoundError,
+	ApplicationParameterValidationError,
+);
 from app.application.exceptions.auth import (
 	AuthError,
 	AuthInvalidCredentialsError,
@@ -34,6 +38,7 @@ from app.application.exceptions.visualization import (
 __all__ = [
 	"ApplicationParameterError",
 	"ApplicationParameterNotFoundError",
+	"ApplicationParameterValidationError",
 	"AuthError",
 	"AuthInvalidCredentialsError",
 	"AuthSessionNotValidError",

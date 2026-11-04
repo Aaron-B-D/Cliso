@@ -107,7 +107,8 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None]:
 			startup.is_demo,
 		).initialize();
 
-		application_parameter_service = ApplicationParameterService(application_parameter_repository);
+		permission_service = PermissionService();
+		application_parameter_service = ApplicationParameterService(application_parameter_repository, permission_service);
 		language = application_parameter_service.get_parameter(ApplicationParameterType.LANGUAGE).value;
 		bim_models_directory = PathUtils.resolve(
 			application_parameter_service.get_parameter(ApplicationParameterType.BIM_MODELS_DIRECTORY).value
@@ -131,7 +132,6 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None]:
 		raise;
 
 	auth_service = AuthService(user_repository, session_timeout_milliseconds);
-	permission_service = PermissionService();
 	app.include_router(AuthRouter.create(auth_service, permission_service, startup.session_cookie_same_site));
 	app.include_router(ApplicationParameterRouter.create(application_parameter_service, auth_service));
 	app.include_router(

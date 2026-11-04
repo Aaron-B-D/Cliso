@@ -4,6 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware;
 from app.adapters.inbound.rest import ExceptionHandlers;
 from app.application.exceptions import (
 	ApplicationParameterNotFoundError,
+	ApplicationParameterValidationError,
 	AuthInvalidCredentialsError,
 	AuthSessionNotValidError,
 	AuthTooManyAttemptsError,
@@ -73,6 +74,7 @@ class AppStartupConfigurator:
 		app.add_exception_handler(VisualizationNotFoundError, ExceptionHandlers.not_found);
 
 		# 400: los datos recibidos no son válidos.
+		app.add_exception_handler(ApplicationParameterValidationError, ExceptionHandlers.bad_request);
 		app.add_exception_handler(BIMModelValidationError, ExceptionHandlers.bad_request);
 		app.add_exception_handler(UserValidationError, ExceptionHandlers.bad_request);
 		app.add_exception_handler(UserPasswordValidationError, ExceptionHandlers.password_requirements);

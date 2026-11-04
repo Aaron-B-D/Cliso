@@ -100,6 +100,38 @@ class MySQLApplicationParameterRepository(ApplicationParameterRepositoryBase):
 		except ValueError as error:
 			raise PersistenceError(f"Datos no válidos del parámetro '{parameter_type}': {error}") from error;
 
+	def update(self, parameter_type: ApplicationParameterType, value: str) -> None:
+		"""Guarda el valor actual de un parámetro. El valor por defecto no se modifica nunca.
+
+		Raises:
+			ApplicationParameterNotFoundError: Si no existe el parámetro.
+			PersistenceError: Si no se puede abrir la base de datos o falla la modificación.
+		"""
+		# 1. Abrimos la conexión.
+		try:
+			connection = self._database.connect();
+		except DatabaseError as error:
+			raise PersistenceError(f"No se pudo modificar el parámetro '{parameter_type}': {error}") from error;
+
+		# 2. Modificamos la fila y confirmamos. Si falla, deshacemos. La conexión se cierra siempre (finally).
+		try:
+			cursor = connection.cursor();
+			cursor.execute(
+				f"UPDATE application_parameter SET {self._CURRENT_VALUE} = %s WHERE {self._TYPE} = %s",
+				(value, parameter_type.value),
+			);
+			modified_rows = cursor.rowcount;
+			connection.commit();
+		except pymysql.MySQLError as error:
+			connection.rollback();
+			raise PersistenceError(f"No se pudo modificar el parámetro '{parameter_type}': {error}") from error;
+		finally:
+			connection.close();
+
+		# 3. Si no se ha modificado ninguna fila, el parámetro no existe.
+		if modified_rows == 0:
+			raise ApplicationParameterNotFoundError(f"No existe el parámetro de la aplicación '{parameter_type}'");
+
 	# endregion PUBLIC METHODS
 
 	# region PRIVATE STATIC METHODS

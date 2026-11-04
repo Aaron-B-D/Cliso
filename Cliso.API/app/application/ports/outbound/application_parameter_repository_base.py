@@ -34,4 +34,17 @@ class ApplicationParameterRepositoryBase(ABC):
 			PersistenceError: Si falla el acceso al almacenamiento.
 		"""
 
+	@abstractmethod
+	def update(self, parameter_type: ApplicationParameterType, value: str) -> None:
+		"""Guarda el valor actual de un parámetro. El valor por defecto no se modifica nunca.
+
+		Args:
+			parameter_type: Tipo del parámetro.
+			value: Valor actual nuevo.
+
+		Raises:
+			ApplicationParameterNotFoundError: Si no existe el parámetro.
+			PersistenceError: Si falla el acceso al almacenamiento.
+		"""
+
 	# endregion PUBLIC METHODS

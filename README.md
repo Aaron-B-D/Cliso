@@ -184,7 +184,7 @@ Implementado hasta ahora (`Cliso.UI/src/app`):
   Pendiente: ejecutarlo tras el login y recuperar del API los parámetros, los modelos y las visualizaciones.
 - **Inicio de sesión** (`modules/login`): tarjeta centrada, sin barra lateral, con *Nick* y *Contraseña*. Un fallo
   se explica bajo los campos: datos incorrectos (401), demasiados intentos (429), sesión caducada por inactividad o
-  error inesperado. `SessionManager` (estático) guarda la sesión actual (`Session`: `UserId`, `Nick` y `Role`). La
+  error inesperado. `SessionManager` (estático) guarda la sesión actual (`Session`: `UserId`, `Nick`, `Role` y `Permissions`). La
   barra lateral muestra el nick, porque la sesión del API no trae el nombre completo.
 - **Sesión en las llamadas** (`core/interceptors/session.interceptor.ts`): un interceptor de clase añade la cookie
   (`withCredentials`) solo a las llamadas a `Environment.API_URL`. Si el API responde 401 teniendo sesión (caducó por
@@ -193,6 +193,12 @@ Implementado hasta ahora (`Cliso.UI/src/app`):
 - **Parámetros de la aplicación** (`ApplicationSettingsManager`): guarda un parámetro por cada valor de
   `ApplicationSettingsParameter` (`LANGUAGE`, `BIM_MODELS_DIRECTORY`), con valores por defecto hasta que se
   recuperen del API. Sus nombres, descripciones y observaciones están en los textos multidioma (`AS_*`).
+- **Permisos en la interfaz** (`LoggedUserManager`, estático): responde a quién es el usuario de la sesión
+  (`GetNick`) y a qué puede hacer (`HasPermission`, con el enumerado `Permission`, que replica el de la API salvo
+  `APPLICATION_PARAMETERS_EDIT`, que la interfaz aún no usa; los permisos salen de la lista `permissions` de la sesión). Solo decide qué se muestra, porque la API exige los permisos igualmente: el botón
+  *Edición* de la barra lateral solo aparece si el usuario puede abrir alguno de los editores, y cada opción
+  (*Modelos*, *Visualizaciones*, *Usuarios*) solo si tiene su permiso (`BIM_MODELS_EDIT`, `VISUALIZATIONS_CREATE` y
+  `USERS_MANAGE`); el editor de modelos solo muestra el botón de borrar con `BIM_MODELS_DELETE`.
 - **Editor de modelos BIM** (`modules/bimModelEditor`, se abre desde *Edición → Modelos*): lista de modelos con
   buscador (con una barra de carga mientras llegan, y vacía si no se pueden recuperar), detalle con las pestañas
   *General* (nombre, descripción, observaciones y carga del fichero IFC, que se sube al guardar con su porcentaje) y
@@ -363,7 +369,8 @@ Son enumerados de texto (`StrEnum`), cada uno en su fichero de `Cliso.API/app/do
 
 | Enumerado | Valores | Para qué sirve |
 |---|---|---|
-| `UserRole` | `ADMIN`, `OPERATOR`, `VIEWER` | Rol de un usuario; se guarda como texto en `user.role`. Hay solo tres, para que los permisos sean sencillos. `ADMIN` ve y gestiona todo (modelos, usuarios, parámetros de la aplicación...); `OPERATOR` hace todo lo operativo con los modelos BIM y edita sus propias visualizaciones, pero no gestiona usuarios ni parámetros; `VIEWER` solo ve las visualizaciones públicas a las que se le da acceso. El inicio de sesión ya existe, pero los permisos de cada rol todavía no se aplican: hoy cualquier usuario con sesión puede usar todos los endpoints. |
+| `UserRole` | `ADMIN`, `OPERATOR`, `VIEWER` | Rol de un usuario; se guarda como texto en `user.role`. Hay solo tres, para que los permisos sean sencillos. `ADMIN` ve y gestiona todo (modelos, usuarios, parámetros de la aplicación...); `OPERATOR` consulta, crea y modifica los modelos BIM (no los borra) y gestiona sus propias visualizaciones, pero no gestiona usuarios ni parámetros; `VIEWER` solo consulta los modelos BIM y ve las visualizaciones públicas y las suyas. Los permisos de cada rol los aplica la API (ver «Servicio de permisos»). |
+| `Permission` | `USERS_MANAGE`, `APPLICATION_PARAMETERS_EDIT`, `BIM_MODELS_READ`, `BIM_MODELS_EDIT`, `BIM_MODELS_DELETE`, `VISUALIZATIONS_VIEW_ANY`, `VISUALIZATIONS_CREATE`, `VISUALIZATIONS_EDIT_OWN`, `VISUALIZATIONS_EDIT_ANY`, `VISUALIZATIONS_DELETE_OWN`, `VISUALIZATIONS_DELETE_ANY` | Permiso para hacer una operación en la aplicación. No se guarda en la base de datos: qué permisos tiene cada rol lo dice la matriz de `PermissionService`. Los que acaban en `_OWN` valen para lo propio y los que acaban en `_ANY`, para lo de otros usuarios. |
 | `PasswordRequirement` | `MIN_LENGTH`, `UPPERCASE`, `LOWERCASE`, `DIGIT`, `SYMBOL` | Requisito mínimo que debe cumplir una contraseña. Su valor es el código que recibe el cliente cuando la contraseña se rechaza, para que el front ponga el texto en cada idioma. |
 | `VisualizationPieceType` | `MARKER` | Tipo de una pieza de visualización. Decide a qué clase de pieza se deserializa su JSON. Se guarda dentro del propio JSON de la pieza, no en una columna. |
 
@@ -458,19 +465,19 @@ Cliso.API/app/
 ├── app_startup_configurator.py   # AppStartupConfigurator (estático): CORS y respuestas HTTP a las excepciones, que solo se registran al crear la aplicación
 ├── config/                       # StartupParameters (parámetros de arranque), StartupParametersManager (estático, lee el JSON) y los enumerados DatabaseProvider y SessionCookieSameSite
 ├── logger.py                     # Logger estático: escribe en fichero (info, warning, error)
-├── utils/                        # PathUtils (rutas), FileUtils (carpetas y ficheros) y PasswordUtils (hash y requisitos de contraseña), estáticas
+├── utils/                        # PathUtils (rutas), FileUtils (carpetas y ficheros), PasswordUtils (hash y requisitos de contraseña) y ApplicationParameterUtils (comprobaciones del valor de un parámetro), estáticas
 ├── initializer/                  # DatabaseInitializer (prepara la base de datos al arrancar) y DemoData (datos demo como objetos de dominio)
 │
 ├── domain/                       # NÚCLEO: conceptos del negocio, sin dependencias externas
-│   ├── models/                   #   BIMModel, User, Visualization, VisualizationPiece, BIMModelVisualizationMarkerPiece, ApplicationParameter, Session (dataclasses) y los enumerados ApplicationParameterType, UserRole, PasswordRequirement y VisualizationPieceType
+│   ├── models/                   #   BIMModel, User, Visualization, VisualizationPiece, BIMModelVisualizationMarkerPiece, ApplicationParameter, Session (dataclasses) y los enumerados ApplicationParameterType, UserRole, Permission, PasswordRequirement y VisualizationPieceType
 │   └── wrappers/                 #   Objetos de dominio con datos calculados (BIMModelWrapper)
 │
 ├── application/                  # NÚCLEO: casos de uso y puertos
 │   ├── ports/
-│   │   ├── inbound/              #   Puertos de entrada: lo que se puede pedir a la aplicación (BIMModelServiceBase, UserServiceBase, VisualizationServiceBase, ApplicationParameterServiceBase, AuthServiceBase)
+│   │   ├── inbound/              #   Puertos de entrada: lo que se puede pedir a la aplicación (BIMModelServiceBase, UserServiceBase, VisualizationServiceBase, ApplicationParameterServiceBase, AuthServiceBase, PermissionServiceBase)
 │   │   └── outbound/             #   Puertos de salida: lo que la aplicación necesita (BIMModelRepositoryBase, BIMModelFileStorageBase, UserRepositoryBase, VisualizationRepositoryBase, ApplicationParameterRepositoryBase)
-│   ├── use_cases/                #   Casos de uso (BIMModelService, UserService, VisualizationService, ApplicationParameterService, AuthService)
-│   └── exceptions/               #   Excepciones del contrato de los puertos, agrupadas por tema: application_parameter/, auth/, bim_model/, user/ y visualization/ (más PersistenceError y FileStorageError)
+│   ├── use_cases/                #   Casos de uso (BIMModelService, UserService, VisualizationService, ApplicationParameterService, AuthService, PermissionService)
+│   └── exceptions/               #   Excepciones del contrato de los puertos, agrupadas por tema: application_parameter/, auth/, bim_model/, user/ y visualization/ (más PermissionDeniedError, PersistenceError y FileStorageError)
 │
 └── adapters/                     # EXTERIOR: conectan el núcleo con el mundo
     ├── inbound/rest/             #   Adaptador de entrada: routers FastAPI (BIMModelRouter.create(service, auth_service), UserRouter, AuthRouter, VisualizationRouter...), SessionDependency (exige la sesión), ExceptionHandlers, dtos/ y mappers/
@@ -688,12 +695,15 @@ Los parámetros de la tabla `application_parameter` los sirve `ApplicationParame
 `MySQLApplicationParameterRepository`). Cada parámetro es un objeto de dominio `ApplicationParameter` (y un
 `ApplicationParameterDto` en la API) con su tipo (enumerado `ApplicationParameterType`) y sus valores por defecto y
 actual. La API no envía nombres ni descripciones: los pone el front en cada idioma. Al arrancar, `main.py` lee de aquí
-el idioma, la carpeta de los modelos BIM y el tiempo de caducidad de la sesión. Los endpoints exigen sesión.
+el idioma, la carpeta de los modelos BIM y el tiempo de caducidad de la sesión. Los endpoints exigen sesión; consultarlos
+no exige ningún permiso (los lee el arranque, sin sesión, y los ve cualquier usuario con sesión) y modificarlos exige el
+permiso `APPLICATION_PARAMETERS_EDIT`, que solo tiene `ADMIN`.
 
 | Endpoint | Qué hace | Respuestas |
 |---|---|---|
 | `GET /application-parameters` | Lista todos los parámetros (`ApplicationParametersDto`). | 200 |
 | `GET /application-parameters/{parameter_type}` | Devuelve un parámetro por su tipo (`LANGUAGE`, `BIM_MODELS_DIRECTORY`, `SESSION_TIMEOUT_MILLISECONDS`). | 200, 404 si no existe, 422 si el tipo no es válido |
+| `PUT /application-parameters/{parameter_type}` | Modifica el valor actual de un parámetro (`ApplicationParameterModificationDto`, solo `value`; el tipo va en la ruta) y devuelve el parámetro ya modificado. El valor por defecto no cambia nunca. | 200, 400 si el valor no es válido para ese parámetro, 401, 403 si el rol no puede modificarlos, 404 si no existe, 422 si el tipo o el cuerpo no son válidos |
 
 ```json
 {
@@ -703,15 +713,29 @@ el idioma, la carpeta de los modelos BIM y el tiempo de caducidad de la sesión.
 }
 ```
 
-Para añadir un parámetro nuevo: un valor en `ApplicationParameterType` y una fila en los dos ficheros de datos básicos
-(`sqlite_basic_data.sql` y `mysql_basic_data.sql`). Por ahora solo se pueden leer: la edición en caliente aún no está
-implementada, así que se cambian en la base de datos.
+Cada respuesta lleva `default_value`, así que el front puede restaurar un parámetro enviando ese valor en un `PUT`.
+
+**Validación del valor** (`ApplicationParameterValidationError` → 400): `ApplicationParameterService` decide con un
+`match` sobre el tipo y un método privado por parámetro, que apoyan en las comprobaciones comunes de
+`ApplicationParameterUtils` (`app/utils/`):
+
+| Parámetro | Valor válido |
+|---|---|
+| `LANGUAGE` | Un código de idioma con la forma `xx-XX` (por ejemplo, `es-ES`). |
+| `BIM_MODELS_DIRECTORY` | Un texto que no esté vacío ni en blanco. |
+| `SESSION_TIMEOUT_MILLISECONDS` | Un número entero mayor que cero, escrito solo con dígitos. |
+
+Para añadir un parámetro nuevo: un valor en `ApplicationParameterType`, una fila en los dos ficheros de datos básicos
+(`sqlite_basic_data.sql` y `mysql_basic_data.sql`) y su regla de validación en el servicio.
+
+Límite conocido: `main.py` lee el idioma, la carpeta de los modelos BIM y el tiempo de caducidad solo al arrancar, así
+que un cambio hecho con el `PUT` queda guardado, pero la API no lo aplica hasta que se reinicia.
 
 ### Servicios y errores
 
 Cada router recibe solo el servicio (o servicios) que necesita, por constructor: no hay ningún proveedor global del
 que cualquiera pueda pedir cualquier servicio. Los servicios usan el repositorio que les haya dado `main.py`. Los
-routers protegidos reciben además el servicio de autenticación, y `AuthRouter` la política `SameSite` de la cookie.
+routers protegidos reciben además el servicio de autenticación, y `AuthRouter` el servicio de permisos (para informar al cliente de los permisos de su sesión) y la política `SameSite` de la cookie. Los servicios cuyas operaciones exigen un permiso reciben el servicio de permisos.
 
 Los repositorios
 traducen cualquier fallo de la base de datos a `PersistenceError` (`app/application/exceptions/`), que no depende de la
@@ -719,9 +743,9 @@ tecnología. Los routers no capturan errores: las excepciones se escapan y las t
 `ExceptionHandlers` (`adapters/inbound/rest`), que se registran por bloques de código de respuesta en
 `AppStartupConfigurator.register_exception_handlers()`: las de «no encontrado» (`BIMModelNotFoundError`, `BIMModelContentNotFoundError`,
 `UserNotFoundError`, `VisualizationNotFoundError`, `ApplicationParameterNotFoundError`) → 404; los datos no válidos
-(`BIMModelValidationError`, `UserValidationError`, `VisualizationValidationError`) → 400, y `UserPasswordValidationError` → 400
+(`ApplicationParameterValidationError`, `BIMModelValidationError`, `UserValidationError`, `VisualizationValidationError`) → 400, y `UserPasswordValidationError` → 400
 también, con los códigos de los requisitos que falla; `AuthInvalidCredentialsError` y `AuthSessionNotValidError` → 401;
-`UserProtectedError` y `VisualizationForbiddenError` → 403; `UserAlreadyExistsError` → 409; `AuthTooManyAttemptsError` → 429; y `PersistenceError` y `FileStorageError` → 500 (se
+`PermissionDeniedError`, `UserProtectedError` y `UserSelfDeletionError` → 403; `UserAlreadyExistsError` → 409; `AuthTooManyAttemptsError` → 429; y `PersistenceError` y `FileStorageError` → 500 (se
 registra en el log y al cliente no se le da el detalle). Cualquier otra excepción no prevista también responde 500 y
 se registra en el log.
 Un endpoint nuevo no necesita `try/except`; si aparece una excepción nueva, se
@@ -735,9 +759,9 @@ usuarios activos) y `PasswordUtils` para comprobar la contraseña. Lo crea `main
 
 | Endpoint | Qué hace | Respuestas |
 |---|---|---|
-| `POST /auth/login` | Inicia sesión con `LoginDto` (`nick`, `password`), pone la cookie `cliso_session` y devuelve `SessionDto` (`user_id`, `nick`, `role`; nunca el token). | 200, 401 si el nick o la contraseña no son correctos, 429 si ya ha fallado demasiadas veces |
+| `POST /auth/login` | Inicia sesión con `LoginDto` (`nick`, `password`), pone la cookie `cliso_session` y devuelve `SessionDto` (`user_id`, `nick`, `role` y `permissions`, la lista de permisos de su rol; nunca el token). | 200, 401 si el nick o la contraseña no son correctos, 429 si ya ha fallado demasiadas veces |
 | `POST /auth/logout` | Cierra la sesión y borra la cookie. Si no había sesión, responde igual. | 204 |
-| `GET /auth/me` | Devuelve la sesión actual (el front lo usa al recargar la página). | 200, 401 |
+| `GET /auth/me` | Devuelve la sesión actual, con sus permisos (el front lo usa al recargar la página). | 200, 401 |
 
 Los routers de usuarios, modelos BIM y parámetros de la aplicación aplican `SessionDependency` a todos sus
 endpoints: sin cookie, con un token desconocido, con la sesión caducada o desde otra IP, responden 401 sin llegar al
@@ -770,11 +794,44 @@ Decisiones de diseño (para la memoria):
   ha preferido un inicio de sesión con nick y contraseña, una sesión en memoria y un token en cookie `HttpOnly`.
 - **Límites conocidos:** al reiniciar la API se pierden las sesiones y los contadores de intentos, y no funciona con
   varios procesos (`--workers`) porque cada uno tendría su memoria; la sesión está ligada a la IP, así que un cambio de
-  red obliga a iniciar sesión otra vez; y los permisos de cada rol (`UserRole`) solo se aplican, de momento, en las
-  visualizaciones (ver «Servicio de visualizaciones»).
+  red obliga a iniciar sesión otra vez.
 - **Alojar la web y la API en sitios distintos:** hace falta `session_cookie_same_site` a `none`, https, el origen de
   la web en `allowed_origins`, la URL completa de la API en el `Environment.API_URL` del front y, si hay un proxy
   delante, que uvicorn se fíe de él (`FORWARDED_ALLOW_IPS`) para ver la IP real del cliente.
+
+### Servicio de permisos
+
+`PermissionService` (implementa el puerto `PermissionServiceBase`) guarda la matriz que dice qué permisos
+(`Permission`) tiene cada rol (`UserRole`) y solo sabe de roles. Lo crea `main.py` y se lo entrega a los servicios
+de usuarios, modelos BIM, visualizaciones y parámetros de la aplicación, y a `AuthRouter`, que informa al cliente de
+los permisos de su sesión. Tiene tres operaciones: `has(session, permiso)` (sí o no), `check(session, permiso)` (lanza
+`PermissionDeniedError` → 403 si el rol no lo tiene) y `get_permissions(rol)`.
+
+| Permiso | `ADMIN` | `OPERATOR` | `VIEWER` | Qué permite |
+|---|---|---|---|---|
+| `USERS_MANAGE` | Sí | No | No | Consultar, crear, modificar y borrar usuarios. |
+| `APPLICATION_PARAMETERS_EDIT` | Sí | No | No | Modificar los parámetros de la aplicación. |
+| `BIM_MODELS_READ` | Sí | Sí | Sí | Consultar los modelos BIM y descargar sus ficheros. |
+| `BIM_MODELS_EDIT` | Sí | Sí | No | Crear y modificar modelos BIM y subir sus ficheros. |
+| `BIM_MODELS_DELETE` | Sí | No | No | Borrar modelos BIM. |
+| `VISUALIZATIONS_VIEW_ANY` | Sí | No | No | Ver las visualizaciones privadas de otros usuarios. |
+| `VISUALIZATIONS_CREATE` | Sí | Sí | No | Crear visualizaciones. |
+| `VISUALIZATIONS_EDIT_OWN` | Sí | Sí | No | Modificar las visualizaciones propias. |
+| `VISUALIZATIONS_EDIT_ANY` | Sí | No | No | Modificar las visualizaciones de otros usuarios. |
+| `VISUALIZATIONS_DELETE_OWN` | Sí | Sí | No | Borrar las visualizaciones propias. |
+| `VISUALIZATIONS_DELETE_ANY` | Sí | No | No | Borrar las visualizaciones de otros usuarios. |
+
+Reglas:
+
+- **Quién comprueba el permiso:** el router entrega la `Session` (`Depends(require_session)` como parámetro del
+  endpoint) al servicio de la operación, y es este quien llama a `PermissionService.check`. Un endpoint nuevo que no
+  pase por el servicio de permisos queda abierto a todos los roles: nada lo comprueba por él.
+- **Lo que depende del dato:** el servicio de permisos no sabe de datos. Por ejemplo, si una visualización es del
+  usuario lo decide `VisualizationService`, que elige el permiso que toca (`..._OWN` o `..._ANY`).
+- **Consultar parámetros de la aplicación:** no lleva permiso, porque los lee el arranque, sin sesión, y los ve
+  cualquier usuario con sesión.
+- **Lado cliente:** el front usa la lista `permissions` de la sesión solo para decidir qué opciones muestra; la API
+  los exige igualmente en cada operación.
 
 ### Servicio de usuarios
 
@@ -782,15 +839,16 @@ Decisiones de diseño (para la memoria):
 (`SQLiteUserRepository` y `MySQLUserRepository`, con SQL escrito a mano), `PasswordUtils` (`app/utils/`) y el servicio
 de autenticación, para cerrar las sesiones de un usuario al borrarlo o cambiarle el rol.
 `main.py` entrega el servicio a `UserRouter.create(service, auth_service)`. El servicio trabaja con objetos de dominio
-`User`; `UserMapper` los convierte en `UserDto`, que nunca lleva la contraseña. Todos los endpoints exigen sesión.
+`User`; `UserMapper` los convierte en `UserDto`, que nunca lleva la contraseña. Todos los endpoints exigen sesión y actúan en nombre de su usuario: el servicio exige el
+permiso `USERS_MANAGE` (solo `ADMIN`) y responde 403 si el rol no lo tiene.
 
 | Endpoint | Qué hace | Respuestas |
 |---|---|---|
-| `GET /users` | Lista los usuarios activos (`UserDto`: `id`, `nick`, `name`, `surname`, `role`, `active`). | 200 |
-| `GET /users/{id}` | Devuelve un usuario activo. | 200, 404 (también si está desactivado) |
-| `POST /users` | Crea un usuario (`UserCreationDto`: `nick`, `name`, `surname`, `role`, `password` en texto plano). | 201, 400, 409 si el nick ya existe |
+| `GET /users` | Lista los usuarios activos (`UserDto`: `id`, `nick`, `name`, `surname`, `role`, `active`). | 200, 403 |
+| `GET /users/{id}` | Devuelve un usuario activo. | 200, 403, 404 (también si está desactivado) |
+| `POST /users` | Crea un usuario (`UserCreationDto`: `nick`, `name`, `surname`, `role`, `password` en texto plano). | 201, 400, 403, 409 si el nick ya existe |
 | `PUT /users/{id}` | Modifica `name`, `surname` y `role`, y opcionalmente `password` (`UserModificationDto`; el `nick` debe ser el que ya tiene). Sin `password`, conserva la suya. | 200, 400, 403, 404 |
-| `DELETE /users/{id}?force=false` | Borrado lógico (`active = 0`): se conservan los datos y las visualizaciones. Con `force=true` se borran de verdad el usuario y sus visualizaciones. | 204, 403 si es `admin`, 404 |
+| `DELETE /users/{id}?force=false` | Borrado lógico (`active = 0`): se conservan los datos y las visualizaciones. Con `force=true` se borran de verdad el usuario y sus visualizaciones. | 204, 403 si es `admin`, si es el propio usuario de la sesión o si el rol no puede gestionar usuarios, 404 |
 
 Reglas:
 
@@ -816,8 +874,7 @@ Reglas:
   aplicación (habría que contactar con el técnico); `force=true` queda para uso excepcional directo sobre la API.
 - **Sesiones:** borrar un usuario o cambiarle el rol cierra sus sesiones abiertas. Un usuario desactivado no puede
   entrar (la búsqueda por nick solo devuelve usuarios activos).
-- **Pendiente:** que un usuario no pueda borrarse a sí mismo y la aplicación de los permisos de cada rol en los usuarios,
-  los modelos BIM y los parámetros (en las visualizaciones ya se aplican).
+- **Autoborrado:** un usuario no puede borrarse a sí mismo, ni lógica ni físicamente (`UserSelfDeletionError` → 403).
 
 ### Servicio de modelos BIM
 
@@ -826,17 +883,18 @@ Reglas:
 `BIMModelFileStorageBase` (el fichero IFC, con `LocalBIMModelFileStorage`, que lo guarda en la carpeta del parámetro `BIM_MODELS_DIRECTORY`). El servicio devuelve `BIMModelWrapper`, es decir,
 el modelo con el tamaño de su fichero (`file_size`).
 `main.py` los crea y entrega el servicio a `BIMModelRouter.create(service, auth_service)`. Todos los endpoints exigen
-sesión.
+sesión y actúan en nombre de su usuario: consultar modelos y descargar ficheros exige `BIM_MODELS_READ`; crearlos,
+modificarlos y subir ficheros, `BIM_MODELS_EDIT`; y borrarlos, `BIM_MODELS_DELETE`. Si el rol no lo tiene, responde 403.
 
 | Endpoint | Qué hace | Respuestas |
 |---|---|---|
-| `GET /bim-models` | Lista los modelos activos (`BIMModelDto`, con `file_size`). | 200 |
-| `GET /bim-models/{id}` | Devuelve un modelo activo. | 200, 404 |
-| `POST /bim-models` | Añade un modelo con sus datos básicos (`name`, `description`, `observations`). `id`, `file_name` y `creation_date` los asigna el sistema. | 201, 400 si el nombre está vacío o supera 200 caracteres |
-| `PUT /bim-models/{id}` | Modifica `name`, `description` y `observations`; no toca el fichero. | 200, 400, 404 |
-| `PUT /bim-models/{id}/content?file_name=x.ifc` | Sube el fichero IFC como cuerpo binario (`application/octet-stream`), recibido por trozos. Si ya había fichero, lo sustituye. | 200, 400 si el nombre no acaba en `.ifc` o lleva ruta, 404 |
-| `GET /bim-models/{id}/content` | Descarga el fichero IFC por trozos, con su nombre original. | 200, 404 si no existe el modelo o no tiene fichero |
-| `DELETE /bim-models/{id}?force=false` | Borrado lógico (`active = 0`): se conservan datos, visualizaciones y fichero. Con `force=true` se borran de verdad el modelo, sus visualizaciones y su fichero. | 204, 404 |
+| `GET /bim-models` | Lista los modelos activos (`BIMModelDto`, con `file_size`). | 200, 403 |
+| `GET /bim-models/{id}` | Devuelve un modelo activo. | 200, 403, 404 |
+| `POST /bim-models` | Añade un modelo con sus datos básicos (`name`, `description`, `observations`). `id`, `file_name` y `creation_date` los asigna el sistema. | 201, 400 si el nombre está vacío o supera 200 caracteres, 403 |
+| `PUT /bim-models/{id}` | Modifica `name`, `description` y `observations`; no toca el fichero. | 200, 400, 403, 404 |
+| `PUT /bim-models/{id}/content?file_name=x.ifc` | Sube el fichero IFC como cuerpo binario (`application/octet-stream`), recibido por trozos. Si ya había fichero, lo sustituye. | 200, 400 si el nombre no acaba en `.ifc` o lleva ruta, 403, 404 |
+| `GET /bim-models/{id}/content` | Descarga el fichero IFC por trozos, con su nombre original. | 200, 403, 404 si no existe el modelo o no tiene fichero |
+| `DELETE /bim-models/{id}?force=false` | Borrado lógico (`active = 0`): se conservan datos, visualizaciones y fichero. Con `force=true` se borran de verdad el modelo, sus visualizaciones y su fichero. | 204, 403, 404 |
 
 Notas de diseño:
 
@@ -855,7 +913,7 @@ Notas de diseño:
 
 `VisualizationService` (implementa el puerto `VisualizationServiceBase`) usa dos puertos de salida:
 `VisualizationRepositoryBase` (`SQLiteVisualizationRepository` y `MySQLVisualizationRepository`, con SQL escrito a
-mano) y `BIMModelRepositoryBase` (para comprobar que existe el modelo de una visualización nueva). `main.py` entrega el
+mano) y `BIMModelRepositoryBase` (para comprobar que existe el modelo de una visualización nueva), además del servicio de permisos. `main.py` entrega el
 servicio a `VisualizationRouter.create(service, auth_service)`. Todos los endpoints exigen una sesión válida
 (`SessionDependency`, como el resto de routers) y el servicio actúa en nombre de su usuario. El servicio trabaja con
 objetos de dominio `Visualization`; `VisualizationMapper` y `VisualizationPieceMapper` los convierten en
@@ -866,8 +924,8 @@ objetos de dominio `Visualization`; `VisualizationMapper` y `VisualizationPieceM
 | `GET /visualizations?bim_model_id=N&depth=0` | Lista las visualizaciones activas que puede ver el usuario, todas o solo las del modelo `N`. | 200, 401, 422 si `depth` o `bim_model_id` no son válidos |
 | `GET /visualizations/{id}?depth=0` | Devuelve una visualización activa que el usuario pueda ver. | 200, 401, 404 (también si no puede verla) |
 | `POST /visualizations` | Crea una visualización (`bim_model_id`, `name`, `description`, `observations`, `is_public` y, opcionalmente, `pieces`). `id`, `user_id` y el `id` de cada pieza los asigna el sistema; el propietario es el usuario de la sesión. | 201, 400 si el nombre no es válido o una coordenada no es finita, 401, 403 si es `VIEWER`, 404 si no existe el modelo |
-| `PUT /visualizations/{id}` | Modifica `name`, `description`, `observations`, `is_public` y `pieces`. El propietario no cambia y `bim_model_id` debe ser el que ya tiene. | 200, 400 si el nombre no es válido, una coordenada no es finita o `bim_model_id` es otro, 401, 403 si no es suya o es `VIEWER`, 404 |
-| `DELETE /visualizations/{id}?force=false` | Borrado lógico (`active = 0`). Con `force=true` se borran de verdad la visualización y sus piezas. | 204, 401, 403 si no es suya o es `VIEWER`, 404 |
+| `PUT /visualizations/{id}` | Modifica `name`, `description`, `observations`, `is_public` y `pieces`. El propietario no cambia y `bim_model_id` debe ser el que ya tiene. | 200, 400 si el nombre no es válido, una coordenada no es finita o `bim_model_id` es otro, 401, 403 si no es suya y su rol no puede modificar las de otros, o es `VIEWER`, 404 |
+| `DELETE /visualizations/{id}?force=false` | Borrado lógico (`active = 0`). Con `force=true` se borran de verdad la visualización y sus piezas. | 204, 401, 403 si no es suya y su rol no puede borrar las de otros, o es `VIEWER`, 404 |
 
 Notas de diseño:
 
@@ -888,11 +946,13 @@ Notas de diseño:
   recibido y un `NaN` no se puede escribir en la respuesta JSON (daría un 500). El `color` es un texto libre, a
   propósito: admite cualquier forma de expresar un color. Cuando haya más tipos, `pieces` pasará a ser una unión
   discriminada por `type`.
-- **Permisos según la sesión y el rol** (los aplica `VisualizationService`):
+- **Permisos según la sesión y el rol** (los aplica `VisualizationService` con los permisos `VISUALIZATIONS_*`; el
+  servicio solo decide si la visualización es propia o ajena, y qué roles tienen cada permiso lo dice la matriz de
+  «Servicio de permisos»):
 
   | Rol | Ver | Crear | Modificar y borrar |
   |---|---|---|---|
-  | `ADMIN` | Todas | Sí | Solo las suyas |
+  | `ADMIN` | Todas | Sí | Las suyas y las de otros |
   | `OPERATOR` | Las públicas y las suyas | Sí | Solo las suyas |
   | `VIEWER` | Las públicas y las suyas | No (403) | No (403) |
 
@@ -900,7 +960,7 @@ Notas de diseño:
   que el usuario no puede ver responde 404, como si no existiera, para no revelar que existe; una que sí ve pero no puede
   modificar responde 403. El filtro de visibilidad se aplica en la consulta SQL (también el de las piezas con
   `depth=1`), no en memoria, para que el coste no dependa de cuántas visualizaciones ajenas haya. Un administrador
-  tampoco modifica las visualizaciones de otros: «solo su propietario puede modificarla».
+  puede modificar y borrar también las de otros usuarios.
 - Los `id` de la URL deben estar entre 1 y 2^63-1; fuera de ese rango la API responde 422.
 
 ### Log
