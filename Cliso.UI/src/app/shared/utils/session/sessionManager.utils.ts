@@ -1,6 +1,4 @@
-import { STRING_UNDEFINED } from 'src/app/shared/definitions/constants.definitions';
 import { Session } from 'src/app/shared/models/session/session.models';
-import { CheckUtils } from 'src/app/shared/utils/check.utils';
 
 /** Guarda la sesión abierta para poder consultarla desde cualquier parte de la aplicación. */
 export class SessionManager {
@@ -28,22 +26,6 @@ export class SessionManager {
 	 */
 	public static GetCurrentSession(): Session | null {
 		return SessionManager._CurrentSession;
-	}
-
-	/**
-	 * Devuelve el alias del usuario de la sesión abierta.
-	 * @returns El alias, o un texto vacío si no se ha iniciado sesión.
-	 */
-	public static GetNick(): string {
-		let result: string = STRING_UNDEFINED;
-
-		if (!CheckUtils.IsNull(SessionManager._CurrentSession)) {
-			result = SessionManager._CurrentSession.Nick;
-		} else {
-			// Sin sesión no hay alias que mostrar
-		}
-
-		return result;
 	}
 
 	/**

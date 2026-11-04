@@ -3,7 +3,15 @@
 from app.application.use_cases.application_parameter_service import ApplicationParameterService;
 from app.application.use_cases.auth_service import AuthService;
 from app.application.use_cases.bim_model_service import BIMModelService;
+from app.application.use_cases.permission_service import PermissionService;
 from app.application.use_cases.user_service import UserService;
 from app.application.use_cases.visualization_service import VisualizationService;
 
-__all__ = ["ApplicationParameterService", "AuthService", "BIMModelService", "UserService", "VisualizationService"];
+__all__ = [
+	"ApplicationParameterService",
+	"AuthService",
+	"BIMModelService",
+	"PermissionService",
+	"UserService",
+	"VisualizationService",
+];

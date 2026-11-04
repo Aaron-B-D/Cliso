@@ -3,7 +3,7 @@ from typing import Annotated, Literal;
 from fastapi import APIRouter, Cookie, Depends, Request, Response;
 
 from app.adapters.inbound.rest import LoginDto, SessionDto, SessionDependency, SessionMapper;
-from app.application.ports.inbound import AuthServiceBase;
+from app.application.ports.inbound import AuthServiceBase, PermissionServiceBase;
 from app.config import SessionCookieSameSite;
 from app.domain.models import Session;
 
@@ -18,11 +18,14 @@ class AuthRouter:
 	# region PUBLIC STATIC METHODS
 
 	@staticmethod
-	def create(service: AuthServiceBase, same_site: SessionCookieSameSite) -> APIRouter:
+	def create(
+		service: AuthServiceBase, permission_service: PermissionServiceBase, same_site: SessionCookieSameSite
+	) -> APIRouter:
 		"""Crea el router de la autenticación.
 
 		Args:
 			service: Servicio de autenticación que usan sus endpoints.
+			permission_service: Servicio de permisos, con el que se informa de los permisos de la sesión.
 			same_site: Política `SameSite` de la cookie de la sesión, según dónde esté alojada la web respecto a la API.
 
 		Returns:
@@ -47,7 +50,7 @@ class AuthRouter:
 				response: Respuesta en la que se pone la cookie.
 
 			Returns:
-				La sesión iniciada, sin el token.
+				La sesión iniciada, con los permisos de su rol y sin el token.
 			"""
 			session = service.login(dto.nick, dto.password, SessionDependency.get_client_ip(request));
 			response.set_cookie(
@@ -58,7 +61,7 @@ class AuthRouter:
 				samesite=cookie_same_site,
 				path="/",
 			);
-			return SessionMapper.to_dto(session);
+			return SessionMapper.to_dto(session, permission_service.get_permissions(session.role));
 
 		@router.post("/logout", status_code=204)
 		def logout(request: Request, token: Annotated[str | None, Cookie(alias=SessionDependency.COOKIE_NAME)] = None) -> Response:
@@ -95,9 +98,9 @@ class AuthRouter:
 				session: Sesión de la petición, entregada por la dependencia.
 
 			Returns:
-				La sesión actual, sin el token.
+				La sesión actual, con los permisos de su rol y sin el token.
 			"""
-			return SessionMapper.to_dto(session);
+			return SessionMapper.to_dto(session, permission_service.get_permissions(session.role));
 
 		return router;
 

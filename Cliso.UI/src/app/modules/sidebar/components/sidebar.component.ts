@@ -11,6 +11,7 @@ import { type BimModelEditorComponent } from 'src/app/modules/bimModelEditor/com
 import { IconName } from 'src/app/shared/definitions/icons.definitions';
 import { NotificationLevel } from 'src/app/shared/definitions/notifications.definitions';
 import { AppRoute } from 'src/app/shared/definitions/routes.definitions';
+import { Permission } from 'src/app/shared/definitions/user.definitions';
 import { TryGetResult } from 'src/app/shared/models/common/tryGetResult.models';
 import { DataAccessService } from 'src/app/shared/services/dataAccess.service';
 import { NotificationService } from 'src/app/shared/services/notification.service';
@@ -20,6 +21,7 @@ import { HttpRequestCanceller } from 'src/app/shared/utils/httpRequestCanceller.
 import { IconsUtils } from 'src/app/shared/utils/icons.utils';
 import { LanguageManager } from 'src/app/shared/utils/language/languageManager.utils';
 import { RequestUtils } from 'src/app/shared/utils/request.utils';
+import { LoggedUserManager } from 'src/app/shared/utils/session/loggedUserManager.utils';
 import { SessionManager } from 'src/app/shared/utils/session/sessionManager.utils';
 
 /** Barra lateral de navegación: el botón de inicio, el panel de edición y, abajo, el usuario actual. */
@@ -88,6 +90,19 @@ export class SidebarComponent implements OnDestroy, OnInit {
 
 	//#region PUBLIC PROPERTIES
 
+	/** `true` si el usuario puede abrir el editor de los modelos BIM. */
+	public CanEditBimModels: boolean = LoggedUserManager.HasPermission(Permission.BIM_MODELS_EDIT);
+
+	/** `true` si el usuario puede abrir el editor de las visualizaciones. */
+	public CanEditVisualizations: boolean = LoggedUserManager.HasPermission(Permission.VISUALIZATIONS_CREATE);
+
+	/** `true` si el usuario puede abrir la gestión de usuarios. */
+	public CanManageUsers: boolean = LoggedUserManager.HasPermission(Permission.USERS_MANAGE);
+
+	// Se calcula con las tres anteriores, por eso va después de ellas
+	/** `true` si el usuario puede abrir alguno de los editores: si no, el panel de edición no se muestra. */
+	public CanEdit: boolean = this.CanEditBimModels || this.CanEditVisualizations || this.CanManageUsers;
+
 	/** Icono del botón del panel de edición. */
 	public EditionIcon: string = IconsUtils.GetUrl(IconName.EDIT);
 
@@ -121,7 +136,7 @@ export class SidebarComponent implements OnDestroy, OnInit {
 	public UserIcon: string = IconsUtils.GetUrl(IconName.USER);
 
 	/** Alias del usuario de la sesión abierta. */
-	public UserName: string = SessionManager.GetNick();
+	public UserName: string = LoggedUserManager.GetNick();
 
 	/** Dónde se coloca el panel del usuario: encima del botón que lo despliega, alineado por la izquierda. */
 	public UserPanelPositions: ConnectedPosition[] = [{ originX: 'start', originY: 'top', overlayX: 'start', overlayY: 'bottom' }];

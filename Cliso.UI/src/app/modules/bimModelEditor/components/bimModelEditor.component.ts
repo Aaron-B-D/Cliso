@@ -11,6 +11,7 @@ import { ID_NUMERIC_UNDEFINED, STRING_UNDEFINED } from 'src/app/shared/definitio
 import { type BimModelDto } from 'src/app/shared/definitions/dtos.definitions';
 import { IconName } from 'src/app/shared/definitions/icons.definitions';
 import { NotificationLevel } from 'src/app/shared/definitions/notifications.definitions';
+import { Permission } from 'src/app/shared/definitions/user.definitions';
 import { BimModel } from 'src/app/shared/models/bimModel/bimModel.models';
 import { ConfirmDialogService } from 'src/app/shared/services/confirmDialog.service';
 import { DataAccessService } from 'src/app/shared/services/dataAccess.service';
@@ -22,6 +23,7 @@ import { IconsUtils } from 'src/app/shared/utils/icons.utils';
 import { LanguageManager } from 'src/app/shared/utils/language/languageManager.utils';
 import { BimModelMapper } from 'src/app/shared/utils/mappers/bimModelMapper.utils';
 import { RequestUtils } from 'src/app/shared/utils/request.utils';
+import { LoggedUserManager } from 'src/app/shared/utils/session/loggedUserManager.utils';
 import { TryGetResult } from 'src/app/shared/models/common/tryGetResult.models';
 
 /** Ficha de un modelo en la lista del editor, con lo que la plantilla necesita ya calculado. */
@@ -140,6 +142,9 @@ export class BimModelEditorComponent implements OnDestroy, OnInit {
 	//#endregion PRIVATE CONSTANTS
 
 	//#region PUBLIC PROPERTIES
+
+	/** `true` si el usuario puede borrar modelos: si no, el editor no muestra el botón de borrar. */
+	public CanDelete: boolean = LoggedUserManager.HasPermission(Permission.BIM_MODELS_DELETE);
 
 	/** Datos del modelo abierto: son los que se editan, y solo se guardan al pulsar guardar. */
 	public Draft: BimModel = this.createEmptyModel();

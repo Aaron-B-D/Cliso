@@ -3,14 +3,19 @@ from pathlib import Path;
 from typing import ClassVar;
 
 from app.application.exceptions import BIMModelContentNotFoundError, BIMModelValidationError;
-from app.application.ports.inbound import BIMModelServiceBase;
+from app.application.ports.inbound import BIMModelServiceBase, PermissionServiceBase;
 from app.application.ports.outbound import BIMModelFileStorageBase, BIMModelRepositoryBase;
-from app.domain.models import BIMModel;
+from app.domain.models import BIMModel, Permission, Session;
 from app.domain.wrappers import BIMModelWrapper;
 
 
 class BIMModelService(BIMModelServiceBase):
-	"""Caso de uso de los modelos BIM: gestionar sus datos básicos y su fichero IFC."""
+	"""Caso de uso de los modelos BIM: gestionar sus datos básicos y su fichero IFC.
+
+	Todas las operaciones se hacen en nombre del usuario de una sesión, y según su rol: consultar los modelos y descargar
+	sus ficheros exige `BIM_MODELS_READ`; crearlos, modificarlos y subir sus ficheros, `BIM_MODELS_EDIT`; borrarlos,
+	`BIM_MODELS_DELETE`.
+	"""
 
 	# region PRIVATE CONSTANTS
 
@@ -27,12 +32,18 @@ class BIMModelService(BIMModelServiceBase):
 
 	# region CONSTRUCTOR
 
-	def __init__(self, repository: BIMModelRepositoryBase, file_storage: BIMModelFileStorageBase) -> None:
+	def __init__(
+		self,
+		repository: BIMModelRepositoryBase,
+		file_storage: BIMModelFileStorageBase,
+		permission_service: PermissionServiceBase,
+	) -> None:
 		"""Crea el servicio.
 
 		Args:
 			repository: Acceso a los datos de los modelos guardados.
 			file_storage: Almacenamiento de los ficheros IFC.
+			permission_service: Servicio de permisos, para comprobar lo que puede hacer el usuario de la sesión.
 		"""
 		self._repository = repository;
 		"""Acceso a los datos de los modelos guardados."""
@@ -40,59 +51,74 @@ class BIMModelService(BIMModelServiceBase):
 		self._file_storage = file_storage;
 		"""Almacenamiento de los ficheros IFC."""
 
+		self._permission_service = permission_service;
+		"""Servicio de permisos, para comprobar lo que puede hacer el usuario de la sesión."""
+
 	# endregion CONSTRUCTOR
 
 	# region PUBLIC METHODS
 
-	def get_bim_models(self) -> list[BIMModelWrapper]:
+	def get_bim_models(self, session: Session) -> list[BIMModelWrapper]:
 		"""Recupera todos los modelos BIM activos, con el tamaño de su fichero.
+
+		Args:
+			session: Sesión del usuario que los pide.
 
 		Returns:
 			Los modelos activos (la lista queda vacía si no hay ninguno).
 
 		Raises:
+			PermissionDeniedError: Si el rol del usuario no permite consultar modelos.
 			FileStorageError: Si no se puede consultar el tamaño de algún fichero.
 			PersistenceError: Si falla el acceso al almacenamiento.
 		"""
+		self._permission_service.check(session, Permission.BIM_MODELS_READ);
 		return [self._wrap(model) for model in self._repository.get_all()];
 
-	def get_bim_model(self, model_id: int) -> BIMModelWrapper:
+	def get_bim_model(self, session: Session, model_id: int) -> BIMModelWrapper:
 		"""Recupera el modelo BIM activo con ese identificador, con el tamaño de su fichero.
 
 		Args:
+			session: Sesión del usuario que lo pide.
 			model_id: Identificador del modelo.
 
 		Returns:
 			El modelo encontrado.
 
 		Raises:
+			PermissionDeniedError: Si el rol del usuario no permite consultar modelos.
 			BIMModelNotFoundError: Si no hay ningún modelo activo con ese identificador.
 			FileStorageError: Si no se puede consultar el tamaño del fichero.
 			PersistenceError: Si falla el acceso al almacenamiento.
 		"""
+		self._permission_service.check(session, Permission.BIM_MODELS_READ);
 		return self._wrap(self._repository.get_by_id(model_id));
 
-	def add_bim_model(self, model: BIMModel) -> BIMModelWrapper:
+	def add_bim_model(self, session: Session, model: BIMModel) -> BIMModelWrapper:
 		"""Añade un modelo BIM con sus datos básicos. El fichero se sube después, con `set_content`.
 
 		Args:
+			session: Sesión del usuario que lo crea.
 			model: Modelo a añadir (sin `id`).
 
 		Returns:
 			El modelo guardado, con el `id` que le ha asignado el sistema y sin fichero (tamaño 0).
 
 		Raises:
+			PermissionDeniedError: Si el rol del usuario no permite crear modelos.
 			BIMModelValidationError: Si el nombre está vacío o es demasiado largo.
 			FileStorageError: Si no se puede consultar el tamaño del fichero.
 			PersistenceError: Si falla el acceso al almacenamiento.
 		"""
+		self._permission_service.check(session, Permission.BIM_MODELS_EDIT);
 		model.name = self._validate_name(model.name);
 		return self._wrap(self._repository.add(model));
 
-	def update_bim_model(self, model_id: int, model: BIMModel) -> BIMModelWrapper:
+	def update_bim_model(self, session: Session, model_id: int, model: BIMModel) -> BIMModelWrapper:
 		"""Modifica los datos básicos (nombre, descripción y observaciones) de un modelo BIM. No toca su fichero.
 
 		Args:
+			session: Sesión del usuario que lo modifica.
 			model_id: Identificador del modelo a modificar.
 			model: Modelo con los datos nuevos. Solo se usan su nombre, su descripción y sus observaciones.
 
@@ -100,11 +126,13 @@ class BIMModelService(BIMModelServiceBase):
 			El modelo ya modificado, con el tamaño de su fichero.
 
 		Raises:
+			PermissionDeniedError: Si el rol del usuario no permite modificar modelos.
 			BIMModelValidationError: Si el nombre está vacío o es demasiado largo.
 			BIMModelNotFoundError: Si no hay ningún modelo activo con ese identificador.
 			FileStorageError: Si no se puede consultar el tamaño del fichero.
 			PersistenceError: Si falla el acceso al almacenamiento.
 		"""
+		self._permission_service.check(session, Permission.BIM_MODELS_EDIT);
 		name = self._validate_name(model.name);
 		stored = self._repository.get_by_id(model_id);
 		stored.name = name;
@@ -113,10 +141,13 @@ class BIMModelService(BIMModelServiceBase):
 		self._repository.update(stored);
 		return self._wrap(stored);
 
-	async def set_content(self, model_id: int, file_name: str, content: AsyncIterator[bytes]) -> BIMModelWrapper:
+	async def set_content(
+		self, session: Session, model_id: int, file_name: str, content: AsyncIterator[bytes]
+	) -> BIMModelWrapper:
 		"""Guarda el fichero IFC de un modelo BIM, recibido por trozos. Si el modelo ya tenía fichero, lo sustituye.
 
 		Args:
+			session: Sesión del usuario que sube el fichero.
 			model_id: Identificador del modelo.
 			file_name: Nombre original del fichero (debe acabar en `.ifc`).
 			content: Contenido del fichero, por trozos.
@@ -125,12 +156,14 @@ class BIMModelService(BIMModelServiceBase):
 			El modelo, con el nombre y el tamaño del fichero ya actualizados.
 
 		Raises:
+			PermissionDeniedError: Si el rol del usuario no permite modificar modelos.
 			BIMModelValidationError: Si el nombre del fichero no es válido.
 			BIMModelNotFoundError: Si no hay ningún modelo activo con ese identificador.
 			FileStorageError: Si no se puede guardar el fichero.
 			PersistenceError: Si falla el acceso al almacenamiento.
 		"""
-		# 1. Comprobamos el nombre y que el modelo existe antes de recibir ni un byte.
+		# 1. Comprobamos el permiso, el nombre y que el modelo existe antes de recibir ni un byte.
+		self._permission_service.check(session, Permission.BIM_MODELS_EDIT);
 		clean_file_name = self._validate_file_name(file_name);
 		stored = self._repository.get_by_id(model_id);
 
@@ -140,38 +173,44 @@ class BIMModelService(BIMModelServiceBase):
 		self._repository.update(stored);
 		return self._wrap(stored);
 
-	def get_content_path(self, model_id: int) -> Path:
+	def get_content_path(self, session: Session, model_id: int) -> Path:
 		"""Devuelve la ruta del fichero IFC de un modelo BIM, para enviarlo por trozos.
 
 		Args:
+			session: Sesión del usuario que descarga el fichero.
 			model_id: Identificador del modelo.
 
 		Returns:
 			La ruta del fichero guardado.
 
 		Raises:
+			PermissionDeniedError: Si el rol del usuario no permite consultar modelos.
 			BIMModelNotFoundError: Si no hay ningún modelo activo con ese identificador.
 			BIMModelContentNotFoundError: Si el modelo todavía no tiene fichero.
 			PersistenceError: Si falla el acceso al almacenamiento.
 		"""
+		self._permission_service.check(session, Permission.BIM_MODELS_READ);
 		stored = self._repository.get_by_id(model_id);
 		if stored.file_name == "":
 			raise BIMModelContentNotFoundError(f"El modelo BIM {model_id} todavía no tiene fichero");
 		return self._file_storage.get_path(stored.stored_file_name);
 
-	def delete_bim_model(self, model_id: int, force: bool) -> None:
+	def delete_bim_model(self, session: Session, model_id: int, force: bool) -> None:
 		"""Elimina un modelo BIM.
 
 		Args:
+			session: Sesión del usuario que lo elimina.
 			model_id: Identificador del modelo.
 			force: Si es False, el borrado es lógico (el modelo queda inactivo y se conservan sus datos, sus
 				visualizaciones y su fichero). Si es True, se borran de verdad el modelo, sus visualizaciones y su fichero.
 
 		Raises:
+			PermissionDeniedError: Si el rol del usuario no permite borrar modelos.
 			BIMModelNotFoundError: Si no existe el modelo (con `force` False, tiene que estar activo).
 			FileStorageError: Si con `force` no se puede borrar el fichero.
 			PersistenceError: Si falla el acceso al almacenamiento.
 		"""
+		self._permission_service.check(session, Permission.BIM_MODELS_DELETE);
 		if force:
 			# Con force, primero la base de datos y luego el fichero: si falla el fichero queda uno huérfano en disco,
 			# pero nunca un modelo apuntando a un fichero que ya no existe. El nombre del fichero se lee antes de borrar.

@@ -4,6 +4,7 @@ from app.domain.models.application_parameter_type import ApplicationParameterTyp
 from app.domain.models.application_parameter import ApplicationParameter;
 from app.domain.models.bim_model import BIMModel;
 from app.domain.models.password_requirement import PasswordRequirement;
+from app.domain.models.permission import Permission;
 from app.domain.models.user_role import UserRole;
 from app.domain.models.session import Session;
 from app.domain.models.user import User;
@@ -18,6 +19,7 @@ __all__ = [
 	"BIMModel",
 	"BIMModelVisualizationMarkerPiece",
 	"PasswordRequirement",
+	"Permission",
 	"Session",
 	"User",
 	"UserRole",

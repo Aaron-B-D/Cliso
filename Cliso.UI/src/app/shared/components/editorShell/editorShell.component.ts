@@ -28,6 +28,9 @@ export class EditorShellComponent implements OnChanges, OnDestroy {
 	/** Se emite al pulsar volver a la lista (en móvil). */
 	@Output() public backClicked: EventEmitter<void> = new EventEmitter<void>();
 
+	/** `true` si el usuario puede borrar: si no, el pie no muestra el botón de borrar. */
+	@Input() public CanDelete: boolean = true;
+
 	/** Se emite al pedir cerrar el editor: quien lo contiene decide si se cierra. */
 	@Output() public closeRequested: EventEmitter<void> = new EventEmitter<void>();
 

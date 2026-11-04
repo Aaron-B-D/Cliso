@@ -38,6 +38,10 @@ class VisualizationRouter:
 		Returns:
 			El router, listo para incluirlo en la aplicación.
 		"""
+		# La sesión se pide dos veces a propósito (FastAPI ejecuta la dependencia una sola vez por petición):
+		# - En el router: todo endpoint, también uno nuevo que olvide el parámetro `session`, exige sesión (401 sin ella).
+		# - En cada endpoint: entrega la `Session` al servicio, que comprueba el permiso. Un `dependencies` de router no
+		#   puede entregar el valor al endpoint. Un endpoint nuevo copia este patrón.
 		require_session = SessionDependency(auth_service).require_session;
 		router = APIRouter(
 			prefix="/visualizations", tags=["Visualizaciones"], dependencies=[Depends(require_session)]
@@ -51,7 +55,7 @@ class VisualizationRouter:
 		) -> list[VisualizationDto]:
 			"""Devuelve las visualizaciones activas que puede ver el usuario, todas o solo las de un modelo BIM.
 
-			El administrador ve todas; los demás usuarios, las públicas y las suyas.
+			Quien tiene permiso para ver las de cualquiera (el administrador) ve todas; los demás usuarios, las públicas y las suyas.
 
 			Args:
 				session: Sesión del usuario que las pide.
@@ -111,7 +115,7 @@ class VisualizationRouter:
 		) -> VisualizationDto:
 			"""Modifica el nombre, la descripción, las observaciones, la visibilidad y las piezas de una visualización.
 
-			Responde 404 si no existe o el usuario no puede verla, 403 si no es suya o su rol no permite modificarla, y 400 si
+			Responde 404 si no existe o el usuario no puede verla, 403 si su rol no permite modificarla, y 400 si
 			el nombre no es válido o si `bim_model_id` no es el que ya tiene.
 
 			Si `pieces` es null (o no se envía), las piezas guardadas no se tocan; si es una lista, sustituye a todas las guardadas.
@@ -134,7 +138,7 @@ class VisualizationRouter:
 			visualization_id: Annotated[int, Path(ge=1, le=VisualizationRouter._MAX_ID)],
 			force: bool = False,
 		) -> Response:
-			"""Elimina una visualización. Responde 404 si no existe o el usuario no puede verla, y 403 si no es suya o su rol no permite borrarla.
+			"""Elimina una visualización. Responde 404 si no existe o el usuario no puede verla, y 403 si su rol no permite borrarla.
 
 			Por defecto el borrado es lógico: la visualización queda inactiva y se conservan sus datos. Con `force=true`
 			se borran de verdad la visualización y sus piezas.

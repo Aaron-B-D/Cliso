@@ -17,11 +17,12 @@ type LoginDto = {
 	password: string;
 };
 
-/** Sesión que devuelve el API: el usuario que ha iniciado sesión y su rol. */
+/** Sesión que devuelve el API: el usuario que ha iniciado sesión, su rol y los permisos de ese rol. */
 type SessionDto = {
 	user_id: number;
 	nick: string;
 	role: string;
+	permissions: string[];
 };
 
 //#endregion TYPES

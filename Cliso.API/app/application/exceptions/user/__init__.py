@@ -5,6 +5,7 @@ from app.application.exceptions.user.user_already_exists_error import UserAlread
 from app.application.exceptions.user.user_not_found_error import UserNotFoundError;
 from app.application.exceptions.user.user_password_validation_error import UserPasswordValidationError;
 from app.application.exceptions.user.user_protected_error import UserProtectedError;
+from app.application.exceptions.user.user_self_deletion_error import UserSelfDeletionError;
 from app.application.exceptions.user.user_validation_error import UserValidationError;
 
 __all__ = [
@@ -13,5 +14,6 @@ __all__ = [
 	"UserNotFoundError",
 	"UserPasswordValidationError",
 	"UserProtectedError",
+	"UserSelfDeletionError",
 	"UserValidationError",
 ];

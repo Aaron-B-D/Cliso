@@ -163,9 +163,17 @@ implementaciones en los adaptadores.
 - **Routers:** una clase estática por router con `create(service)` (`BIMModelRouter.create(...)`), que recibe solo los
   servicios que sus endpoints necesitan. No hay proveedor global de servicios: `main.py` crea los servicios (con el
   repositorio que toque) y se los entrega a cada router. Los routers protegidos reciben además el servicio de
-  autenticación (`Depends(SessionDependency(auth_service).require_session)`) y `AuthRouter`, un valor de
-  configuración (la política `SameSite` de la cookie), que decide `main.py`. Un router nuevo que exija sesión debe
+  autenticación (`Depends(SessionDependency(auth_service).require_session)`) y `AuthRouter`, además, el servicio de
+  permisos (para informar al cliente de los permisos de su sesión) y un valor de configuración (la política `SameSite`
+  de la cookie), que decide `main.py`. Un router nuevo que exija sesión debe
   llevar esa dependencia: nada lo comprueba por él.
+- **Permisos:** la matriz de qué permisos (`Permission`) tiene cada rol vive en `PermissionService` y solo sabe de roles.
+  Las operaciones protegidas reciben la `Session` desde el router (`Depends(require_session)` como parámetro del
+  endpoint) y el servicio de la operación llama a `PermissionService.check(session, permiso)`, que lanza
+  `PermissionDeniedError` (403). Lo que depende del dato (por ejemplo, si una visualización es del usuario) lo decide
+  el servicio de la operación, que elige el permiso que toca (`..._OWN` o `..._ANY`). Un endpoint nuevo que no pase por
+  el servicio de permisos queda abierto a todos los roles: nada lo comprueba por él. Excepción: los parámetros de la
+  aplicación no llevan permiso de lectura porque los lee el arranque, sin sesión, y los ve cualquier usuario con sesión.
 - **Errores en los endpoints:** los routers no llevan `try/except`. Las excepciones se traducen a HTTP en
   `ExceptionHandlers` (`adapters/inbound/rest`) y se registran en `AppStartupConfigurator.register_exception_handlers()`
   (`app/app_startup_configurator.py`), en bloques por código de respuesta. Excepción nueva = un handler (si hace falta) y una línea ahí.

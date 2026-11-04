@@ -1,14 +1,22 @@
 from typing import ClassVar;
 
-from app.application.exceptions import UserPasswordValidationError, UserProtectedError, UserValidationError;
-from app.application.ports.inbound import AuthServiceBase, UserServiceBase;
+from app.application.exceptions import (
+	UserPasswordValidationError,
+	UserProtectedError,
+	UserSelfDeletionError,
+	UserValidationError,
+);
+from app.application.ports.inbound import AuthServiceBase, PermissionServiceBase, UserServiceBase;
 from app.application.ports.outbound import UserRepositoryBase;
-from app.domain.models import User;
+from app.domain.models import Permission, Session, User;
 from app.utils import PasswordUtils;
 
 
 class UserService(UserServiceBase):
-	"""Caso de uso de los usuarios: gestionarlos (alta, consulta, modificación y baja) y guardar su contraseña hasheada."""
+	"""Caso de uso de los usuarios: gestionarlos (alta, consulta, modificación y baja) y guardar su contraseña hasheada.
+
+	Todas las operaciones se hacen en nombre del usuario de una sesión, y exigen el permiso `USERS_MANAGE`.
+	"""
 
 	# region PUBLIC CONSTANTS
 
@@ -32,12 +40,15 @@ class UserService(UserServiceBase):
 
 	# region CONSTRUCTOR
 
-	def __init__(self, repository: UserRepositoryBase, auth_service: AuthServiceBase) -> None:
+	def __init__(
+		self, repository: UserRepositoryBase, auth_service: AuthServiceBase, permission_service: PermissionServiceBase
+	) -> None:
 		"""Crea el servicio.
 
 		Args:
 			repository: Acceso a los usuarios guardados.
 			auth_service: Servicio de autenticación, para cerrar las sesiones de un usuario cuando se borra o cambia de rol.
+			permission_service: Servicio de permisos, para comprobar que el usuario de la sesión puede gestionar usuarios.
 		"""
 		self._repository = repository;
 		"""Acceso a los usuarios guardados."""
@@ -45,40 +56,52 @@ class UserService(UserServiceBase):
 		self._auth_service = auth_service;
 		"""Servicio de autenticación, para cerrar las sesiones de un usuario cuando se borra o cambia de rol."""
 
+		self._permission_service = permission_service;
+		"""Servicio de permisos, para comprobar que el usuario de la sesión puede gestionar usuarios."""
+
 	# endregion CONSTRUCTOR
 
 	# region PUBLIC METHODS
 
-	def get_users(self) -> list[User]:
+	def get_users(self, session: Session) -> list[User]:
 		"""Recupera todos los usuarios activos.
+
+		Args:
+			session: Sesión del usuario que los pide.
 
 		Returns:
 			Los usuarios activos (la lista queda vacía si no hay ninguno).
 
 		Raises:
+			PermissionDeniedError: Si el rol del usuario no permite gestionar usuarios.
 			PersistenceError: Si falla el acceso al almacenamiento.
 		"""
+		self._permission_service.check(session, Permission.USERS_MANAGE);
 		return self._repository.get_all();
 
-	def get_user(self, user_id: int) -> User:
+	def get_user(self, session: Session, user_id: int) -> User:
 		"""Recupera el usuario activo con ese identificador.
 
 		Args:
+			session: Sesión del usuario que lo pide.
 			user_id: Identificador del usuario.
 
 		Returns:
 			El usuario encontrado.
 
 		Raises:
+			PermissionDeniedError: Si el rol del usuario no permite gestionar usuarios.
 			UserNotFoundError: Si no hay ningún usuario activo con ese identificador.
 			PersistenceError: Si falla el acceso al almacenamiento.
 		"""
+		self._permission_service.check(session, Permission.USERS_MANAGE);
 		return self._repository.get_by_id(user_id);
 
-	def add_user(self, user: User, password: str) -> User:
+	def add_user(self, session: Session, user: User, password: str) -> User:
 		"""Añade un usuario. Su contraseña se guarda hasheada.
 
 		Args:
+			session: Sesión del usuario que lo crea.
 			user: Usuario a añadir (sin `id`). Su campo `password` se ignora: se sustituye por el hash de `password`.
 			password: Contraseña en texto plano.
 
@@ -86,11 +109,13 @@ class UserService(UserServiceBase):
 			El usuario guardado, con el `id` que le ha asignado el sistema.
 
 		Raises:
+			PermissionDeniedError: Si el rol del usuario no permite gestionar usuarios.
 			UserValidationError: Si el nick, el nombre o los apellidos están vacíos o son demasiado largos.
 			UserPasswordValidationError: Si la contraseña no cumple los requisitos mínimos.
 			UserAlreadyExistsError: Si ya hay otro usuario con ese nick.
 			PersistenceError: Si falla el acceso al almacenamiento.
 		"""
+		self._permission_service.check(session, Permission.USERS_MANAGE);
 		user.nick = self._validate_nick(user.nick);
 		user.name = self._validate_text("nombre", user.name, self._NAME_MAX_LENGTH);
 		user.surname = self._validate_text("apellidos", user.surname, self._SURNAME_MAX_LENGTH);
@@ -98,10 +123,11 @@ class UserService(UserServiceBase):
 		user.password = PasswordUtils.hash(password);
 		return self._repository.add(user);
 
-	def update_user(self, user_id: int, user: User, password: str | None) -> User:
+	def update_user(self, session: Session, user_id: int, user: User, password: str | None) -> User:
 		"""Modifica el nombre, los apellidos y el rol de un usuario, y opcionalmente su contraseña. El nick no se puede cambiar.
 
 		Args:
+			session: Sesión del usuario que lo modifica.
 			user_id: Identificador del usuario a modificar.
 			user: Usuario con los datos nuevos. Se usan su nombre, apellidos y rol; su nick debe ser el que ya tiene.
 			password: Contraseña nueva en texto plano, o None para dejar la que tiene.
@@ -110,6 +136,7 @@ class UserService(UserServiceBase):
 			El usuario ya modificado.
 
 		Raises:
+			PermissionDeniedError: Si el rol del usuario no permite gestionar usuarios.
 			UserValidationError: Si el nick, el nombre o los apellidos están vacíos o son demasiado largos, o si el
 				nick es distinto del que ya tiene el usuario.
 			UserPasswordValidationError: Si se indica una contraseña y no cumple los requisitos mínimos.
@@ -117,6 +144,8 @@ class UserService(UserServiceBase):
 			UserProtectedError: Si se intenta cambiar el rol del usuario protegido.
 			PersistenceError: Si falla el acceso al almacenamiento.
 		"""
+		self._permission_service.check(session, Permission.USERS_MANAGE);
+
 		# 1. Comprobamos todos los datos recibidos antes de tocar nada.
 		nick = self._validate_nick(user.nick);
 		name = self._validate_text("nombre", user.name, self._NAME_MAX_LENGTH);
@@ -155,20 +184,25 @@ class UserService(UserServiceBase):
 			pass;
 		return stored;
 
-	def delete_user(self, user_id: int, force: bool) -> None:
+	def delete_user(self, session: Session, user_id: int, force: bool) -> None:
 		"""Elimina un usuario.
 
 		Args:
+			session: Sesión del usuario que lo elimina.
 			user_id: Identificador del usuario.
 			force: Si es False, el borrado es lógico (el usuario queda inactivo y se conservan sus datos y sus
 				visualizaciones). Si es True, se borran de verdad el usuario y sus visualizaciones.
 
 		Raises:
+			PermissionDeniedError: Si el rol del usuario no permite gestionar usuarios.
+			UserSelfDeletionError: Si el usuario intenta borrarse a sí mismo.
 			UserNotFoundError: Si no existe el usuario (con `force` False, tiene que estar activo).
 			UserProtectedError: Si es el usuario protegido.
 			PersistenceError: Si falla el acceso al almacenamiento.
 		"""
-		# TODO: cuando exista el login, impedir también que un usuario se borre a sí mismo (el usuario conectado).
+		self._permission_service.check(session, Permission.USERS_MANAGE);
+		if user_id == session.user_id:
+			raise UserSelfDeletionError("Un usuario no puede borrarse a sí mismo");
 		self._check_not_protected(self._repository.get_by_id(user_id, include_inactive=True));
 		if force:
 			self._repository.delete(user_id);

@@ -3,6 +3,7 @@
 from app.application.ports.inbound.application_parameter_service_base import ApplicationParameterServiceBase;
 from app.application.ports.inbound.auth_service_base import AuthServiceBase;
 from app.application.ports.inbound.bim_model_service_base import BIMModelServiceBase;
+from app.application.ports.inbound.permission_service_base import PermissionServiceBase;
 from app.application.ports.inbound.user_service_base import UserServiceBase;
 from app.application.ports.inbound.visualization_service_base import VisualizationServiceBase;
 
@@ -10,6 +11,7 @@ __all__ = [
 	"ApplicationParameterServiceBase",
 	"AuthServiceBase",
 	"BIMModelServiceBase",
+	"PermissionServiceBase",
 	"UserServiceBase",
 	"VisualizationServiceBase",
 ];

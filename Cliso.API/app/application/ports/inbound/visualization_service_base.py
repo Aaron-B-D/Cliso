@@ -6,8 +6,8 @@ from app.domain.models import Session, Visualization;
 class VisualizationServiceBase(ABC):
 	"""Contrato del servicio de visualizaciones: lo que se puede pedir a la aplicación sobre las visualizaciones.
 
-	Todas las operaciones se hacen en nombre del usuario de una sesión, que decide qué visualizaciones ve y cuáles puede
-	modificar.
+	Todas las operaciones se hacen en nombre del usuario de una sesión, cuyo rol y propiedad de cada visualización deciden
+	cuáles ve y cuáles puede modificar o borrar.
 	"""
 
 	# region PUBLIC METHODS
@@ -59,7 +59,7 @@ class VisualizationServiceBase(ABC):
 			La visualización guardada, con el `id` que le ha asignado el sistema (y el de cada pieza).
 
 		Raises:
-			VisualizationForbiddenError: Si el rol del usuario no permite crear visualizaciones.
+			PermissionDeniedError: Si el rol del usuario no permite crear visualizaciones.
 			VisualizationValidationError: Si el nombre está vacío o es demasiado largo, o si alguna coordenada de una pieza
 				no es un número finito.
 			BIMModelNotFoundError: Si no hay ningún modelo BIM activo con el identificador indicado.
@@ -87,7 +87,7 @@ class VisualizationServiceBase(ABC):
 				es un número finito, o si se intenta cambiar el modelo BIM.
 			VisualizationNotFoundError: Si no hay ninguna visualización activa con ese identificador, o si el usuario no
 				puede verla.
-			VisualizationForbiddenError: Si el usuario no es el propietario o su rol no permite modificar visualizaciones.
+			PermissionDeniedError: Si el rol del usuario no permite modificar esa visualización (propia o de otro usuario).
 			PersistenceError: Si falla el acceso al almacenamiento.
 		"""
 
@@ -104,7 +104,7 @@ class VisualizationServiceBase(ABC):
 		Raises:
 			VisualizationNotFoundError: Si no existe la visualización (con `force` False, tiene que estar activa), o si el
 				usuario no puede verla.
-			VisualizationForbiddenError: Si el usuario no es el propietario o su rol no permite borrar visualizaciones.
+			PermissionDeniedError: Si el rol del usuario no permite borrar esa visualización (propia o de otro usuario).
 			PersistenceError: Si falla el acceso al almacenamiento.
 		"""
 

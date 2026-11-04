@@ -37,6 +37,7 @@ from app.application.use_cases import (
 	ApplicationParameterService,
 	AuthService,
 	BIMModelService,
+	PermissionService,
 	UserService,
 	VisualizationService,
 );
@@ -130,16 +131,22 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None]:
 		raise;
 
 	auth_service = AuthService(user_repository, session_timeout_milliseconds);
-	app.include_router(AuthRouter.create(auth_service, startup.session_cookie_same_site));
+	permission_service = PermissionService();
+	app.include_router(AuthRouter.create(auth_service, permission_service, startup.session_cookie_same_site));
 	app.include_router(ApplicationParameterRouter.create(application_parameter_service, auth_service));
 	app.include_router(
 		BIMModelRouter.create(
-			BIMModelService(bim_model_repository, LocalBIMModelFileStorage(bim_models_directory)), auth_service
+			BIMModelService(bim_model_repository, LocalBIMModelFileStorage(bim_models_directory), permission_service),
+			auth_service,
 		)
 	);
-	app.include_router(UserRouter.create(UserService(user_repository, auth_service), auth_service));
 	app.include_router(
-		VisualizationRouter.create(VisualizationService(visualization_repository, bim_model_repository), auth_service)
+		UserRouter.create(UserService(user_repository, auth_service, permission_service), auth_service)
+	);
+	app.include_router(
+		VisualizationRouter.create(
+			VisualizationService(visualization_repository, bim_model_repository, permission_service), auth_service
+		)
 	);
 	Logger.info(
 		f"Arranque correcto (proveedor {startup.database_provider}, modo {'demo' if startup.is_demo else 'real'}, "

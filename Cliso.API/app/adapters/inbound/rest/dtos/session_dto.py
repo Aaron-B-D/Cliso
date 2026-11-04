@@ -1,6 +1,6 @@
 from pydantic import BaseModel;
 
-from app.domain.models import UserRole;
+from app.domain.models import Permission, UserRole;
 
 
 class SessionDto(BaseModel):
@@ -16,5 +16,8 @@ class SessionDto(BaseModel):
 
 	role: UserRole;
 	"""Rol del usuario de la sesión."""
+
+	permissions: list[Permission];
+	"""Permisos de su rol: es lo que el cliente usa para decidir qué opciones muestra (el API los exige igualmente en cada operación)."""
 
 	# endregion PUBLIC PROPERTIES

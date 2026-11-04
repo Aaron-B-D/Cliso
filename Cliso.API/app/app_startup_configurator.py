@@ -11,13 +11,14 @@ from app.application.exceptions import (
 	BIMModelNotFoundError,
 	BIMModelValidationError,
 	FileStorageError,
+	PermissionDeniedError,
 	PersistenceError,
 	UserAlreadyExistsError,
 	UserNotFoundError,
 	UserPasswordValidationError,
 	UserProtectedError,
+	UserSelfDeletionError,
 	UserValidationError,
-	VisualizationForbiddenError,
 	VisualizationNotFoundError,
 	VisualizationValidationError,
 );
@@ -82,8 +83,9 @@ class AppStartupConfigurator:
 		app.add_exception_handler(AuthSessionNotValidError, ExceptionHandlers.unauthorized);
 
 		# 403: la operación no está permitida sobre lo indicado.
+		app.add_exception_handler(PermissionDeniedError, ExceptionHandlers.forbidden);
 		app.add_exception_handler(UserProtectedError, ExceptionHandlers.forbidden);
-		app.add_exception_handler(VisualizationForbiddenError, ExceptionHandlers.forbidden);
+		app.add_exception_handler(UserSelfDeletionError, ExceptionHandlers.forbidden);
 
 		# 409: choca con algo que ya existe.
 		app.add_exception_handler(UserAlreadyExistsError, ExceptionHandlers.conflict);

@@ -120,14 +120,16 @@
 			>
 				<img class="es_icon" alt="" [src]="EditIcon" />
 			</button>
-			<button mat-icon-button
-				matTooltip="{{ DELETE_TEXT }}"
-				[attr.aria-label]="DELETE_TEXT"
-				[disabled]="IsOperationDisabled"
-				(click)="OnDeleteClicked()"
-			>
-				<img class="es_icon" alt="" [src]="DeleteIcon" />
-			</button>
+			@if (CanDelete) {
+				<button mat-icon-button
+					matTooltip="{{ DELETE_TEXT }}"
+					[attr.aria-label]="DELETE_TEXT"
+					[disabled]="IsOperationDisabled"
+					(click)="OnDeleteClicked()"
+				>
+					<img class="es_icon" alt="" [src]="DeleteIcon" />
+				</button>
+			}
 		}
 	</footer>
 </section>

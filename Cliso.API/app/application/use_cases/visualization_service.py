@@ -1,25 +1,23 @@
 from math import isfinite;
 from typing import ClassVar;
 
-from app.application.exceptions import (
-	VisualizationForbiddenError,
-	VisualizationNotFoundError,
-	VisualizationValidationError,
-);
-from app.application.ports.inbound import VisualizationServiceBase;
+from app.application.exceptions import VisualizationNotFoundError, VisualizationValidationError;
+from app.application.ports.inbound import PermissionServiceBase, VisualizationServiceBase;
 from app.application.ports.outbound import BIMModelRepositoryBase, VisualizationRepositoryBase;
-from app.domain.models import BIMModelVisualizationMarkerPiece, Session, UserRole, Visualization, VisualizationPiece;
+from app.domain.models import BIMModelVisualizationMarkerPiece, Permission, Session, Visualization, VisualizationPiece;
 
 
 class VisualizationService(VisualizationServiceBase):
 	"""Caso de uso de las visualizaciones: gestionar las visualizaciones que los usuarios hacen sobre un modelo BIM.
 
-	Todas las operaciones se hacen en nombre del usuario de una sesión, y según su rol:
+	Todas las operaciones se hacen en nombre del usuario de una sesión, y según los permisos de su rol:
 
-	- Ver: el administrador (`ADMIN`) ve todas; los demás, las públicas y las suyas. Una visualización que el usuario no
-	  puede ver se trata como si no existiera (404), para no revelar que existe.
-	- Crear, modificar y borrar: solo `ADMIN` y `OPERATOR`, y solo las suyas (también el administrador): una visualización
-	  solo la modifica su propietario. El visor (`VIEWER`) no puede crear, modificar ni borrar.
+	- Ver: quien tiene `VISUALIZATIONS_VIEW_ANY` ve todas; los demás, las públicas y las suyas. Una visualización que el
+	  usuario no puede ver se trata como si no existiera (404), para no revelar que existe.
+	- Crear: exige `VISUALIZATIONS_CREATE`.
+	- Modificar y borrar: sobre una visualización propia, `VISUALIZATIONS_EDIT_OWN` y `VISUALIZATIONS_DELETE_OWN`; sobre la
+	  de otro usuario, `VISUALIZATIONS_EDIT_ANY` y `VISUALIZATIONS_DELETE_ANY`. Este servicio solo decide si es propia o
+	  ajena; qué roles tienen cada permiso lo decide el servicio de permisos.
 	"""
 
 	# region PRIVATE CONSTANTS
@@ -31,18 +29,27 @@ class VisualizationService(VisualizationServiceBase):
 
 	# region CONSTRUCTOR
 
-	def __init__(self, repository: VisualizationRepositoryBase, bim_model_repository: BIMModelRepositoryBase) -> None:
+	def __init__(
+		self,
+		repository: VisualizationRepositoryBase,
+		bim_model_repository: BIMModelRepositoryBase,
+		permission_service: PermissionServiceBase,
+	) -> None:
 		"""Crea el servicio.
 
 		Args:
 			repository: Acceso a los datos de las visualizaciones guardadas.
 			bim_model_repository: Acceso a los modelos BIM, para comprobar que existe el de una visualización nueva.
+			permission_service: Servicio de permisos, para comprobar lo que puede hacer el usuario de la sesión.
 		"""
 		self._repository = repository;
 		"""Acceso a los datos de las visualizaciones guardadas."""
 
 		self._bim_model_repository = bim_model_repository;
 		"""Acceso a los modelos BIM."""
+
+		self._permission_service = permission_service;
+		"""Servicio de permisos, para comprobar lo que puede hacer el usuario de la sesión."""
 
 	# endregion CONSTRUCTOR
 
@@ -64,12 +71,12 @@ class VisualizationService(VisualizationServiceBase):
 		"""
 		# TODO: paginar el listado. Con `depth` 1 se cargan en memoria las piezas de todas las visualizaciones visibles, y
 		# con muchos datos el volumen (no el número de consultas) acabará siendo el problema.
-		# El administrador ve todas (sin filtro); los demás, las públicas y las suyas.
+		# Quien puede ver las de cualquiera las ve todas (sin filtro); los demás, las públicas y las suyas.
 		visible_to_user_id: int | None = session.user_id;
-		if session.role == UserRole.ADMIN:
+		if self._permission_service.has(session, Permission.VISUALIZATIONS_VIEW_ANY):
 			visible_to_user_id = None;
 		else:
-			# Cualquier otro rol solo ve las públicas y las suyas.
+			# Sin ese permiso solo ve las públicas y las suyas.
 			pass;
 		return self._repository.get_all(bim_model_id, visible_to_user_id, depth);
 
@@ -105,15 +112,13 @@ class VisualizationService(VisualizationServiceBase):
 			La visualización guardada, con el `id` que le ha asignado el sistema (y el de cada pieza).
 
 		Raises:
-			VisualizationForbiddenError: Si el rol del usuario no permite crear visualizaciones.
+			PermissionDeniedError: Si el rol del usuario no permite crear visualizaciones.
 			VisualizationValidationError: Si el nombre está vacío o es demasiado largo, o si alguna coordenada de una pieza
 				no es un número finito.
 			BIMModelNotFoundError: Si no hay ningún modelo BIM activo con el identificador indicado.
 			PersistenceError: Si falla el acceso al almacenamiento.
 		"""
-		if session.role == UserRole.VIEWER:
-			raise VisualizationForbiddenError("Tu rol no permite crear visualizaciones");
-
+		self._permission_service.check(session, Permission.VISUALIZATIONS_CREATE);
 		visualization.name = self._validate_name(visualization.name);
 		self._validate_pieces(visualization.pieces);
 		self._bim_model_repository.get_by_id(visualization.bim_model_id);
@@ -140,14 +145,20 @@ class VisualizationService(VisualizationServiceBase):
 				es un número finito, o si se intenta cambiar el modelo BIM.
 			VisualizationNotFoundError: Si no hay ninguna visualización activa con ese identificador, o si el usuario no
 				puede verla.
-			VisualizationForbiddenError: Si el usuario no es el propietario o su rol no permite modificar visualizaciones.
+			PermissionDeniedError: Si el rol del usuario no permite modificar esa visualización (propia o de otro usuario).
 			PersistenceError: Si falla el acceso al almacenamiento.
 		"""
-		name = self._validate_name(visualization.name);
-		self._validate_pieces(visualization.pieces);
+		# 1. Primero lo que decide si el usuario puede tocarla (existe, la ve y su rol lo permite): sin permiso no se
+		# revela nada de lo que validan los datos.
 		stored = self._repository.get_by_id(visualization_id, 0);
 		self._check_visible(session, stored);
-		self._check_can_modify(session, stored);
+		self._check_owner_permission(
+			session, stored, Permission.VISUALIZATIONS_EDIT_OWN, Permission.VISUALIZATIONS_EDIT_ANY
+		);
+
+		# 2. Después, los datos recibidos.
+		name = self._validate_name(visualization.name);
+		self._validate_pieces(visualization.pieces);
 		if visualization.bim_model_id != stored.bim_model_id:
 			raise VisualizationValidationError(
 				f"El modelo BIM de la visualización {visualization_id} no se puede cambiar"
@@ -173,12 +184,14 @@ class VisualizationService(VisualizationServiceBase):
 		Raises:
 			VisualizationNotFoundError: Si no existe la visualización (con `force` False, tiene que estar activa), o si el
 				usuario no puede verla.
-			VisualizationForbiddenError: Si el usuario no es el propietario o su rol no permite borrar visualizaciones.
+			PermissionDeniedError: Si el rol del usuario no permite borrar esa visualización (propia o de otro usuario).
 			PersistenceError: Si falla el acceso al almacenamiento.
 		"""
 		stored = self._repository.get_by_id(visualization_id, 0, include_inactive=force);
 		self._check_visible(session, stored);
-		self._check_can_modify(session, stored);
+		self._check_owner_permission(
+			session, stored, Permission.VISUALIZATIONS_DELETE_OWN, Permission.VISUALIZATIONS_DELETE_ANY
+		);
 		if force:
 			self._repository.delete(visualization_id);
 		else:
@@ -189,7 +202,7 @@ class VisualizationService(VisualizationServiceBase):
 	# region PRIVATE METHODS
 
 	def _check_visible(self, session: Session, visualization: Visualization) -> None:
-		"""Comprueba que el usuario de la sesión puede ver la visualización: es el administrador, es pública o es suya.
+		"""Comprueba que el usuario de la sesión puede ver la visualización: su rol ve todas, es pública o es suya.
 
 		Args:
 			session: Sesión del usuario.
@@ -198,26 +211,32 @@ class VisualizationService(VisualizationServiceBase):
 		Raises:
 			VisualizationNotFoundError: Si el usuario no puede verla (se responde como si no existiera).
 		"""
-		is_visible = session.role == UserRole.ADMIN or visualization.is_public or visualization.user_id == session.user_id;
+		is_visible = (
+			self._permission_service.has(session, Permission.VISUALIZATIONS_VIEW_ANY)
+			or visualization.is_public
+			or visualization.user_id == session.user_id
+		);
 		if not is_visible:
 			raise VisualizationNotFoundError(f"No existe ninguna visualización con el identificador {visualization.id}");
 
-	def _check_can_modify(self, session: Session, visualization: Visualization) -> None:
-		"""Comprueba que el usuario de la sesión puede modificar o borrar la visualización: es suya y su rol lo permite.
+	def _check_owner_permission(
+		self, session: Session, visualization: Visualization, own_permission: Permission, any_permission: Permission
+	) -> None:
+		"""Comprueba que el usuario de la sesión tiene el permiso que toca según de quién sea la visualización.
 
 		Args:
 			session: Sesión del usuario.
 			visualization: Visualización guardada que ya puede ver.
+			own_permission: Permiso que se exige si la visualización es del usuario.
+			any_permission: Permiso que se exige si la visualización es de otro usuario.
 
 		Raises:
-			VisualizationForbiddenError: Si el rol del usuario no lo permite o si no es el propietario.
+			PermissionDeniedError: Si el rol del usuario no tiene el permiso que toca.
 		"""
-		if session.role == UserRole.VIEWER:
-			raise VisualizationForbiddenError("Tu rol no permite modificar visualizaciones");
-		if visualization.user_id != session.user_id:
-			raise VisualizationForbiddenError(
-				f"Solo el propietario puede modificar la visualización {visualization.id}"
-			);
+		if visualization.user_id == session.user_id:
+			self._permission_service.check(session, own_permission);
+		else:
+			self._permission_service.check(session, any_permission);
 
 	def _validate_pieces(self, pieces: list[VisualizationPiece] | None) -> None:
 		"""Comprueba los datos de las piezas de una visualización: las coordenadas deben ser números finitos.

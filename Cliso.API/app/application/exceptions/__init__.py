@@ -14,6 +14,7 @@ from app.application.exceptions.bim_model import (
 	BIMModelValidationError,
 );
 from app.application.exceptions.file_storage_error import FileStorageError;
+from app.application.exceptions.permission_denied_error import PermissionDeniedError;
 from app.application.exceptions.persistence_error import PersistenceError;
 from app.application.exceptions.user import (
 	UserAlreadyExistsError,
@@ -21,11 +22,11 @@ from app.application.exceptions.user import (
 	UserNotFoundError,
 	UserPasswordValidationError,
 	UserProtectedError,
+	UserSelfDeletionError,
 	UserValidationError,
 );
 from app.application.exceptions.visualization import (
 	VisualizationError,
-	VisualizationForbiddenError,
 	VisualizationNotFoundError,
 	VisualizationValidationError,
 );
@@ -42,15 +43,16 @@ __all__ = [
 	"BIMModelNotFoundError",
 	"BIMModelValidationError",
 	"FileStorageError",
+	"PermissionDeniedError",
 	"PersistenceError",
 	"UserAlreadyExistsError",
 	"UserError",
 	"UserNotFoundError",
 	"UserPasswordValidationError",
 	"UserProtectedError",
+	"UserSelfDeletionError",
 	"UserValidationError",
 	"VisualizationError",
-	"VisualizationForbiddenError",
 	"VisualizationNotFoundError",
 	"VisualizationValidationError",
 ];
