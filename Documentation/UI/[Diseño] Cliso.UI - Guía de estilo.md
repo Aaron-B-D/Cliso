@@ -139,6 +139,20 @@ resultado de visualización del buscador) lo abre mostrando solo esa. Es una mis
 encendidas: una barra de etiquetas muestra/oculta cada visualización y la ✕ del panel la oculta. Pendiente: la
 disposición de los paneles en escritorio (en móvil, apilados).
 
+**Abrir un modelo (decidido):** al pulsar una ficha se pide confirmación («¿Abrir el modelo…?»); al aceptar, el visor 3D
+del modelo **sustituye al catálogo en la misma pantalla**, con el nombre del modelo y un botón «← Volver a la lista»
+(en escritorio y en móvil). El fichero IFC se descarga con barra de progreso y el motor 3D se carga solo en ese momento.
+Un modelo sin fichero IFC avisa y no se abre.
+Mientras se descarga, un **panel de carga** (componente aparte) muestra los datos del modelo, la barra de progreso y los
+botones «Cancelar» y «Reintentar» (estados: descargando, cancelada y error); el visor solo aparece cuando el fichero está
+descargado. El visor lleva encima una **barra de herramientas** (componente que envuelve al visor, que por sí solo no lleva
+ninguna, y que opera sobre él con el `Access` que el visor emite) con iconos: volver a la vista inicial, fijar la vista actual como inicial, activar o desactivar el resaltado de piezas al hacer
+clic, mostrar u ocultar la rejilla y un menú flotante de **estilos** (`mat-menu`) con los colores de fondo, resaltado y
+rejilla, y el tamaño de las cuadrículas primaria y secundaria (`mat-slider`). La configuración (aspecto, vista inicial y
+última posición de la cámara) se guarda en el navegador mientras el modelo está abierto: si se recarga la página, Home
+pregunta si se recupera; al volver a la lista se borra. El catálogo se actualiza solo cada cierto tiempo (parámetro de la
+aplicación `BIM_MODELS_REFRESH_INTERVAL`) para mostrar los modelos que otro usuario añada.
+
 ## Angular Material
 
 La UI usará **Angular Material** (Angular 20, que trae Material 3). El diseño se piensa para que Material se

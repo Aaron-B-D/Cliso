@@ -1,0 +1,18 @@
+<div class="bimViewerToolbarDir"
+	aria-label="{{ TOOLBAR_TEXT }}"
+	role="toolbar"
+>
+	@for (item of Items; track item.Id) {
+		<button class="bvt_button" mat-icon-button type="button"
+			[attr.aria-label]="item.Text"
+			[attr.aria-pressed]="item.IsActive"
+			[class.bvt_button-active]="item.IsActive"
+			[disabled]="item.IsDisabled"
+			[matTooltip]="item.Text"
+			(click)="OnItemClicked(item)"
+		>
+			<img class="bvt_icon" alt="" [src]="item.IconUrl" />
+		</button>
+	}
+	<ng-content />
+</div>

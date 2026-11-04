@@ -15,4 +15,7 @@ class ApplicationParameterType(StrEnum):
 	SESSION_TIMEOUT_MILLISECONDS = "SESSION_TIMEOUT_MILLISECONDS";
 	"""Tiempo de inactividad, en milisegundos, tras el cual caduca una sesión."""
 
+	BIM_MODELS_REFRESH_INTERVAL = "BIM_MODELS_REFRESH_INTERVAL";
+	"""Cada cuántos milisegundos se comprueba si hay modelos BIM nuevos."""
+
 	# endregion PUBLIC CONSTANTS

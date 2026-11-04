@@ -1,15 +1,8 @@
-import { Temporal } from 'temporal-polyfill';
-
-import { type DateInput } from 'src/app/shared/definitions/date.definitions';
-import { CheckUtils } from 'src/app/shared/utils/check.utils';
-import { DateUtils } from 'src/app/shared/utils/date.utils';
+import { IComparable } from 'src/app/shared/interfaces/comparable.interface';
 
 /** Modelo BIM: sus datos básicos y los del fichero IFC asociado. */
-export class BimModel {
+export class BimModel implements IComparable {
 	//#region PUBLIC PROPERTIES
-
-	/** Fecha de creación. Es `null` mientras el modelo no se ha guardado. */
-	public CreationDate: Temporal.ZonedDateTime | null;
 
 	/** Descripción del modelo. */
 	public Description: string;
@@ -40,18 +33,8 @@ export class BimModel {
 	 * @param observations Observaciones adicionales sobre el modelo.
 	 * @param fileName Nombre del fichero IFC.
 	 * @param fileSize Tamaño del fichero IFC en bytes.
-	 * @param creationDate Fecha de creación, en cualquier formato que `DateUtils.Parse` entienda (por ejemplo, el texto del API). Se convierte al instante.
 	 */
-	constructor(
-		id: number,
-		name: string,
-		description: string,
-		observations: string,
-		fileName: string,
-		fileSize: number,
-		creationDate: DateInput | null
-	) {
-		this.CreationDate = CheckUtils.IsNull(creationDate) ? null : DateUtils.Parse(creationDate);
+	constructor(id: number, name: string, description: string, observations: string, fileName: string, fileSize: number) {
 		this.Description = description;
 		this.FileName = fileName;
 		this.FileSize = fileSize;
@@ -61,4 +44,24 @@ export class BimModel {
 	}
 
 	//#endregion CONSTRUCTOR
+
+	//#region PUBLIC METHODS
+
+	/**
+	 * Indica si otro modelo tiene los mismos datos que este.
+	 * @param other Modelo con el que se compara.
+	 * @returns `true` si tienen el mismo identificador, nombre, descripción, observaciones y fichero.
+	 */
+	public Equals(other: BimModel): boolean {
+		return (
+			this.Id === other.Id &&
+			this.Name === other.Name &&
+			this.Description === other.Description &&
+			this.Observations === other.Observations &&
+			this.FileName === other.FileName &&
+			this.FileSize === other.FileSize
+		);
+	}
+
+	//#endregion PUBLIC METHODS
 }

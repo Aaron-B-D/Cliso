@@ -1,5 +1,6 @@
 import { ApplicationSettingsParameterBase } from 'src/app/shared/models/applicationSettings/applicationSettingsParameterBase.models';
 import { BimModelsDirectorySettingsParameter } from 'src/app/shared/models/applicationSettings/bimModelsDirectorySettingsParameter.models';
+import { BimModelsRefreshIntervalSettingsParameter } from 'src/app/shared/models/applicationSettings/bimModelsRefreshIntervalSettingsParameter.models';
 import { LanguageSettingsParameter } from 'src/app/shared/models/applicationSettings/languageSettingsParameter.models';
 import {
 	ApplicationSettingsDefault,
@@ -17,6 +18,9 @@ export class ApplicationSettingsManager {
 
 	/** Carpeta de los modelos BIM que se usa si no se encuentra el parámetro. */
 	private static readonly _DEFAULT_BIM_MODELS_DIRECTORY: string = 'data/models';
+
+	/** Intervalo (en milisegundos) de comprobación de modelos BIM nuevos que se usa si no se encuentra el parámetro. */
+	private static readonly _DEFAULT_BIM_MODELS_REFRESH_INTERVAL: number = 30000;
 
 	//#endregion PRIVATE CONSTANTS
 
@@ -43,6 +47,25 @@ export class ApplicationSettingsManager {
 			result = parameter.GetValue();
 		} else {
 			console.warn('ApplicationSettingsManager.GetBimModelsDirectory() => no se encuentra el parámetro');
+		}
+
+		return result;
+	}
+
+	/**
+	 * Devuelve cada cuántos milisegundos se comprueba si hay modelos BIM nuevos.
+	 * @returns El intervalo en milisegundos; el de por defecto si no se encuentra el parámetro.
+	 */
+	public static GetBimModelsRefreshInterval(): number {
+		let result: number = ApplicationSettingsManager._DEFAULT_BIM_MODELS_REFRESH_INTERVAL;
+		const parameter: ApplicationSettingsParameterBase | null = ApplicationSettingsManager.GetParameter(
+			ApplicationSettingsParameter.BIM_MODELS_REFRESH_INTERVAL
+		);
+
+		if (parameter instanceof BimModelsRefreshIntervalSettingsParameter) {
+			result = parameter.GetValue();
+		} else {
+			console.warn('ApplicationSettingsManager.GetBimModelsRefreshInterval() => no se encuentra el parámetro');
 		}
 
 		return result;
@@ -137,6 +160,9 @@ export class ApplicationSettingsManager {
 		switch (item.Parameter) {
 			case ApplicationSettingsParameter.BIM_MODELS_DIRECTORY:
 				result = new BimModelsDirectorySettingsParameter(item.Value, item.Value);
+				break;
+			case ApplicationSettingsParameter.BIM_MODELS_REFRESH_INTERVAL:
+				result = new BimModelsRefreshIntervalSettingsParameter(item.Value, item.Value);
 				break;
 			case ApplicationSettingsParameter.LANGUAGE:
 				result = new LanguageSettingsParameter(item.Value, item.Value);

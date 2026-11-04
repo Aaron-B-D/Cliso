@@ -1,0 +1,36 @@
+<section class="bimViewerLoadingPanelDir">
+	<h3 class="bvlp_title">{{ GENERAL_INFO_TEXT }}</h3>
+	<dl class="bvlp_info">
+		<dt>{{ NAME_TEXT }}</dt>
+		<dd>{{ Model.Name }}</dd>
+		<dt>{{ DESCRIPTION_TEXT }}</dt>
+		<dd>{{ Model.Description }}</dd>
+		<dt>{{ OBSERVATIONS_TEXT }}</dt>
+		<dd>{{ Model.Observations }}</dd>
+	</dl>
+	@if (ShowLoading) {
+		<p class="bvlp_text">{{ ProgressText }}</p>
+		@if (HasProgress) {
+			<mat-progress-bar mode="determinate"
+				[value]="ProgressValue"
+			></mat-progress-bar>
+		} @else {
+			<mat-progress-bar mode="indeterminate"></mat-progress-bar>
+		}
+		<button class="bvlp_button" mat-stroked-button type="button"
+			(click)="OnCancelClicked()"
+		>{{ CANCEL_TEXT }}</button>
+	} @else {
+		@if (ShowCanceled) {
+			<p class="bvlp_text">{{ CANCELED_TEXT }}</p>
+		}
+		@if (ShowError) {
+			<p class="bvlp_text bvlp_text-error"
+				role="alert"
+			>{{ ERROR_TEXT }}</p>
+		}
+		<button class="bvlp_button" mat-stroked-button type="button"
+			(click)="OnRetryClicked()"
+		>{{ RETRY_TEXT }}</button>
+	}
+</section>

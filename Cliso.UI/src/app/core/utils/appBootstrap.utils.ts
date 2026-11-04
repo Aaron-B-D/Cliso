@@ -19,7 +19,7 @@ export class AppBootstrapUtils {
 	 * @returns Una promesa que se resuelve al terminar: Angular espera a que termine antes de mostrar la aplicación.
 	 */
 	public static async Start(dataAccess: DataAccessService): Promise<void> {
-		// TODO Aarón https://trello.com/c/VGtyoR8y: ejecutar este arranque tras el inicio de sesión (no al abrir la página) y recuperar del API los parámetros de la aplicación, los modelos BIM y las visualizaciones
+		// TODO Aarón https://trello.com/c/VGtyoR8y: ejecutar este arranque tras el inicio de sesión (no al abrir la página) y recuperar del API los parámetros de la aplicación (los modelos BIM y sus visualizaciones los carga el Home al abrirse, que solo se alcanza con sesión)
 		LanguageManager.SetLanguage(ApplicationSettingsManager.GetLanguage());
 		await AppBootstrapUtils.restoreSession(dataAccess);
 	}

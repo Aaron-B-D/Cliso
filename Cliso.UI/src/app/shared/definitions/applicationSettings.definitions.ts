@@ -3,6 +3,7 @@
 /** Parámetros de configuración de la aplicación. Cada valor es el identificador que usa el API. */
 enum ApplicationSettingsParameter {
 	BIM_MODELS_DIRECTORY = 'BIM_MODELS_DIRECTORY',
+	BIM_MODELS_REFRESH_INTERVAL = 'BIM_MODELS_REFRESH_INTERVAL',
 	LANGUAGE = 'LANGUAGE'
 }
 

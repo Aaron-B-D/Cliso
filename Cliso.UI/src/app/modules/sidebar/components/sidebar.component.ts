@@ -7,7 +7,7 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 
-import { type BimModelEditorComponent } from 'src/app/modules/bimModelEditor/components/bimModelEditor.component';
+import { BimModelEditorComponent } from 'src/app/modules/bimModelEditor/components/bimModelEditor.component';
 import { IconName } from 'src/app/shared/definitions/icons.definitions';
 import { NotificationLevel } from 'src/app/shared/definitions/notifications.definitions';
 import { AppRoute } from 'src/app/shared/definitions/routes.definitions';
@@ -213,12 +213,11 @@ export class SidebarComponent implements OnDestroy, OnInit {
 
 		try {
 			// El editor no se descarga al arrancar la aplicación (aquí o, antes, en segundo plano): es ligero, y su visor 3D va aparte
-			const editorClass: Type<BimModelEditorComponent> = await import(
-				'src/app/modules/bimModelEditor/components/bimModelEditor.component'
-			).then(
-				(editorModule: { BimModelEditorComponent: Type<BimModelEditorComponent> }): Type<BimModelEditorComponent> =>
-					editorModule.BimModelEditorComponent
-			);
+			const editorClass: Type<BimModelEditorComponent> =
+				await import('src/app/modules/bimModelEditor/components/bimModelEditor.component').then(
+					(editorModule: { BimModelEditorComponent: Type<BimModelEditorComponent> }): Type<BimModelEditorComponent> =>
+						editorModule.BimModelEditorComponent
+				);
 
 			// El botón del menú conserva el foco mientras el diálogo oculta la página a los lectores de pantalla: se le quita para que el foco pase al diálogo
 			(document.activeElement as HTMLElement).blur();

@@ -10,6 +10,8 @@ export class ApplicationSettingsUtils {
 	/** Un elemento por cada valor de `ApplicationSettingsParameter`. */
 	public static readonly DEFAULTS: ApplicationSettingsDefault[] = [
 		{ Parameter: ApplicationSettingsParameter.BIM_MODELS_DIRECTORY, Value: 'data/models' },
+		// TODO Aarón https://trello.com/c/VGtyoR8y: este valor es simulado, porque el front aún no recupera los parámetros del API; cuando se conecte esa recuperación, el intervalo de refresco de los modelos debe leerse de ahí (si no se hace ya)
+		{ Parameter: ApplicationSettingsParameter.BIM_MODELS_REFRESH_INTERVAL, Value: '30000' },
 		{ Parameter: ApplicationSettingsParameter.LANGUAGE, Value: 'es-ES' }
 	];
 

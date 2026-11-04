@@ -1,7 +1,7 @@
 import { HttpClient, HttpEvent, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
-import { type BimModelDto } from 'src/app/shared/definitions/dtos.definitions';
+import { BimModelDto } from 'src/app/shared/definitions/dtos.definitions';
 
 /** Llamadas al API de los modelos BIM. Cada llamada devuelve el `Observable` de `HttpClient`. */
 export class BimModelDataAccessService {

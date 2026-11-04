@@ -1,31 +1,23 @@
-import { Temporal } from 'temporal-polyfill';
-
 import { BimModel } from 'src/app/shared/models/bimModel/bimModel.models';
 
 describe('BimModel', () => {
-	it('convierte al instante la fecha de creación que recibe como texto', () => {
-		const model: BimModel = new BimModel(1, 'Modelo', 'Descripción', 'Observaciones', 'modelo.ifc', 10, '2026-11-01T00:25:30.5');
-		const creationDate: Temporal.ZonedDateTime | null = model.CreationDate;
-
-		expect(creationDate).not.toBeNull();
-		expect(creationDate?.toPlainDateTime().toString()).toBe('2026-11-01T00:25:30.5');
-	});
-
-	it('deja la fecha de creación a null si no se la da', () => {
-		const model: BimModel = new BimModel(1, 'Modelo', 'Descripción', 'Observaciones', 'modelo.ifc', 10, null);
-
-		expect(model.CreationDate).toBeNull();
-	});
-
 	it('guarda las observaciones tal como las recibe', () => {
-		const model: BimModel = new BimModel(1, 'Modelo', 'Descripción', 'Observaciones', 'modelo.ifc', 10, null);
+		const model: BimModel = new BimModel(1, 'Modelo', 'Descripción', 'Observaciones', 'modelo.ifc', 10);
 
 		expect(model.Observations).toBe('Observaciones');
 	});
 
-	it('lanza un error si la fecha de creación no es válida', () => {
-		expect(() => new BimModel(1, 'Modelo', 'Descripción', 'Observaciones', 'modelo.ifc', 10, 'basura')).toThrowError(
-			/no es una fecha válida/
-		);
+	it('considera iguales dos modelos con los mismos datos', () => {
+		const first: BimModel = new BimModel(1, 'Modelo', 'Descripción', 'Observaciones', 'modelo.ifc', 10);
+		const second: BimModel = new BimModel(1, 'Modelo', 'Descripción', 'Observaciones', 'modelo.ifc', 10);
+
+		expect(first.Equals(second)).toBeTrue();
+	});
+
+	it('considera distintos dos modelos con algún dato diferente', () => {
+		const first: BimModel = new BimModel(1, 'Modelo', 'Descripción', 'Observaciones', 'modelo.ifc', 10);
+		const second: BimModel = new BimModel(1, 'Otro nombre', 'Descripción', 'Observaciones', 'modelo.ifc', 10);
+
+		expect(first.Equals(second)).toBeFalse();
 	});
 });

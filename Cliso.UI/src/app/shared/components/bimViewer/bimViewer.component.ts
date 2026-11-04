@@ -13,17 +13,35 @@ import {
 } from '@angular/core';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 
-import {
-	BIM_VIEWER_BACKGROUND_CSS_VARIABLE,
-	BIM_VIEWER_GRID_CSS_VARIABLE,
-	BIM_VIEWER_MAX_PROGRESS,
-	type BimViewerPoint,
-	type BimViewerStyle
-} from 'src/app/shared/definitions/bimViewer.definitions';
+import { BIM_VIEWER_MAX_PROGRESS, IBimViewerAccess } from 'src/app/shared/definitions/bimViewer.definitions';
+import { BimViewerPoint } from 'src/app/shared/models/bimViewer/bimViewerPoint.models';
+import { BimViewerStyle } from 'src/app/shared/models/bimViewer/bimViewerStyle.models';
+import { BimViewerView } from 'src/app/shared/models/bimViewer/bimViewerView.models';
 import { BimViewerManager } from 'src/app/shared/utils/bimViewer/bimViewerManager.utils';
 import { CheckUtils } from 'src/app/shared/utils/check.utils';
 import { ErrorUtils } from 'src/app/shared/utils/error.utils';
 import { LanguageManager } from 'src/app/shared/utils/language/languageManager.utils';
+
+/** El visor 3D está listo: trae el acceso con el que se le puede operar. */
+export class BimViewerCompiledEvent {
+	//#region PUBLIC PROPERTIES
+
+	/** Acceso para operar el visor. */
+	public readonly Access: IBimViewerAccess;
+
+	//#endregion PUBLIC PROPERTIES
+
+	//#region CONSTRUCTOR
+
+	/**
+	 * @param access Acceso para operar el visor.
+	 */
+	constructor(access: IBimViewerAccess) {
+		this.Access = access;
+	}
+
+	//#endregion CONSTRUCTOR
+}
 
 /** Visor 3D de un modelo IFC: lo orbita y acerca, y avisa del punto del modelo en el que se hace clic. */
 @Component({
@@ -38,8 +56,17 @@ export class BimViewerComponent implements AfterViewInit, OnChanges, OnDestroy {
 	/** Elemento donde el motor dibuja el modelo. */
 	@ViewChild('container', { static: true }) private _Container!: ElementRef<HTMLDivElement>;
 
+	/** Se emite cuando el motor 3D está listo, con el acceso para operar el visor. */
+	@Output() public compiled: EventEmitter<BimViewerCompiledEvent> = new EventEmitter<BimViewerCompiledEvent>();
+
 	/** Modelo IFC que se muestra. Con `null` el visor queda vacío. */
 	@Input() public Content: Blob | null = null;
+
+	/** Posición de la cámara en la que se coloca el visor al cargar el modelo. Con `null` se queda en la vista por defecto. */
+	@Input() public CurrentView: BimViewerView | null = null;
+
+	/** Vista por defecto con la que arranca el visor al cargar el modelo. Con `null` es la del encuadre automático. */
+	@Input() public DefaultView: BimViewerView | null = null;
 
 	/** Porcentaje de la descarga del modelo, de 0 a 100. Con `null` no hay ninguna descarga en curso. */
 	@Input() public DownloadProgress: number | null = null;
@@ -47,8 +74,8 @@ export class BimViewerComponent implements AfterViewInit, OnChanges, OnDestroy {
 	/** Se emite con el punto del modelo (en coordenadas del mundo) sobre el que se hace clic. */
 	@Output() public pointClicked: EventEmitter<BimViewerPoint> = new EventEmitter<BimViewerPoint>();
 
-	/** Aspecto del visor. Con `null` sale de los tokens de diseño (`--color-bg`, `--color-border`). */
-	@Input() public Style: BimViewerStyle | null = null;
+	/** Se emite con la vista de la cámara un momento después de que deje de moverse. */
+	@Output() public viewChanged: EventEmitter<BimViewerView> = new EventEmitter<BimViewerView>();
 
 	//#endregion DECORATORS
 
@@ -74,8 +101,11 @@ export class BimViewerComponent implements AfterViewInit, OnChanges, OnDestroy {
 
 	//#region PRIVATE CONSTANTS
 
+	/** Milisegundos sin que se mueva la cámara tras los que se avisa de su vista. */
+	private readonly _VIEW_DEBOUNCE_MS: number = 500;
+
 	/** Mensaje mientras se descarga el modelo, con el porcentaje en `{0}`. */
-	private readonly _DOWNLOADING_TEXT: string = LanguageManager.GetText('BV_DOWNLOADING');
+	private readonly _DOWNLOADING_TEXT: string = LanguageManager.GetText('WEB_BIM_MODEL_DOWNLOADING');
 
 	//#endregion PRIVATE CONSTANTS
 
@@ -103,6 +133,13 @@ export class BimViewerComponent implements AfterViewInit, OnChanges, OnDestroy {
 
 	//#region PRIVATE PROPERTIES
 
+	/** Acciones con las que se opera el visor desde fuera. */
+	private readonly _Access: IBimViewerAccess = {
+		ResetView: (): Promise<void> => this._Manager.ResetView(),
+		SetCurrentViewAsDefault: (): BimViewerView | null => this._Manager.SetCurrentViewAsDefault(),
+		SetStyle: (style: BimViewerStyle): void => this._Manager.SetStyle(style)
+	};
+
 	/** `true` si el modelo no se ha podido cargar. */
 	private _HasError: boolean = false;
 
@@ -121,12 +158,23 @@ export class BimViewerComponent implements AfterViewInit, OnChanges, OnDestroy {
 	/** Zona de Angular, para dejar fuera el motor y volver a entrar al avisar de un clic. */
 	private readonly _NgZone: NgZone;
 
+	/** Temporizador del aviso de la vista de la cámara. Es `null` si no hay ninguno pendiente. */
+	private _ViewTimer: number | null = null;
+
 	//#endregion PRIVATE PROPERTIES
 
 	//#region EMITTERS
 
+	private emitCompiled(): void {
+		this.compiled.emit(new BimViewerCompiledEvent(this._Access));
+	}
+
 	private emitPointClicked(point: BimViewerPoint): void {
 		this.pointClicked.emit(point);
+	}
+
+	private emitViewChanged(view: BimViewerView): void {
+		this.viewChanged.emit(view);
 	}
 
 	//#endregion EMITTERS
@@ -147,12 +195,6 @@ export class BimViewerComponent implements AfterViewInit, OnChanges, OnDestroy {
 
 	public ngOnChanges(changes: SimpleChanges): void {
 		if (this._IsReady) {
-			if (!CheckUtils.IsUndefined(changes['Style'])) {
-				this._Manager.SetStyle(this.buildStyle());
-			} else {
-				// El aspecto no ha cambiado
-			}
-
 			if (!CheckUtils.IsUndefined(changes['Content'])) {
 				this.loadContent();
 			} else {
@@ -166,31 +208,47 @@ export class BimViewerComponent implements AfterViewInit, OnChanges, OnDestroy {
 	}
 
 	public ngOnDestroy(): void {
+		this.cancelViewTimer();
 		this._Manager.OnPointClicked = null;
+		this._Manager.OnViewChanged = null;
 		this._Manager.Dispose();
+		this.compiled.complete();
 		this.pointClicked.complete();
+		this.viewChanged.complete();
 	}
 
 	//#endregion ANGULAR LIFECYCLE
 
 	//#region PRIVATE METHODS
 
-	/** Devuelve el aspecto indicado o, si no hay, el que sale de los tokens de diseño. */
-	private buildStyle(): BimViewerStyle {
-		return CheckUtils.IsNull(this.Style) ? this.readStyleFromTokens() : this.Style;
+	/** Cancela el aviso de la vista de la cámara que esté pendiente. */
+	private cancelViewTimer(): void {
+		if (CheckUtils.IsNull(this._ViewTimer)) {
+			// No hay ningún aviso pendiente
+		} else {
+			window.clearTimeout(this._ViewTimer);
+			this._ViewTimer = null;
+		}
 	}
 
 	/** Inicializa el motor 3D y carga el modelo, si ya lo hay. */
 	private async initViewer(): Promise<void> {
 		try {
 			// El motor genera eventos continuos (render, cámara): se deja fuera de la zona para no provocar una detección de cambios por fotograma
-			await this._NgZone.runOutsideAngular((): Promise<void> => this._Manager.Init(this._Container.nativeElement, this.buildStyle()));
+			// El aspecto por defecto se aplica hasta que se cambie con `Access.SetStyle`
+			await this._NgZone.runOutsideAngular((): Promise<void> =>
+				this._Manager.Init(this._Container.nativeElement, new BimViewerStyle())
+			);
 
 			// El motor avisa desde fuera de la zona: se vuelve a entrar para que la pantalla se refresque
 			this._Manager.OnPointClicked = (point: BimViewerPoint): void => {
 				this._NgZone.run((): void => this.emitPointClicked(point));
 			};
+			this._Manager.OnViewChanged = (view: BimViewerView): void => {
+				this.scheduleViewChanged(view);
+			};
 			this._IsReady = true;
+			this.emitCompiled();
 
 			await this.loadContent();
 		} catch (error) {
@@ -215,7 +273,7 @@ export class BimViewerComponent implements AfterViewInit, OnChanges, OnDestroy {
 			this.refreshState();
 
 			try {
-				await this._Manager.LoadContent(this.Content);
+				await this._Manager.LoadContent(this.Content, this.DefaultView, this.CurrentView);
 			} catch (error) {
 				this._HasError = true;
 				console.warn(`BimViewerComponent.loadContent() => ${ErrorUtils.GetMessage(error)}`);
@@ -232,15 +290,17 @@ export class BimViewerComponent implements AfterViewInit, OnChanges, OnDestroy {
 		this.refreshState();
 	}
 
-	/** Lee los colores del visor de los tokens de diseño. */
-	private readStyleFromTokens(): BimViewerStyle {
-		const computed: CSSStyleDeclaration = getComputedStyle(this._Container.nativeElement);
-
-		return {
-			BackgroundColor: computed.getPropertyValue(BIM_VIEWER_BACKGROUND_CSS_VARIABLE).trim(),
-			GridColor: computed.getPropertyValue(BIM_VIEWER_GRID_CSS_VARIABLE).trim(),
-			GridVisible: true
-		};
+	/**
+	 * Avisa de la vista de la cámara cuando lleva un rato sin moverse: cada movimiento reinicia la espera.
+	 * @param view Vista actual de la cámara.
+	 */
+	private scheduleViewChanged(view: BimViewerView): void {
+		this.cancelViewTimer();
+		// El temporizador se crea fuera de la zona (el motor ya está fuera) y solo se vuelve a entrar al avisar
+		this._ViewTimer = window.setTimeout((): void => {
+			this._ViewTimer = null;
+			this._NgZone.run((): void => this.emitViewChanged(view));
+		}, this._VIEW_DEBOUNCE_MS);
 	}
 
 	/** Deja calculado lo que la plantilla necesita para saber qué mostrar. */

@@ -1,0 +1,60 @@
+:host {
+	display: block;
+	height: 100%;
+	width: 100%;
+}
+
+.bimViewerPanelDir {
+	height: 100%;
+}
+
+.bvp_color {
+	background: none;
+	border: var(--border);
+	border-radius: var(--radius-field);
+	cursor: pointer;
+	height: var(--touch-target);
+	padding: var(--space-1);
+	width: var(--touch-target);
+}
+
+.bvp_field {
+	align-items: center;
+	display: flex;
+	gap: var(--space-4);
+	justify-content: space-between;
+}
+
+.bvp_icon {
+	height: 1.5rem;
+	width: 1.5rem;
+}
+
+.bvp_menu {
+	display: flex;
+	flex-direction: column;
+	gap: var(--space-3);
+	padding: var(--space-3) var(--space-4);
+}
+
+.bvp_slider {
+	width: 10rem;
+}
+
+// Sin esto el visor no se encoge con el contenedor y desborda
+.bvp_viewer {
+	flex: 1;
+	min-height: 0;
+}
+
+.bvp_workspace {
+	display: flex;
+	flex-direction: column;
+	gap: var(--space-2);
+	height: 100%;
+
+	// El display de arriba anularía el atributo `hidden`
+	&[hidden] {
+		display: none;
+	}
+}

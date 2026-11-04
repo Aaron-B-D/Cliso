@@ -1,0 +1,27 @@
+.bimViewerToolbarDir {
+	border: var(--border);
+	border-radius: var(--radius-field);
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--space-1);
+	padding: var(--space-1);
+}
+
+// Botón pulsado: fondo claro con el icono oscuro, para distinguirlo del resto (el icono es blanco y se invierte)
+.bvt_button-active {
+	background-color: var(--color-text);
+
+	.bvt_icon {
+		filter: invert(1);
+	}
+}
+
+.bvt_icon {
+	height: 1.5rem;
+	width: 1.5rem;
+}
+
+// Material no atenúa el icono (una imagen) de un botón deshabilitado: se hace aquí, con la opacidad de la guía de estilo
+.bvt_button:disabled .bvt_icon {
+	opacity: 0.5;
+}

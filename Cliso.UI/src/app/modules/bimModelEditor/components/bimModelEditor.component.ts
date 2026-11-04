@@ -8,7 +8,7 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { BimViewerComponent } from 'src/app/shared/components/bimViewer/bimViewer.component';
 import { EditorShellComponent } from 'src/app/shared/components/editorShell/editorShell.component';
 import { ID_NUMERIC_UNDEFINED, STRING_UNDEFINED } from 'src/app/shared/definitions/constants.definitions';
-import { type BimModelDto } from 'src/app/shared/definitions/dtos.definitions';
+import { BimModelDto } from 'src/app/shared/definitions/dtos.definitions';
 import { IconName } from 'src/app/shared/definitions/icons.definitions';
 import { NotificationLevel } from 'src/app/shared/definitions/notifications.definitions';
 import { Permission } from 'src/app/shared/definitions/user.definitions';
@@ -49,7 +49,7 @@ export class BimModelEditorComponent implements OnDestroy, OnInit {
 	//#region LANGUAGE TEXTS
 
 	/** Etiqueta de la descripción. */
-	public readonly DESCRIPTION_TEXT: string = LanguageManager.GetText('BME_DESCRIPTION');
+	public readonly DESCRIPTION_TEXT: string = LanguageManager.GetText('WEB_DESCRIPTION');
 
 	/** Texto de la zona donde se suelta o se elige el fichero IFC. */
 	public readonly DROP_FILE_TEXT: string = LanguageManager.GetText('BME_DROP_FILE');
@@ -58,7 +58,7 @@ export class BimModelEditorComponent implements OnDestroy, OnInit {
 	public readonly GENERAL_TEXT: string = LanguageManager.GetText('BME_GENERAL');
 
 	/** Etiqueta del nombre. */
-	public readonly NAME_TEXT: string = LanguageManager.GetText('BME_NAME');
+	public readonly NAME_TEXT: string = LanguageManager.GetText('WEB_NAME');
 
 	/** Aviso de que el nombre es obligatorio. */
 	public readonly NAME_REQUIRED_TEXT: string = LanguageManager.GetText('BME_NAME_REQUIRED');
@@ -67,13 +67,13 @@ export class BimModelEditorComponent implements OnDestroy, OnInit {
 	public readonly LOADING_TEXT: string = LanguageManager.GetText('WEB_LOADING');
 
 	/** Texto cuando no hay ningún modelo en la lista. */
-	public readonly NO_MODELS_TEXT: string = LanguageManager.GetText('BME_NO_MODELS');
+	public readonly NO_MODELS_TEXT: string = LanguageManager.GetText('WEB_NO_MODELS');
 
 	/** Texto cuando no hay ningún modelo seleccionado. */
 	public readonly NO_SELECTION_TEXT: string = LanguageManager.GetText('BME_NO_SELECTION');
 
 	/** Etiqueta de las observaciones. */
-	public readonly OBSERVATIONS_TEXT: string = LanguageManager.GetText('BME_OBSERVATIONS');
+	public readonly OBSERVATIONS_TEXT: string = LanguageManager.GetText('WEB_OBSERVATIONS');
 
 	/** Título de la pestaña de previsualización. */
 	public readonly PREVIEW_TEXT: string = LanguageManager.GetText('BME_PREVIEW');
@@ -120,7 +120,7 @@ export class BimModelEditorComponent implements OnDestroy, OnInit {
 	private readonly _FILE_INVALID_TEXT: string = LanguageManager.GetText('BME_FILE_INVALID');
 
 	/** Aviso de que no se han podido cargar los modelos. */
-	private readonly _LOAD_ERROR_TEXT: string = LanguageManager.GetText('BME_LOAD_ERROR');
+	private readonly _LOAD_ERROR_TEXT: string = LanguageManager.GetText('WEB_BIM_MODELS_LOAD_ERROR');
 
 	/** Texto del fichero pendiente de subir, con su nombre en `{0}`. */
 	private readonly _PENDING_FILE_TEXT: string = LanguageManager.GetText('BME_PENDING_FILE');
@@ -441,7 +441,7 @@ export class BimModelEditorComponent implements OnDestroy, OnInit {
 
 	/** Crea un modelo en blanco, para el detalle cuando no hay ninguno abierto o se está añadiendo uno. */
 	private createEmptyModel(): BimModel {
-		return new BimModel(ID_NUMERIC_UNDEFINED, STRING_UNDEFINED, STRING_UNDEFINED, STRING_UNDEFINED, STRING_UNDEFINED, 0, null);
+		return new BimModel(ID_NUMERIC_UNDEFINED, STRING_UNDEFINED, STRING_UNDEFINED, STRING_UNDEFINED, STRING_UNDEFINED, 0);
 	}
 
 	/**
@@ -578,15 +578,7 @@ export class BimModelEditorComponent implements OnDestroy, OnInit {
 	 * @param model Modelo a copiar.
 	 */
 	private cloneModel(model: BimModel): BimModel {
-		return new BimModel(
-			model.Id,
-			model.Name,
-			model.Description,
-			model.Observations,
-			model.FileName,
-			model.FileSize,
-			model.CreationDate
-		);
+		return new BimModel(model.Id, model.Name, model.Description, model.Observations, model.FileName, model.FileSize);
 	}
 
 	/** Deja calculado lo que la plantilla necesita del modelo abierto. */
@@ -607,13 +599,11 @@ export class BimModelEditorComponent implements OnDestroy, OnInit {
 					model.FileName.toLowerCase().includes(this._SearchText)
 			)
 			.sort((a: BimModel, b: BimModel): number => a.Name.localeCompare(b.Name))
-			.map(
-				(model: BimModel): BimModelListItem => ({
-					FileText: model.FileName === STRING_UNDEFINED ? this._NO_FILE_TEXT : model.FileName,
-					IsSelected: model.Id === selectedId,
-					Model: model
-				})
-			);
+			.map((model: BimModel): BimModelListItem => ({
+				FileText: model.FileName === STRING_UNDEFINED ? this._NO_FILE_TEXT : model.FileName,
+				IsSelected: model.Id === selectedId,
+				Model: model
+			}));
 		this.HasItems = this.ListItems.length > 0;
 	}
 

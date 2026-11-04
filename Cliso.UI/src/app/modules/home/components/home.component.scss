@@ -1,3 +1,71 @@
+// La pantalla ocupa todo el alto disponible, para que el visor lo aproveche entero
+:host {
+	display: flex;
+	flex: 1;
+	flex-direction: column;
+	min-width: 0;
+}
+
+.homeDir {
+	display: flex;
+	flex: 1;
+	flex-direction: column;
+}
+
+// Icono y texto centrados en vertical (Material los deja en línea, sobre la línea base)
+.hom_back_content {
+	align-items: center;
+	display: flex;
+	gap: var(--space-2);
+}
+
+.hom_empty {
+	color: var(--color-muted);
+	padding: var(--space-4);
+	text-align: center;
+}
+
+.hom_icon {
+	height: 1.5rem;
+	width: 1.5rem;
+}
+
+.hom_list {
+	list-style: none;
+	// Solo el margen vertical: el horizontal es el negativo de la fila de Bootstrap, que compensa el relleno de las columnas
+	margin-block: 0;
+	// Separación entre fichas: el gap de la rejilla de Bootstrap no existe, se reparte con padding
+	padding: var(--space-4) 0 0;
+	row-gap: var(--space-4);
+}
+
+.hom_loading {
+	display: flex;
+	flex-direction: column;
+	gap: var(--space-2);
+	padding-block: var(--space-4);
+}
+
+.hom_model {
+	display: flex;
+	flex: 1;
+	flex-direction: column;
+}
+
+.hom_model_header {
+	align-items: center;
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--space-3);
+	padding-block-end: var(--space-3);
+}
+
+.hom_model_title {
+	margin: 0;
+	min-width: 0;
+	overflow-wrap: anywhere;
+}
+
 .hom_search {
 	width: 100%;
 }
@@ -15,4 +83,10 @@
 	position: absolute;
 	white-space: nowrap;
 	width: 1px;
+}
+
+// El visor ocupa el alto que queda bajo el encabezado, con un mínimo para que el modelo se pueda ver en pantallas bajas
+.hom_viewer {
+	flex: 1;
+	min-height: 20rem;
 }

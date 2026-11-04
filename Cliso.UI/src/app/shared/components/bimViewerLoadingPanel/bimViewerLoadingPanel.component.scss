@@ -1,0 +1,44 @@
+.bimViewerLoadingPanelDir {
+	background-color: var(--color-surface);
+	border: var(--border);
+	border-radius: var(--radius-card);
+	display: flex;
+	flex-direction: column;
+	gap: var(--space-3);
+	margin-inline: auto;
+	max-width: 40rem;
+	padding: var(--space-4);
+	width: 100%;
+}
+
+.bvlp_button {
+	align-self: flex-start;
+}
+
+.bvlp_info {
+	display: grid;
+	gap: var(--space-1) var(--space-4);
+	grid-template-columns: max-content minmax(0, 1fr);
+	margin: 0;
+
+	dt {
+		color: var(--color-muted);
+	}
+
+	dd {
+		margin: 0;
+		overflow-wrap: anywhere;
+	}
+}
+
+.bvlp_text {
+	margin: 0;
+}
+
+.bvlp_text-error {
+	color: var(--color-danger);
+}
+
+.bvlp_title {
+	margin: 0;
+}

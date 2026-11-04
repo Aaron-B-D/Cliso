@@ -1,0 +1,75 @@
+// La ficha es una tarjeta vertical: portada arriba y texto debajo. Al pasar el ratón se marca su borde
+.homeCardDir {
+	height: 100%;
+	overflow: hidden; // Recorta la portada a las esquinas redondeadas de la tarjeta
+
+	&:hover {
+		border-color: var(--color-muted);
+	}
+}
+
+.hc_button {
+	background: none;
+	border: 0;
+	color: inherit;
+	cursor: pointer;
+	display: flex;
+	flex-direction: column;
+	font: inherit;
+	height: 100%;
+	padding: 0;
+	text-align: start;
+	width: 100%;
+}
+
+// Portada: hasta que el modelo tenga imagen propia, un fondo de superficie con el icono grande
+.hc_cover {
+	align-items: center;
+	aspect-ratio: 16 / 9;
+	background-color: var(--color-surface);
+	border-block-end: var(--border);
+	display: flex;
+	justify-content: center;
+	width: 100%;
+
+	.homeCardDir:hover & {
+		background-color: var(--color-hover);
+	}
+}
+
+.hc_description {
+	color: var(--color-muted);
+	font-size: var(--font-size-small);
+	// Descripción larga: se recorta a tres líneas para que todas las fichas tengan un alto parecido
+	-webkit-box-orient: vertical;
+	display: -webkit-box;
+	-webkit-line-clamp: 3;
+	line-clamp: 3;
+	overflow: hidden;
+	overflow-wrap: anywhere;
+}
+
+.hc_image {
+	height: 4rem;
+	opacity: 0.5;
+	width: 4rem;
+}
+
+.hc_name {
+	color: var(--color-white);
+	font-size: var(--font-size-h3);
+	font-weight: 700;
+	// Nombre largo: una línea con puntos suspensivos (el tooltip de la ficha lo muestra entero)
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.hc_text {
+	display: flex;
+	flex-direction: column;
+	gap: var(--space-2);
+	// Sin esto el texto largo ensancha la ficha en vez de recortarse
+	min-width: 0;
+	padding: var(--space-4);
+}

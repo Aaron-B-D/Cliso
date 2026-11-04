@@ -1,5 +1,5 @@
 import { ID_NUMERIC_UNDEFINED, STRING_UNDEFINED } from 'src/app/shared/definitions/constants.definitions';
-import { type BimModelDto } from 'src/app/shared/definitions/dtos.definitions';
+import { BimModelDto } from 'src/app/shared/definitions/dtos.definitions';
 import { BimModel } from 'src/app/shared/models/bimModel/bimModel.models';
 import { CheckUtils } from 'src/app/shared/utils/check.utils';
 
@@ -8,7 +8,8 @@ export class BimModelMapper {
 	//#region PUBLIC STATIC METHODS
 
 	/**
-	 * Convierte el modelo del front al que entiende el API. El API ignora lo que asigna él mismo (identificador, fichero y fecha).
+	 * Convierte el modelo del front al que entiende el API. El API ignora lo que asigna él mismo (identificador, fichero y fecha),
+	 * y la fecha de creación no existe en el front: va siempre sin valor.
 	 * @param model Modelo del front.
 	 * @returns El modelo para el API.
 	 */
@@ -19,7 +20,7 @@ export class BimModelMapper {
 			description: model.Description,
 			observations: model.Observations,
 			file_name: model.FileName === STRING_UNDEFINED ? null : model.FileName,
-			creation_date: CheckUtils.IsNull(model.CreationDate) ? null : model.CreationDate.toInstant().toString(),
+			creation_date: null,
 			file_size: model.FileSize
 		};
 	}
@@ -36,8 +37,7 @@ export class BimModelMapper {
 			dto.description,
 			dto.observations,
 			CheckUtils.IsNull(dto.file_name) ? STRING_UNDEFINED : dto.file_name,
-			CheckUtils.IsNull(dto.file_size) ? 0 : dto.file_size,
-			dto.creation_date
+			CheckUtils.IsNull(dto.file_size) ? 0 : dto.file_size
 		);
 	}
 

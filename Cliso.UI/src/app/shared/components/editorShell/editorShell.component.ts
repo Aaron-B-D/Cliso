@@ -83,7 +83,7 @@ export class EditorShellComponent implements OnChanges, OnDestroy {
 	public readonly ADD_TEXT: string = LanguageManager.GetText('ES_ADD');
 
 	/** Texto del botón de volver a la lista. */
-	public readonly BACK_TEXT: string = LanguageManager.GetText('ES_BACK');
+	public readonly BACK_TEXT: string = LanguageManager.GetText('WEB_BACK_TO_LIST');
 
 	/** Texto del botón de cerrar. */
 	public readonly CLOSE_TEXT: string = LanguageManager.GetText('ES_CLOSE');

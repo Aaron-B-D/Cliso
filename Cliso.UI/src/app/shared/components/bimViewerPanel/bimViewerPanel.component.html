@@ -1,0 +1,96 @@
+<div class="bimViewerPanelDir">
+	@if (ShowLoading) {
+		<app-bim-viewer-loading-panel
+			[Model]="Model"
+			[Progress]="Progress"
+			[State]="LoadingState"
+			(cancelClicked)="OnCancelClicked()"
+			(retryClicked)="OnRetryClicked()"
+		></app-bim-viewer-loading-panel>
+	}
+	<div class="bvp_workspace"
+		[hidden]="ShowLoading"
+	>
+		<app-bim-viewer-toolbar
+			[Items]="ToolbarItems"
+			(itemClicked)="OnToolbarItemClicked($event)"
+		>
+			<button class="bvp_styles_button" mat-icon-button type="button"
+				[attr.aria-label]="STYLES_TEXT"
+				[matMenuTriggerFor]="styleMenu"
+				[matTooltip]="STYLES_TEXT"
+			>
+				<img class="bvp_icon" alt="" [src]="PaletteIcon" />
+			</button>
+		</app-bim-viewer-toolbar>
+		<mat-menu #styleMenu="matMenu">
+			<!-- Solo evita que un clic dentro del menú lo cierre: no es un control, por eso role="presentation" -->
+			<div class="bvp_menu" role="presentation" (click)="OnMenuClicked($event)">
+				<label class="bvp_field">
+					<span>{{ BACKGROUND_COLOR_TEXT }}</span>
+					<input class="bvp_color" type="color"
+						#backgroundColor
+						[value]="BackgroundColor"
+						(input)="OnBackgroundColorChanged(backgroundColor.value)"
+					/>
+				</label>
+				<label class="bvp_field">
+					<span>{{ HIGHLIGHT_COLOR_TEXT }}</span>
+					<input class="bvp_color" type="color"
+						#highlightColor
+						[value]="HighlightColor"
+						(input)="OnHighlightColorChanged(highlightColor.value)"
+					/>
+				</label>
+				<label class="bvp_field">
+					<span>{{ GRID_COLOR_TEXT }}</span>
+					<input class="bvp_color" type="color"
+						#gridColor
+						[value]="GridColor"
+						(input)="OnGridColorChanged(gridColor.value)"
+					/>
+				</label>
+				<div class="bvp_field">
+					<span>{{ GRID_PRIMARY_SIZE_TEXT }}</span>
+					<mat-slider class="bvp_slider" discrete
+						[max]="GRID_PRIMARY_SIZE_MAX"
+						[min]="GRID_PRIMARY_SIZE_MIN"
+						[step]="GRID_PRIMARY_SIZE_STEP"
+					>
+						<input matSliderThumb
+							[attr.aria-label]="GRID_PRIMARY_SIZE_TEXT"
+							[value]="GridPrimarySize"
+							(valueChange)="OnGridPrimarySizeChanged($event)"
+						/>
+					</mat-slider>
+				</div>
+				<div class="bvp_field">
+					<span>{{ GRID_SECONDARY_SIZE_TEXT }}</span>
+					<mat-slider class="bvp_slider" discrete
+						[max]="GRID_SECONDARY_SIZE_MAX"
+						[min]="GRID_SECONDARY_SIZE_MIN"
+						[step]="GRID_SECONDARY_SIZE_STEP"
+					>
+						<input matSliderThumb
+							[attr.aria-label]="GRID_SECONDARY_SIZE_TEXT"
+							[value]="GridSecondarySize"
+							(valueChange)="OnGridSecondarySizeChanged($event)"
+						/>
+					</mat-slider>
+				</div>
+			</div>
+		</mat-menu>
+		<div class="bvp_viewer">
+			<!-- El visor arrastra el motor 3D: se descarga aparte, mientras se descarga el modelo, para que el panel de carga aparezca enseguida -->
+			@defer (when ShowViewer; prefetch on immediate) {
+				<app-bim-viewer
+					[Content]="Content"
+					[CurrentView]="Configuration.CurrentView"
+					[DefaultView]="Configuration.DefaultView"
+					(compiled)="OnViewerCompiled($event)"
+					(viewChanged)="OnViewChanged($event)"
+				/>
+			}
+		</div>
+	</div>
+</div>

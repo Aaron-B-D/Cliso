@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { map, Observable, timeout } from 'rxjs';
 
-import { type LoginDto, type SessionDto } from 'src/app/shared/definitions/dtos.definitions';
+import { LoginDto, SessionDto } from 'src/app/shared/definitions/dtos.definitions';
 import { Session } from 'src/app/shared/models/session/session.models';
 import { SessionMapper } from 'src/app/shared/utils/mappers/sessionMapper.utils';
 
@@ -44,12 +44,10 @@ export class AuthDataAccessService {
 	 * @returns La sesión actual; la petición falla (401) si no hay sesión o ha caducado, y también si el API tarda más de unos segundos.
 	 */
 	public GetSession(): Observable<Session> {
-		return this._Http
-			.get<SessionDto>(`${this._BaseUrl}/me`)
-			.pipe(
-				timeout(AuthDataAccessService._GET_SESSION_TIMEOUT_MS),
-				map((dto: SessionDto) => SessionMapper.ToModel(dto))
-			);
+		return this._Http.get<SessionDto>(`${this._BaseUrl}/me`).pipe(
+			timeout(AuthDataAccessService._GET_SESSION_TIMEOUT_MS),
+			map((dto: SessionDto) => SessionMapper.ToModel(dto))
+		);
 	}
 
 	/**

@@ -123,6 +123,8 @@ class ApplicationParameterService(ApplicationParameterServiceBase):
 				ApplicationParameterService._validate_language(value);
 			case ApplicationParameterType.BIM_MODELS_DIRECTORY:
 				ApplicationParameterService._validate_bim_models_directory(value);
+			case ApplicationParameterType.BIM_MODELS_REFRESH_INTERVAL:
+				ApplicationParameterService._validate_bim_models_refresh_interval(value);
 			case ApplicationParameterType.SESSION_TIMEOUT_MILLISECONDS:
 				ApplicationParameterService._validate_session_timeout_milliseconds(value);
 			case _:
@@ -151,6 +153,18 @@ class ApplicationParameterService(ApplicationParameterServiceBase):
 		if ApplicationParameterUtils.has_surrounding_spaces(value):
 			raise ApplicationParameterValidationError(
 				f"La carpeta de los modelos BIM no puede empezar ni acabar con espacios: '{value}'"
+			);
+
+	@staticmethod
+	def _validate_bim_models_refresh_interval(value: str) -> None:
+		"""Comprueba el valor del intervalo de refresco de los modelos BIM: un entero mayor que cero.
+
+		Raises:
+			ApplicationParameterValidationError: Si no es un entero mayor que cero.
+		"""
+		if not ApplicationParameterUtils.is_positive_integer(value):
+			raise ApplicationParameterValidationError(
+				f"El intervalo de refresco de los modelos BIM debe ser un número entero mayor que cero: '{value}'"
 			);
 
 	@staticmethod

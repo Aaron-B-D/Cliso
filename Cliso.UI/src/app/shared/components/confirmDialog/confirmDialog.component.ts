@@ -2,7 +2,7 @@ import { Component, Inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 
-import { type ConfirmDialogData } from 'src/app/shared/definitions/dialogs.definitions';
+import { ConfirmDialogData } from 'src/app/shared/definitions/dialogs.definitions';
 import { LanguageManager } from 'src/app/shared/utils/language/languageManager.utils';
 
 /** Diálogo que hace una pregunta al usuario y devuelve `true` si acepta y `false` si cancela o lo cierra. */
@@ -21,7 +21,7 @@ export class ConfirmDialogComponent {
 	public readonly ACCEPT_TEXT: string = LanguageManager.GetText('CD_ACCEPT');
 
 	/** Texto del botón de cancelar. */
-	public readonly CANCEL_TEXT: string = LanguageManager.GetText('CD_CANCEL');
+	public readonly CANCEL_TEXT: string = LanguageManager.GetText('WEB_CANCEL');
 
 	//#endregion LANGUAGE TEXTS
 

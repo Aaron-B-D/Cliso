@@ -20,7 +20,13 @@ enum IconName {
 	SAVE = 'save',
 	UNDO = 'undo',
 	ARROW_BACK = 'arrow-back',
-	CHEVRON_RIGHT = 'chevron-right'
+	CHEVRON_RIGHT = 'chevron-right',
+	DEPLOYED_CODE = 'deployed-code',
+	FIT_SCREEN = 'fit-screen',
+	BOOKMARK = 'bookmark',
+	GRID_ON = 'grid-on',
+	TOUCH_APP = 'touch-app',
+	PALETTE = 'palette'
 }
 
 //#endregion ENUMS

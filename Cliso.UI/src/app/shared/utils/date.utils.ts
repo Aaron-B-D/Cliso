@@ -1,7 +1,7 @@
 import { Temporal } from 'temporal-polyfill';
 
 import { STRING_UNDEFINED } from 'src/app/shared/definitions/constants.definitions';
-import { type DateInput } from 'src/app/shared/definitions/date.definitions';
+import { DateInput } from 'src/app/shared/definitions/date.definitions';
 import { CheckUtils } from 'src/app/shared/utils/check.utils';
 import { ErrorUtils } from 'src/app/shared/utils/error.utils';
 

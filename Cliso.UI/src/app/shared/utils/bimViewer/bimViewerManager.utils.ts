@@ -1,8 +1,10 @@
 import * as OBC from '@thatopen/components';
-import { type FragmentsModel, type RaycastResult } from '@thatopen/fragments';
+import { FragmentsModel, RaycastResult, RenderedFaces } from '@thatopen/fragments';
 import * as THREE from 'three';
 
-import { type BimViewerPoint, type BimViewerStyle } from 'src/app/shared/definitions/bimViewer.definitions';
+import { BimViewerPoint } from 'src/app/shared/models/bimViewer/bimViewerPoint.models';
+import { BimViewerStyle } from 'src/app/shared/models/bimViewer/bimViewerStyle.models';
+import { BimViewerView } from 'src/app/shared/models/bimViewer/bimViewerView.models';
 import { CheckUtils } from 'src/app/shared/utils/check.utils';
 
 /** Motor 3D que representa un modelo IFC: crea la escena y la cámara, carga el modelo y avisa de los clics sobre él. */
@@ -21,6 +23,9 @@ export class BimViewerManager {
 	//#endregion PRIVATE CONSTANTS
 
 	//#region PUBLIC PROPERTIES
+
+	/** Se llama con la vista de la cámara cada vez que se mueve, con el modelo ya cargado. Se llama muy seguido: quien escuche debe aligerarlo. */
+	public OnViewChanged: ((view: BimViewerView) => void) | null = null;
 
 	/** Se llama con el punto del modelo (en coordenadas del mundo) sobre el que se hace clic. No se llama si el clic no cae sobre el modelo. */
 	public OnPointClicked: ((point: BimViewerPoint) => void) | null = null;
@@ -41,6 +46,9 @@ export class BimViewerManager {
 	/** Identificador del modelo cargado y visible. Es `null` si no hay ninguno. */
 	private _CurrentModelId: string | null = null;
 
+	/** Vista a la que vuelve la cámara. Es `null` mientras no hay modelo encuadrado. */
+	private _DefaultView: BimViewerView | null = null;
+
 	/** `true` cuando el visor ya se ha liberado y no puede volver a usarse. */
 	private _Destroyed: boolean = false;
 
@@ -49,6 +57,12 @@ export class BimViewerManager {
 
 	/** Rejilla de la escena. Es `null` hasta que se crea el mundo. */
 	private _Grid: OBC.SimpleGrid | null = null;
+
+	/** Cola que serializa las actualizaciones del resaltado: cada una espera a que termine la anterior. */
+	private _HighlightQueue: Promise<void> = Promise.resolve();
+
+	/** Identificador, dentro del modelo, de la pieza resaltada. Es `null` si no hay ninguna. */
+	private _HighlightedLocalId: number | null = null;
 
 	/** Cola que serializa las cargas: cada una espera a que termine la anterior. */
 	private _LoadQueue: Promise<void> = Promise.resolve();
@@ -157,19 +171,52 @@ export class BimViewerManager {
 	 * Carga un modelo IFC y lo encuadra, sustituyendo el anterior. Si llega otra carga mientras una está en curso, la anterior
 	 * descarta su resultado.
 	 * @param content Contenido del fichero IFC.
+	 * @param defaultView Vista por defecto con la que se arranca. Con `null` es la del encuadre del modelo.
+	 * @param currentView Vista en la que se coloca la cámara al terminar de cargar. Con `null` se queda en la vista por defecto.
 	 */
-	public async LoadContent(content: Blob): Promise<void> {
+	public async LoadContent(content: Blob, defaultView: BimViewerView | null, currentView: BimViewerView | null): Promise<void> {
 		if (this._Destroyed) {
 			// El visor ya no existe: no hay nada que cargar
 		} else {
 			const loadToken: number = ++this._LoadToken;
-			const currentLoad: Promise<void> = this._LoadQueue.then((): Promise<void> => this.loadContent(content, loadToken));
+			const currentLoad: Promise<void> = this._LoadQueue.then((): Promise<void> =>
+				this.loadContent(content, defaultView, currentView, loadToken)
+			);
 
 			// Si esta carga falla, el error le llega a quien la pidió y la cola sigue para la siguiente
 			this._LoadQueue = currentLoad.catch((): void => undefined);
 
 			await currentLoad;
 		}
+	}
+
+	/** Devuelve la cámara a la vista por defecto: la del encuadre inicial del modelo o la que se fijó con `SetCurrentViewAsDefault`. */
+	public async ResetView(): Promise<void> {
+		if (CheckUtils.IsNull(this._World) || CheckUtils.IsNull(this._DefaultView)) {
+			// No hay modelo encuadrado al que volver
+		} else {
+			const view: BimViewerView = this._DefaultView;
+
+			await this._World.camera.controls.setLookAt(
+				view.Position.X,
+				view.Position.Y,
+				view.Position.Z,
+				view.Target.X,
+				view.Target.Y,
+				view.Target.Z,
+				true
+			);
+		}
+	}
+
+	/**
+	 * Fija la vista actual de la cámara como la vista por defecto.
+	 * @returns La vista fijada, o `null` si no hay modelo cargado.
+	 */
+	public SetCurrentViewAsDefault(): BimViewerView | null {
+		this._DefaultView = this.readCurrentView();
+
+		return this._DefaultView;
 	}
 
 	/**
@@ -185,14 +232,52 @@ export class BimViewerManager {
 
 	//#region PRIVATE METHODS
 
+	/** Deja resaltada, con el color del aspecto, la pieza elegida; si el resaltado está desactivado o no hay pieza, lo quita. */
+	private async applyHighlight(): Promise<void> {
+		const modelId: string | null = this._CurrentModelId;
+
+		if (!this._Destroyed && !CheckUtils.IsNull(modelId) && !CheckUtils.IsNull(this._Style)) {
+			const fragments: OBC.FragmentsManager = this._Components.get(OBC.FragmentsManager);
+			const model: FragmentsModel | undefined = fragments.list.get(modelId);
+
+			if (CheckUtils.IsUndefined(model)) {
+				// El modelo ya no está cargado
+			} else {
+				await model.resetHighlight();
+
+				if (this._Style.HighlightEnabled && !CheckUtils.IsNull(this._HighlightedLocalId)) {
+					await model.highlight([this._HighlightedLocalId], {
+						color: new THREE.Color(this._Style.HighlightColor.RgbColor),
+						opacity: 1,
+						renderedFaces: RenderedFaces.TWO,
+						transparent: false
+					});
+				} else {
+					// Nada que resaltar
+				}
+
+				await fragments.core.update(true);
+			}
+		} else {
+			// No hay modelo o aspecto sobre los que actuar
+		}
+	}
+
 	/** Aplica el aspecto a la escena y a la rejilla. Si aún no existen, se aplicará al crearlos. */
 	private applyStyle(): void {
 		if (CheckUtils.IsNull(this._World) || CheckUtils.IsNull(this._Grid) || CheckUtils.IsNull(this._Style)) {
 			// Aún no hay escena: se aplicará al crearla
 		} else {
-			this._World.scene.config.backgroundColor = new THREE.Color(this._Style.BackgroundColor);
-			this._Grid.config.color = new THREE.Color(this._Style.GridColor);
+			this._World.scene.config.backgroundColor = new THREE.Color(this._Style.BackgroundColor.RgbColor);
+			this._Grid.config.color = new THREE.Color(this._Style.GridColor.RgbColor);
+			this._Grid.config.primarySize = this._Style.GridPrimarySize;
+			this._Grid.config.secondarySize = this._Style.GridSecondarySize;
 			this._Grid.config.visible = this._Style.GridVisible;
+
+			// Al activar, desactivar o recolorear el resaltado, la pieza resaltada se actualiza
+			this.refreshHighlight().catch((error: Error): void => {
+				console.warn(`BimViewerManager.refreshHighlight() => no se ha podido actualizar el resaltado: ${error.message}`);
+			});
 		}
 	}
 
@@ -211,6 +296,8 @@ export class BimViewerManager {
 
 		// Se olvida antes de liberarlo para que nada opere sobre un modelo que se está destruyendo
 		this._CurrentModelId = null;
+		this._DefaultView = null;
+		this._HighlightedLocalId = null;
 
 		if (CheckUtils.IsNull(previousModelId)) {
 			// No había ningún modelo cargado
@@ -237,6 +324,7 @@ export class BimViewerManager {
 				console.warn('BimViewerManager.frameModel() => el modelo no tiene geometría que encuadrar');
 			} else {
 				await this._World.camera.controls.fitToBox(box, false);
+				this.SetCurrentViewAsDefault();
 			}
 		}
 	}
@@ -273,6 +361,7 @@ export class BimViewerManager {
 				// El visor ya se ha liberado: no hay nada que repintar
 			} else {
 				fragments.core.update();
+				this.notifyViewChanged();
 			}
 		});
 		fragments.list.onItemSet.add(({ value: model }): void => {
@@ -306,9 +395,16 @@ export class BimViewerManager {
 	/**
 	 * Carga el modelo en la escena y lo encuadra. Si mientras tanto llega una carga posterior, libera el modelo en vez de dejarlo.
 	 * @param content Contenido del fichero IFC.
+	 * @param defaultView Vista por defecto con la que se arranca. Con `null` es la del encuadre del modelo.
+	 * @param currentView Vista en la que se coloca la cámara al terminar de cargar. Con `null` se queda en la vista por defecto.
 	 * @param loadToken Número de esta carga, para saber si sigue siendo la vigente.
 	 */
-	private async loadContent(content: Blob, loadToken: number): Promise<void> {
+	private async loadContent(
+		content: Blob,
+		defaultView: BimViewerView | null,
+		currentView: BimViewerView | null,
+		loadToken: number
+	): Promise<void> {
 		await this.awaitReady();
 
 		if (this.isLoadObsolete(loadToken)) {
@@ -333,6 +429,20 @@ export class BimViewerManager {
 				} else {
 					this._CurrentModelId = modelId;
 					await this.frameModel();
+
+					// Lo guardado manda sobre el encuadre automático: primero la vista por defecto y, encima, la posición actual
+					if (!CheckUtils.IsNull(defaultView)) {
+						this._DefaultView = defaultView;
+						await this.moveCameraTo(defaultView);
+					} else {
+						// Sin vista por defecto guardada: vale la del encuadre
+					}
+
+					if (!CheckUtils.IsNull(currentView)) {
+						await this.moveCameraTo(currentView);
+					} else {
+						// Sin posición guardada: la cámara se queda donde está
+					}
 				}
 			}
 		}
@@ -374,20 +484,41 @@ export class BimViewerManager {
 	}
 
 	/**
+	 * Coloca la cámara en una vista, sin animación.
+	 * @param view Vista a la que se mueve la cámara.
+	 */
+	private async moveCameraTo(view: BimViewerView): Promise<void> {
+		if (CheckUtils.IsNull(this._World)) {
+			console.warn('BimViewerManager.moveCameraTo() => el visor no está inicializado');
+		} else {
+			await this._World.camera.controls.setLookAt(
+				view.Position.X,
+				view.Position.Y,
+				view.Position.Z,
+				view.Target.X,
+				view.Target.Y,
+				view.Target.Z,
+				false
+			);
+		}
+	}
+
+	/**
 	 * Busca el punto del modelo bajo el puntero y lo comunica a quien escuche.
 	 * @param clientX Posición horizontal del puntero en la ventana.
 	 * @param clientY Posición vertical del puntero en la ventana.
 	 */
 	private async notifyPointClicked(clientX: number, clientY: number): Promise<void> {
 		const onPointClicked: ((point: BimViewerPoint) => void) | null = this.OnPointClicked;
+		const isHighlightEnabled: boolean = !CheckUtils.IsNull(this._Style) && this._Style.HighlightEnabled;
 
 		if (
 			CheckUtils.IsNull(this._World) ||
 			CheckUtils.IsNull(this._Canvas) ||
 			CheckUtils.IsNull(this._CurrentModelId) ||
-			CheckUtils.IsNull(onPointClicked)
+			(CheckUtils.IsNull(onPointClicked) && !isHighlightEnabled)
 		) {
-			// No hay modelo cargado o nadie escuchando
+			// No hay modelo cargado o nadie a quien le interese el clic
 		} else {
 			const model: FragmentsModel | undefined = this._Components.get(OBC.FragmentsManager).list.get(this._CurrentModelId);
 
@@ -400,13 +531,74 @@ export class BimViewerManager {
 					dom: this._Canvas
 				});
 
-				if (this._Destroyed || CheckUtils.IsNull(hit)) {
-					// El visor se liberó mientras se resolvía el clic, o el clic no cae sobre el modelo
+				if (this._Destroyed) {
+					// El visor se liberó mientras se resolvía el clic
 				} else {
-					onPointClicked({ X: hit.point.x, Y: hit.point.y, Z: hit.point.z });
+					if (isHighlightEnabled) {
+						// Un clic fuera del modelo quita el resaltado
+						this._HighlightedLocalId = CheckUtils.IsNull(hit) ? null : hit.localId;
+						await this.refreshHighlight();
+					} else {
+						// El resaltado está desactivado
+					}
+
+					if (CheckUtils.IsNull(hit) || CheckUtils.IsNull(onPointClicked)) {
+						// El clic no cae sobre el modelo o nadie escucha
+					} else {
+						onPointClicked(new BimViewerPoint(hit.point.x, hit.point.y, hit.point.z));
+					}
 				}
 			}
 		}
+	}
+
+	/** Avisa de la vista actual de la cámara, si hay modelo cargado y alguien escucha. */
+	private notifyViewChanged(): void {
+		const onViewChanged: ((view: BimViewerView) => void) | null = this.OnViewChanged;
+		const view: BimViewerView | null = this.readCurrentView();
+
+		if (CheckUtils.IsNull(onViewChanged) || CheckUtils.IsNull(view)) {
+			// Nadie escucha o aún no hay modelo cargado
+		} else {
+			onViewChanged(view);
+		}
+	}
+
+	/**
+	 * Lee la vista actual de la cámara.
+	 * @returns La vista actual, o `null` si no hay modelo cargado.
+	 */
+	private readCurrentView(): BimViewerView | null {
+		let result: BimViewerView | null = null;
+
+		if (!CheckUtils.IsNull(this._World) && !CheckUtils.IsNull(this._CurrentModelId)) {
+			const position: THREE.Vector3 = new THREE.Vector3();
+			const target: THREE.Vector3 = new THREE.Vector3();
+
+			this._World.camera.controls.getPosition(position);
+			this._World.camera.controls.getTarget(target);
+			result = new BimViewerView(
+				new BimViewerPoint(position.x, position.y, position.z),
+				new BimViewerPoint(target.x, target.y, target.z)
+			);
+		} else {
+			// No hay modelo cargado: no hay vista que leer
+		}
+
+		return result;
+	}
+
+	/**
+	 * Pide que se actualice el resaltado. Las peticiones se ejecutan una tras otra, para que dos seguidas no se mezclen: cada
+	 * una aplica el estado que haya cuando le toca.
+	 */
+	private refreshHighlight(): Promise<void> {
+		const currentRefresh: Promise<void> = this._HighlightQueue.then((): Promise<void> => this.applyHighlight());
+
+		// Si esta actualización falla, el error le llega a quien la pidió y la cola sigue para la siguiente
+		this._HighlightQueue = currentRefresh.catch((): void => undefined);
+
+		return currentRefresh;
 	}
 
 	//#endregion PRIVATE METHODS

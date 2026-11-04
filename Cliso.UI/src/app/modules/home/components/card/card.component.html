@@ -1,0 +1,15 @@
+<mat-card class="homeCardDir" appearance="outlined">
+	<button class="hc_button"
+		type="button"
+		[matTooltip]="Model.Name"
+		(click)="OnCardClicked()"
+	>
+		<span class="hc_cover">
+			<img class="hc_image" alt="" [src]="ModelIcon" />
+		</span>
+		<span class="hc_text">
+			<span class="hc_name">{{ Model.Name }}</span>
+			<span class="hc_description">{{ Model.Description }}</span>
+		</span>
+	</button>
+</mat-card>

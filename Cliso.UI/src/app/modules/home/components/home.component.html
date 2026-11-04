@@ -1,11 +1,69 @@
 <section class="homeDir container-fluid">
 	<h1 class="hom_title">{{ TITLE }}</h1>
-	<div class="row">
-		<search class="col-12">
-			<mat-form-field class="hom_search" appearance="outline" subscriptSizing="dynamic">
-				<img matPrefix class="hom_search_icon" [src]="SearchIcon" alt="" />
-				<input matInput type="search" [attr.aria-label]="SEARCH_PLACEHOLDER" [placeholder]="SEARCH_PLACEHOLDER" />
-			</mat-form-field>
-		</search>
+	<div class="hom_catalog"
+		[hidden]="ShowViewer"
+	>
+		<div class="row">
+			<search class="col-12">
+				<mat-form-field class="hom_search" appearance="outline" subscriptSizing="dynamic">
+					<img matPrefix class="hom_search_icon" [src]="SearchIcon" alt="" />
+					<input matInput type="search"
+						#search
+						[attr.aria-label]="SEARCH_PLACEHOLDER"
+						[placeholder]="SEARCH_PLACEHOLDER"
+						(input)="OnSearchChanged(search.value)"
+					/>
+				</mat-form-field>
+			</search>
+		</div>
+		<ul class="row hom_list">
+			@for (model of VisibleModels; track model.Id) {
+				<li class="col-12 col-sm-6 col-lg-4">
+					<app-home-card
+						[Model]="model"
+						(selected)="OnModelSelected($event)"
+					></app-home-card>
+				</li>
+			}
+		</ul>
+		@if (ShowEmpty) {
+			<p class="hom_empty">{{ EmptyText }}</p>
+		}
+		@if (IsLoading) {
+			<div class="row">
+				<div class="col-12 hom_loading">
+					<p>{{ LOADING_TEXT }}</p>
+					<mat-progress-bar mode="indeterminate"></mat-progress-bar>
+				</div>
+			</div>
+		}
 	</div>
+	@if (ShowViewer) {
+		<section class="hom_model">
+			<header class="hom_model_header">
+				<button class="hom_back" mat-button type="button"
+					[attr.aria-label]="BACK_TEXT"
+					(click)="OnBackClicked()"
+				>
+					<span class="hom_back_content">
+						<img class="hom_icon" alt="" [src]="BackIcon" />
+						<span>{{ BACK_TEXT }}</span>
+					</span>
+				</button>
+				<h2 class="hom_model_title">{{ SelectedModel.Name }}</h2>
+			</header>
+			<div class="hom_viewer">
+				<!-- El visor arrastra el motor 3D: se descarga aparte, solo al abrir un modelo, para que Home abra enseguida -->
+				@defer (on immediate) {
+					<app-bim-viewer-panel
+						[Configuration]="SelectedConfiguration"
+						[Model]="SelectedModel"
+						(configurationChanged)="OnConfigurationChanged($event)"
+					/>
+				} @placeholder {
+					<p class="hom_empty">{{ LOADING_TEXT }}</p>
+				}
+			</div>
+		</section>
+	}
 </section>

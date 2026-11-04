@@ -18,6 +18,15 @@ export type LanguageBase = {
 	/** Observaciones del parámetro de la carpeta de los modelos BIM (parámetros de la aplicación). */
 	AS_BIM_MODELS_DIRECTORY_OBSERVATIONS: string;
 
+	/** Descripción del parámetro del intervalo de comprobación de modelos BIM nuevos (parámetros de la aplicación). */
+	AS_BIM_MODELS_REFRESH_INTERVAL_DESCRIPTION: string;
+
+	/** Nombre del parámetro del intervalo de comprobación de modelos BIM nuevos (parámetros de la aplicación). */
+	AS_BIM_MODELS_REFRESH_INTERVAL_NAME: string;
+
+	/** Observaciones del parámetro del intervalo de comprobación de modelos BIM nuevos (parámetros de la aplicación). */
+	AS_BIM_MODELS_REFRESH_INTERVAL_OBSERVATIONS: string;
+
 	/** Descripción del parámetro del idioma (parámetros de la aplicación). */
 	AS_LANGUAGE_DESCRIPTION: string;
 
@@ -39,9 +48,6 @@ export type LanguageBase = {
 	/** Aviso de que no se ha podido borrar un modelo (BimModelEditor). */
 	BME_DELETE_ERROR: string;
 
-	/** Descripción de un modelo (BimModelEditor). */
-	BME_DESCRIPTION: string;
-
 	/** Pregunta de confirmación para descartar cambios sin guardar (BimModelEditor). */
 	BME_DISCARD_CONFIRM: string;
 
@@ -54,12 +60,6 @@ export type LanguageBase = {
 	/** Pestaña con los datos generales de un modelo (BimModelEditor). */
 	BME_GENERAL: string;
 
-	/** Aviso de que no se han podido cargar los modelos (BimModelEditor). */
-	BME_LOAD_ERROR: string;
-
-	/** Nombre de un modelo (BimModelEditor). */
-	BME_NAME: string;
-
 	/** Aviso de que el nombre del modelo es obligatorio (BimModelEditor). */
 	BME_NAME_REQUIRED: string;
 
@@ -69,14 +69,8 @@ export type LanguageBase = {
 	/** Texto de un modelo que todavía no tiene fichero IFC (BimModelEditor). */
 	BME_NO_FILE: string;
 
-	/** Texto cuando no hay ningún modelo en la lista (BimModelEditor). */
-	BME_NO_MODELS: string;
-
 	/** Texto cuando no hay ningún modelo seleccionado (BimModelEditor). */
 	BME_NO_SELECTION: string;
-
-	/** Observaciones de un modelo (BimModelEditor). */
-	BME_OBSERVATIONS: string;
 
 	/** Fichero elegido que se subirá al guardar, con su nombre en `{0}` (BimModelEditor). */
 	BME_PENDING_FILE: string;
@@ -99,11 +93,59 @@ export type LanguageBase = {
 	/** Mensaje mientras se sube el fichero IFC, con el porcentaje en `{0}` (BimModelEditor). */
 	BME_UPLOADING: string;
 
+	/** Aviso de que la descarga del modelo se ha cancelado (BimViewerLoadingPanel). */
+	BVLP_CANCELED: string;
+
+	/** Mensaje mientras se descarga el modelo y aún no se conoce el avance (BimViewerLoadingPanel). */
+	BVLP_DOWNLOADING_NO_PROGRESS: string;
+
+	/** Aviso de que no se ha podido descargar el modelo (BimViewerLoadingPanel). */
+	BVLP_ERROR: string;
+
+	/** Título del bloque con los datos del modelo (BimViewerLoadingPanel). */
+	BVLP_GENERAL_INFO: string;
+
+	/** Botón de reintentar la descarga del modelo (BimViewerLoadingPanel). */
+	BVLP_RETRY: string;
+
+	/** Color de fondo del visor en el menú de estilos (BimViewerPanel). */
+	BVP_BACKGROUND_COLOR: string;
+
+	/** Aviso de que se ha fijado la vista actual como vista inicial (BimViewerPanel). */
+	BVP_DEFAULT_VIEW_SET: string;
+
+	/** Color de la rejilla en el menú de estilos (BimViewerPanel). */
+	BVP_GRID_COLOR: string;
+
+	/** Tamaño de las cuadrículas de la rejilla secundaria en el menú de estilos (BimViewerPanel). */
+	BVP_GRID_SECONDARY_SIZE: string;
+
+	/** Tamaño de las cuadrículas de la rejilla primaria en el menú de estilos (BimViewerPanel). */
+	BVP_GRID_SIZE: string;
+
+	/** Botón de mostrar u ocultar la rejilla (BimViewerPanel). */
+	BVP_GRID: string;
+
+	/** Color del resaltado de piezas en el menú de estilos (BimViewerPanel). */
+	BVP_HIGHLIGHT_COLOR: string;
+
+	/** Botón de activar o desactivar el resaltado de piezas al hacer clic (BimViewerPanel). */
+	BVP_HIGHLIGHT: string;
+
+	/** Botón de volver con la cámara a la vista inicial (BimViewerPanel). */
+	BVP_RESET_VIEW: string;
+
+	/** Botón de fijar la vista actual como vista inicial (BimViewerPanel). */
+	BVP_SET_DEFAULT_VIEW: string;
+
+	/** Botón que abre el menú de estilos (BimViewerPanel). */
+	BVP_STYLES: string;
+
+	/** Nombre accesible de la barra de herramientas del visor (BimViewerToolbar). */
+	BVT_TOOLBAR: string;
+
 	/** Nombre accesible del lienzo del visor 3D (BimViewer). */
 	BV_CANVAS: string;
-
-	/** Mensaje mientras se descarga el modelo, con el porcentaje en `{0}` (BimViewer). */
-	BV_DOWNLOADING: string;
 
 	/** Mensaje cuando no hay ningún modelo que mostrar (BimViewer). */
 	BV_EMPTY: string;
@@ -117,14 +159,8 @@ export type LanguageBase = {
 	/** Botón de aceptar del diálogo de confirmación (ConfirmDialog). */
 	CD_ACCEPT: string;
 
-	/** Botón de cancelar del diálogo de confirmación (ConfirmDialog). */
-	CD_CANCEL: string;
-
 	/** Botón de añadir del pie del editor (EditorShell). */
 	ES_ADD: string;
-
-	/** Botón para volver de un detalle a la lista, en móvil (EditorShell). */
-	ES_BACK: string;
 
 	/** Botón de cerrar el editor (EditorShell). */
 	ES_CLOSE: string;
@@ -155,6 +191,18 @@ export type LanguageBase = {
 
 	/** Botón de guardar del pie del editor (EditorShell). */
 	ES_SAVE: string;
+
+	/** Aviso de que el modelo elegido no tiene fichero IFC que mostrar (Home). */
+	HOME_NO_FILE: string;
+
+	/** Mensaje cuando el buscador no encuentra ningún modelo (Home). */
+	HOME_NO_RESULTS: string;
+
+	/** Pregunta de confirmación antes de abrir un modelo, con su nombre en `{0}` (Home). */
+	HOME_OPEN_CONFIRM: string;
+
+	/** Pregunta de si se recupera el modelo y la configuración con los que se estaba trabajando antes de recargar (Home). */
+	HOME_RESTORE_CONFIRM: string;
 
 	/** Texto de ayuda del buscador de la pantalla principal (módulo Home). */
 	HOME_SEARCH_PLACEHOLDER: string;
@@ -201,6 +249,21 @@ export type LanguageBase = {
 	/** Nombre accesible del botón que despliega el menú en móvil (Sidebar). */
 	SIDEBAR_MENU: string;
 
+	/** Botón para volver a la lista de modelos (se usa en más de un sitio). */
+	WEB_BACK_TO_LIST: string;
+
+	/** Aviso de que no se han podido cargar los modelos (se usa en más de un sitio). */
+	WEB_BIM_MODELS_LOAD_ERROR: string;
+
+	/** Mensaje mientras se descarga el modelo, con el porcentaje en `{0}` (se usa en más de un sitio). */
+	WEB_BIM_MODEL_DOWNLOADING: string;
+
+	/** Botón de cancelar (se usa en más de un sitio). */
+	WEB_CANCEL: string;
+
+	/** Descripción de un modelo (se usa en más de un sitio). */
+	WEB_DESCRIPTION: string;
+
 	/** Inicio: botón de la barra lateral y título de la pantalla principal (se usa en más de un sitio). */
 	WEB_HOME: string;
 
@@ -209,6 +272,15 @@ export type LanguageBase = {
 
 	/** Modelos: entrada del panel de edición y título de su editor (se usa en más de un sitio). */
 	WEB_MODELS: string;
+
+	/** Nombre de un modelo (se usa en más de un sitio). */
+	WEB_NAME: string;
+
+	/** Mensaje cuando no hay ningún modelo (se usa en más de un sitio). */
+	WEB_NO_MODELS: string;
+
+	/** Observaciones de un modelo (se usa en más de un sitio). */
+	WEB_OBSERVATIONS: string;
 
 	/** Usuarios: entrada del panel de edición (se usará también en su editor). */
 	WEB_USERS: string;

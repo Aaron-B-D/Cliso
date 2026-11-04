@@ -54,8 +54,10 @@ regiones, una clase por fichero...) **no se aplican aquí**.
 - **Sencillísimo:** el código debe entenderlo quien sabe poco TypeScript. Nada avanzado sin permiso expreso:
   genéricos, tipos condicionales o mapeados, utilidades de tipos (`Partial`, `Record`...), `as const`, `typeof` en
   tipos, decoradores propios, `any`. Sí: clases, interfaces, tipos de estructura, enumerados, `if`/`for`,
-  `async`/`await`. Excepciones permitidas: genéricos en `RequestUtils.AwaitRequest` y `TryGetResult`, y `keyof` en
-  `LanguageManager.GetText`.
+  `async`/`await`. Excepciones permitidas: genéricos en `RequestUtils.AwaitRequest` y `TryGetResult`, `keyof` en
+  `LanguageManager.GetText` y `Partial<T>` para tratar JSON (el parámetro de los `Convert` estáticos que recuperan un
+  objeto de su serialización, el retorno de `toJSON()` y el cast de `JSON.parse`): es la forma canónica de decir que
+  lo leído puede traer campos que falten, que el `Convert` valida uno a uno.
 - **Interfaces y tipos:** una interfaz (`INombre`) solo define un contrato de métodos o funciones comunes, nunca
   propiedades. Para describir una estructura de propiedades se usa un `type` (`type Nombre = { ... };`), sin
   uniones ni combinaciones de tipos (salvo `| null` para «sin valor»). Otra excepción acordada: el retorno
@@ -94,13 +96,19 @@ regiones, una clase por fichero...) **no se aplican aquí**.
   «Utils y Services»), con el formato `nombreClase.tipoContenido.ts`: el nombre de
   la clase en camelCase y el sufijo de su tipo (`home.component.ts`, `dataAccess.service.ts`,
   `applicationSettings.utils.ts`, `icons.definitions.ts`, `languageBase.type.ts`, `tryGetResult.models.ts`,
-  `iRepository.interface.ts`). Las hojas de idioma, sin sufijo (`languageEs.ts`). Los `*.utils.ts` son clases
+  `repository.interface.ts`: el nombre del fichero no lleva la `I` de la interfaz, ya lo dice `.interface`). Las
+  interfaces de uso general, sin relación temática entre sí (como `IComparable`), van en `shared/interfaces/`; las de un
+  tema o componente concreto, en su `definitions` (ver «Utils y Services»). Las hojas de idioma, sin sufijo
+  (`languageEs.ts`). Los `*.utils.ts` son clases
   estáticas o con estado sin Angular; los `*.models.ts`, clases de datos (DTO u objetos comunes con su
   comportamiento). Excepción: los ficheros de configuración de Angular (`main.ts`, `app.config.ts`, `app.routes.ts`).
 - **Rutas absolutas en los imports:** los ficheros propios se importan siempre con la ruta absoluta desde `src/`
   (`import { IconName } from 'src/app/shared/definitions/icons.definitions';`), nunca con `./` ni `../`, para no
   tener problemas al mover ficheros. Funciona con `baseUrl: "./"` en `tsconfig.json`. Excepción: `templateUrl` y
   `styleUrl` de un componente, que Angular exige relativos (`./home.component.html`).
+- **Imports sin `type`:** los tipos, interfaces y enumerados se importan igual que el resto (`import { BimModelDto } from ...`),
+  sin el modificador `type`: TypeScript y Angular quitan solos lo que solo se usa como tipo. El `type` solo se escribe
+  donde `isolatedModules` lo exige: al reexportar un tipo (`export { type NombreTipo }` al final de los `definitions`).
 - **Inicializa al declarar:** toda variable o propiedad lleva valor en su declaración; «sin valor» es `null`.
 - **Usa las constantes y enumerados existentes** en vez de literales sueltos (rutas, claves, códigos de idioma...).
 - **Sin funciones sueltas:** la lógica de los Utils va en clases estáticas. Única excepción: los guards, que Angular
@@ -232,6 +240,16 @@ private getName(item: Item | null): string | null {
 - **Un componente es una isla autónoma:** no se acopla a otro concreto. Un hijo no se manipula con `@ViewChild`: se
   comunica con eventos o `@Input()`. `@ViewChild` solo sobre elementos fijos de la propia plantilla, con
   `{ static: true }`, y se usa desde `ngAfterViewInit` o un manejador, nunca desde el constructor.
+- **Operar un componente desde fuera: Access (decidido).** Las acciones que un componente deja hacer (volver la cámara
+  al inicio, cambiar su aspecto...) **no se piden con un `@Input()` de órdenes** (tipo `Command`) ni con `@ViewChild`.
+  El componente define una interfaz `INombreAccess` (solo métodos, en el `definitions` de su tema, no en `shared/interfaces/`),
+  construye un objeto que la implementa y lo emite hacia fuera en `@Output() compiled` con un evento
+  `NombreCompiledEvent` (clase con la propiedad `Access`) cuando ya está listo para operar. Quien lo usa guarda el
+  `Access` que recibe (`null` mientras no llegue) y llama a sus métodos. Los datos de estado que no son acciones siguen
+  entrando por `@Input()`. Referencia: `BimViewerComponent` (`IBimViewerAccess`, `BimViewerCompiledEvent`).
+- **Eventos de salida: la clase del evento se declara en el componente que lo emite**, encima del `@Component` y
+  exportada, no en un fichero aparte. Es una de las pocas excepciones a «una clase por fichero»: así quien lo recibe lo
+  importa del propio componente y no tiene que buscarlo.
 - **Evita `.subscribe()` para propagar cambios entre componentes:** usa un emisor (`emitNombreEvento`).
 - **`ngOnDestroy`** (en `ANGULAR LIFECYCLE`; todo componente con algo que liberar lo implementa) **limpia todo lo
   que el componente creó:** `complete()` de los emisores, cancelar las llamadas con
