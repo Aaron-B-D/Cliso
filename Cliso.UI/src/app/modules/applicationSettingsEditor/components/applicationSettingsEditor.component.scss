@@ -1,0 +1,115 @@
+.ase_detail {
+	display: flex;
+	flex-direction: column;
+	gap: var(--space-3);
+	padding-block: var(--space-4);
+}
+
+.ase_detail_title {
+	margin: 0;
+}
+
+.ase_empty {
+	color: var(--color-muted);
+	padding: var(--space-4);
+	text-align: center;
+}
+
+.ase_error {
+	color: var(--color-danger);
+}
+
+.ase_item {
+	align-items: center;
+	background-color: transparent;
+	border: var(--border);
+	border-radius: var(--radius-item);
+	box-shadow: var(--shadow-item);
+	color: var(--color-text);
+	cursor: pointer;
+	display: flex;
+	gap: var(--space-2);
+	justify-content: space-between;
+	min-height: var(--touch-target);
+	padding: var(--space-2) var(--space-3);
+	text-align: start;
+	width: 100%;
+
+	&:hover {
+		background-color: var(--color-hover);
+	}
+
+	&:focus-visible {
+		outline: 2px solid var(--color-white);
+	}
+}
+
+.ase_item-selected {
+	background-color: var(--color-hover);
+}
+
+.ase_item_arrow {
+	height: 1.5rem;
+	width: 1.5rem;
+}
+
+.ase_item_name,
+.ase_item_value {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.ase_item_text {
+	display: flex;
+	flex-direction: column;
+	min-width: 0;
+}
+
+.ase_item_value {
+	color: var(--color-muted);
+	font-size: var(--font-size-small);
+}
+
+.ase_list {
+	display: flex;
+	flex-direction: column;
+	gap: var(--space-3);
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.ase_loading {
+	display: flex;
+	flex-direction: column;
+	gap: var(--space-2);
+	padding: var(--space-4);
+}
+
+.ase_icon {
+	height: 1.5rem;
+	width: 1.5rem;
+}
+
+.ase_text {
+	margin: 0;
+	overflow-wrap: anywhere;
+}
+
+.ase_text-muted {
+	color: var(--color-muted);
+	font-size: var(--font-size-small);
+}
+
+// El campo ocupa todo el ancho que deja el botón de restaurar
+.ase_value {
+	align-items: center;
+	display: flex;
+	gap: var(--space-2);
+}
+
+.ase_value_panel {
+	flex: 1;
+	min-width: 0;
+}

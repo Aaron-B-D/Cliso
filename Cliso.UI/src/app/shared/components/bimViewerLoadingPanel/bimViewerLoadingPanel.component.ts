@@ -7,6 +7,7 @@ import { ID_NUMERIC_UNDEFINED, STRING_UNDEFINED } from 'src/app/shared/definitio
 import { BimModel } from 'src/app/shared/models/bimModel/bimModel.models';
 import { CheckUtils } from 'src/app/shared/utils/check.utils';
 import { LanguageManager } from 'src/app/shared/utils/language/languageManager.utils';
+import { StringUtils } from 'src/app/shared/utils/string.utils';
 
 /** Panel que se muestra mientras se descarga el modelo: sus datos, el avance de la descarga y los botones de cancelar y reintentar. */
 @Component({
@@ -157,7 +158,7 @@ export class BimViewerLoadingPanelComponent implements OnChanges, OnDestroy {
 			this.ProgressText = this._DOWNLOADING_NO_PROGRESS_TEXT;
 		} else {
 			this.ProgressValue = Math.min(BIM_VIEWER_MAX_PROGRESS, Math.max(0, this.Progress));
-			this.ProgressText = this._DOWNLOADING_TEXT.replace('{0}', String(this.ProgressValue));
+			this.ProgressText = StringUtils.Format(this._DOWNLOADING_TEXT, [String(this.ProgressValue)]);
 		}
 	}
 

@@ -2,6 +2,7 @@ import { ApplicationSettingsParameterBase } from 'src/app/shared/models/applicat
 import { BimModelsDirectorySettingsParameter } from 'src/app/shared/models/applicationSettings/bimModelsDirectorySettingsParameter.models';
 import { BimModelsRefreshIntervalSettingsParameter } from 'src/app/shared/models/applicationSettings/bimModelsRefreshIntervalSettingsParameter.models';
 import { LanguageSettingsParameter } from 'src/app/shared/models/applicationSettings/languageSettingsParameter.models';
+import { SessionTimeoutSettingsParameter } from 'src/app/shared/models/applicationSettings/sessionTimeoutSettingsParameter.models';
 import {
 	ApplicationSettingsDefault,
 	ApplicationSettingsParameter
@@ -9,9 +10,10 @@ import {
 import { LanguageCode } from 'src/app/shared/definitions/language.definitions';
 import { ApplicationSettingsUtils } from 'src/app/shared/utils/applicationSettings/applicationSettings.utils';
 import { CheckUtils } from 'src/app/shared/utils/check.utils';
+
 /**
  * Guarda los parámetros de la aplicación. Arranca con los valores por defecto de `ApplicationSettingsUtils` y se
- * actualiza con `SetValue` cuando se recuperan del API.
+ * actualiza con `SetParameters` cuando se recuperan del API.
  */
 export class ApplicationSettingsManager {
 	//#region PRIVATE CONSTANTS
@@ -110,6 +112,31 @@ export class ApplicationSettingsManager {
 	}
 
 	/**
+	 * Sustituye los parámetros por los recuperados del API. Los que el API no envía conservan su valor por defecto.
+	 * @param parameters Parámetros recuperados del API, con su valor actual.
+	 */
+	public static SetParameters(parameters: ApplicationSettingsParameterBase[]): void {
+		for (const parameter of parameters) {
+			let isReplaced: boolean = false;
+
+			for (let index: number = 0; index < ApplicationSettingsManager._Parameters.length; index++) {
+				if (ApplicationSettingsManager._Parameters[index].Parameter === parameter.Parameter) {
+					ApplicationSettingsManager._Parameters[index] = parameter;
+					isReplaced = true;
+				} else {
+					// No es el parámetro que se sustituye
+				}
+			}
+
+			if (!isReplaced) {
+				ApplicationSettingsManager._Parameters.push(parameter);
+			} else {
+				// Ya estaba y se ha sustituido
+			}
+		}
+	}
+
+	/**
 	 * Cambia el valor de un parámetro.
 	 * @param parameter Identifica de qué parámetro se trata.
 	 * @param value Nuevo valor, como texto.
@@ -166,6 +193,9 @@ export class ApplicationSettingsManager {
 				break;
 			case ApplicationSettingsParameter.LANGUAGE:
 				result = new LanguageSettingsParameter(item.Value, item.Value);
+				break;
+			case ApplicationSettingsParameter.SESSION_TIMEOUT_MILLISECONDS:
+				result = new SessionTimeoutSettingsParameter(item.Value, item.Value);
 				break;
 			default:
 				console.warn('ApplicationSettingsManager.createParameter() => parámetro sin clase: ' + String(item.Parameter));

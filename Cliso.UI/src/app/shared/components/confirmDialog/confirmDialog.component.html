@@ -1,20 +1,37 @@
 <section class="confirmDialogDir">
 	<p class="cd_message" mat-dialog-content>{{ Message }}</p>
 	<footer class="cd_actions" mat-dialog-actions>
-		@if (IsDanger) {
-			<button class="cd_accept-danger" mat-stroked-button
-				(click)="OnAcceptClicked()"
-			>{{ ACCEPT_TEXT }}</button>
-			<button class="cd_cancel" mat-stroked-button
-				(click)="OnCancelClicked()"
-			>{{ CANCEL_TEXT }}</button>
-		} @else {
-			<button class="cd_cancel" mat-stroked-button
-				(click)="OnCancelClicked()"
-			>{{ CANCEL_TEXT }}</button>
-			<button class="cd_accept" mat-flat-button
-				(click)="OnAcceptClicked()"
-			>{{ ACCEPT_TEXT }}</button>
+		@switch (Type) {
+			@case (TYPE_INFORMATION) {
+				<button class="cd_accept" mat-flat-button
+					(click)="OnAcceptClicked()"
+				>{{ ACCEPT_TEXT }}</button>
+			}
+			@case (TYPE_DANGER) {
+				<button class="cd_accept-danger" mat-stroked-button
+					(click)="OnAcceptClicked()"
+				>{{ ACCEPT_TEXT }}</button>
+				<button class="cd_cancel" mat-stroked-button
+					(click)="OnCancelClicked()"
+				>{{ CANCEL_TEXT }}</button>
+			}
+			@case (TYPE_QUESTION) {
+				<button class="cd_cancel" mat-stroked-button
+					(click)="OnCancelClicked()"
+				>{{ CANCEL_TEXT }}</button>
+				<button class="cd_accept" mat-flat-button
+					(click)="OnAcceptClicked()"
+				>{{ ACCEPT_TEXT }}</button>
+			}
+			@default {
+				<!-- Tipo imprevisto: se muestran los dos botones para que siempre se pueda responder -->
+				<button class="cd_cancel" mat-stroked-button
+					(click)="OnCancelClicked()"
+				>{{ CANCEL_TEXT }}</button>
+				<button class="cd_accept" mat-flat-button
+					(click)="OnAcceptClicked()"
+				>{{ ACCEPT_TEXT }}</button>
+			}
 		}
 	</footer>
 </section>

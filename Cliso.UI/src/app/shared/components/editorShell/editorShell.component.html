@@ -1,6 +1,7 @@
 <section class="editorShellDir"
 	[class.es_root-detail]="ShowDetail"
 	[class.es_root-maximized]="IsMaximized"
+	[style.--es-height]="Height"
 	[style.--es-selector-width]="SelectorWidthCss"
 >
 	<header class="es_header">
@@ -104,14 +105,16 @@
 				<img class="es_icon" alt="" [src]="DiscardIcon" />
 			</button>
 		} @else {
-			<button mat-icon-button
-				matTooltip="{{ ADD_TEXT }}"
-				[attr.aria-label]="ADD_TEXT"
-				[disabled]="IsBusy"
-				(click)="OnAddClicked()"
-			>
-				<img class="es_icon" alt="" [src]="AddIcon" />
-			</button>
+			@if (CanAdd) {
+				<button mat-icon-button
+					matTooltip="{{ ADD_TEXT }}"
+					[attr.aria-label]="ADD_TEXT"
+					[disabled]="IsBusy"
+					(click)="OnAddClicked()"
+				>
+					<img class="es_icon" alt="" [src]="AddIcon" />
+				</button>
+			}
 			<button mat-icon-button
 				matTooltip="{{ EDIT_TEXT }}"
 				[attr.aria-label]="EDIT_TEXT"

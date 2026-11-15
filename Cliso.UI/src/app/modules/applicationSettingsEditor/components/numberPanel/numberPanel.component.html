@@ -1,0 +1,11 @@
+<mat-form-field class="numberPanelDir" appearance="outline" subscriptSizing="dynamic">
+	<mat-label>{{ Label }}</mat-label>
+	<input matInput type="number" step="1"
+		[attr.max]="Max"
+		[attr.min]="Min"
+		[readonly]="IsReadOnly"
+		[value]="Value"
+		(change)="OnChange($event)"
+		(input)="OnInput($event)"
+	/>
+</mat-form-field>

@@ -1,11 +1,15 @@
 import { HttpErrorResponse, HttpStatusCode } from '@angular/common/http';
 
+import { LanguageCode } from 'src/app/shared/definitions/language.definitions';
+import { ApplicationSettingsParameterBase } from 'src/app/shared/models/applicationSettings/applicationSettingsParameterBase.models';
 import { TryGetResult } from 'src/app/shared/models/common/tryGetResult.models';
 import { Session } from 'src/app/shared/models/session/session.models';
 import { DataAccessService } from 'src/app/shared/services/dataAccess.service';
 import { ApplicationSettingsManager } from 'src/app/shared/utils/applicationSettings/applicationSettingsManager.utils';
+import { CheckUtils } from 'src/app/shared/utils/check.utils';
 import { HttpRequestCanceller } from 'src/app/shared/utils/httpRequestCanceller.utils';
 import { LanguageManager } from 'src/app/shared/utils/language/languageManager.utils';
+import { LocalStorageManager } from 'src/app/shared/utils/localStorage/localStorageManager.utils';
 import { RequestUtils } from 'src/app/shared/utils/request.utils';
 import { SessionManager } from 'src/app/shared/utils/session/sessionManager.utils';
 
@@ -14,14 +18,58 @@ export class AppBootstrapUtils {
 	//#region PUBLIC STATIC METHODS
 
 	/**
-	 * Arranca la aplicación: fija el idioma con el parámetro de la aplicación y recupera la sesión abierta, si la hay.
+	 * Recupera del API los parámetros de la aplicación, los guarda y fija el idioma con el suyo. Necesita una sesión
+	 * abierta. Si falla, lo deja en la consola y la aplicación sigue con los valores por defecto.
+	 * @param dataAccess Acceso al API.
+	 * @param canceller Corta la petición si quien la pide se destruye.
+	 */
+	public static async LoadApplicationSettings(dataAccess: DataAccessService, canceller: HttpRequestCanceller): Promise<void> {
+		try {
+			const result: TryGetResult<ApplicationSettingsParameterBase[]> = await RequestUtils.AwaitRequest(
+				dataAccess.ApplicationSettings.GetAll(),
+				canceller
+			);
+
+			if (result.Success) {
+				ApplicationSettingsManager.SetParameters(result.Result as ApplicationSettingsParameterBase[]);
+				LanguageManager.SetLanguage(ApplicationSettingsManager.GetLanguage());
+			} else {
+				// Petición cancelada: no hay nada que hacer
+			}
+		} catch (error) {
+			console.warn('AppBootstrapUtils.LoadApplicationSettings() => no se pudieron recuperar los parámetros', error);
+		}
+	}
+
+	/** Fija el idioma antes de iniciar sesión: el que se eligió la última vez en el inicio de sesión o, si no hay ninguno, el del navegador. */
+	public static SetLoginLanguage(): void {
+		const stored: LanguageCode | null = LocalStorageManager.GetLoginLanguage();
+
+		if (CheckUtils.IsNull(stored)) {
+			LanguageManager.SetLanguage(LanguageManager.GetBrowserLanguage());
+		} else {
+			LanguageManager.SetLanguage(stored);
+		}
+	}
+
+	/**
+	 * Arranca la aplicación: recupera la sesión abierta, si la hay, y con ella los parámetros de la aplicación.
 	 * @param dataAccess Acceso al API.
 	 * @returns Una promesa que se resuelve al terminar: Angular espera a que termine antes de mostrar la aplicación.
 	 */
 	public static async Start(dataAccess: DataAccessService): Promise<void> {
-		// TODO Aarón https://trello.com/c/VGtyoR8y: ejecutar este arranque tras el inicio de sesión (no al abrir la página) y recuperar del API los parámetros de la aplicación (los modelos BIM y sus visualizaciones los carga el Home al abrirse, que solo se alcanza con sesión)
-		LanguageManager.SetLanguage(ApplicationSettingsManager.GetLanguage());
+		// Hasta tener los parámetros de la aplicación (que se piden con la sesión), se usa el idioma elegido en el inicio de sesión o el del navegador
+		AppBootstrapUtils.SetLoginLanguage();
 		await AppBootstrapUtils.restoreSession(dataAccess);
+
+		if (!CheckUtils.IsNull(SessionManager.GetCurrentSession())) {
+			const canceller: HttpRequestCanceller = new HttpRequestCanceller();
+
+			await AppBootstrapUtils.LoadApplicationSettings(dataAccess, canceller);
+			canceller.Destroy();
+		} else {
+			// Sin sesión no se pueden pedir los parámetros: se recuperarán al iniciarla
+		}
 	}
 
 	//#endregion PUBLIC STATIC METHODS

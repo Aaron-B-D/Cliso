@@ -3,6 +3,16 @@ import { ApplicationSettingsParameterBase } from 'src/app/shared/models/applicat
 
 /** Parámetro del intervalo con el que se comprueba si hay modelos BIM nuevos. */
 export class BimModelsRefreshIntervalSettingsParameter extends ApplicationSettingsParameterBase {
+	//#region PUBLIC CONSTANTS
+
+	/** Intervalo máximo, en milisegundos: 1 día (el navegador no admite temporizadores de más de unos 24 días). */
+	public static readonly MAX_VALUE: number = 86400000;
+
+	/** Intervalo mínimo, en milisegundos: 5 segundos, para no saturar el API. */
+	public static readonly MIN_VALUE: number = 5000;
+
+	//#endregion PUBLIC CONSTANTS
+
 	//#region CONSTRUCTOR
 
 	/**
@@ -26,13 +36,17 @@ export class BimModelsRefreshIntervalSettingsParameter extends ApplicationSettin
 
 	/**
 	 * Devuelve el intervalo de comprobación.
-	 * @returns El intervalo en milisegundos; el de por defecto si el texto no es un número positivo.
+	 * @returns El intervalo en milisegundos; el de por defecto si el texto no es un número entre el mínimo y el máximo.
 	 */
 	public override GetValue(): number {
 		let result: number = Number(this.DefaultValue);
 		const value: number = Number(this.Value);
 
-		if (Number.isFinite(value) && value > 0) {
+		if (
+			Number.isFinite(value) &&
+			value >= BimModelsRefreshIntervalSettingsParameter.MIN_VALUE &&
+			value <= BimModelsRefreshIntervalSettingsParameter.MAX_VALUE
+		) {
 			result = value;
 		} else {
 			console.warn('BimModelsRefreshIntervalSettingsParameter.GetValue() => intervalo no válido: ' + this.Value);

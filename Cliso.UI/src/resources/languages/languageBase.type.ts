@@ -9,6 +9,51 @@
  * Si un texto de un componente pasa a usarse en otro sitio, se renombra con `WEB_`.
  */
 export type LanguageBase = {
+	/** Valor por defecto de un parámetro, con el valor en `{0}` (ApplicationSettingsEditor). */
+	ASE_DEFAULT_VALUE: string;
+
+	/** Aviso de que la carpeta de los modelos no puede estar vacía (ApplicationSettingsEditor). */
+	ASE_DIRECTORY_REQUIRED: string;
+
+	/** Texto cuando no hay ningún parámetro en la lista (ApplicationSettingsEditor). */
+	ASE_EMPTY: string;
+
+	/** Aviso de que no se han podido cargar los parámetros (ApplicationSettingsEditor). */
+	ASE_LOAD_ERROR: string;
+
+	/** Texto cuando no hay ningún parámetro seleccionado (ApplicationSettingsEditor). */
+	ASE_NO_SELECTION: string;
+
+	/** Aviso de que el valor debe ser un número entero mayor que cero (ApplicationSettingsEditor). */
+	ASE_NUMBER_INVALID: string;
+
+	/** Aviso de que el número está fuera de los límites, con el mínimo en `{0}` y el máximo en `{1}` (ApplicationSettingsEditor). */
+	ASE_NUMBER_RANGE: string;
+
+	/** Mensaje tras guardar: los cambios se aplican al recargar la página (ApplicationSettingsEditor). */
+	ASE_RELOAD_NOTICE: string;
+
+	/** Mensaje que se añade al anterior si el parámetro también exige reiniciar la API (ApplicationSettingsEditor). */
+	ASE_RESTART_NOTICE: string;
+
+	/** Texto del botón que pone el valor por defecto de un parámetro (ApplicationSettingsEditor). */
+	ASE_RESTORE_DEFAULT: string;
+
+	/** Aviso de que el parámetro se ha guardado (ApplicationSettingsEditor). */
+	ASE_SAVED: string;
+
+	/** Aviso de que no se ha podido guardar el parámetro (ApplicationSettingsEditor). */
+	ASE_SAVE_ERROR: string;
+
+	/** Texto de ayuda del buscador (ApplicationSettingsEditor). */
+	ASE_SEARCH: string;
+
+	/** Etiqueta del campo del valor de un parámetro (ApplicationSettingsEditor). */
+	ASE_VALUE: string;
+
+	/** Aviso de que el API ha rechazado el valor del parámetro (ApplicationSettingsEditor). */
+	ASE_VALUE_REJECTED: string;
+
 	/** Descripción del parámetro de la carpeta de los modelos BIM (parámetros de la aplicación). */
 	AS_BIM_MODELS_DIRECTORY_DESCRIPTION: string;
 
@@ -36,6 +81,15 @@ export type LanguageBase = {
 	/** Observaciones del parámetro del idioma (parámetros de la aplicación). */
 	AS_LANGUAGE_OBSERVATIONS: string;
 
+	/** Descripción del parámetro del tiempo de caducidad de la sesión (parámetros de la aplicación). */
+	AS_SESSION_TIMEOUT_DESCRIPTION: string;
+
+	/** Nombre del parámetro del tiempo de caducidad de la sesión (parámetros de la aplicación). */
+	AS_SESSION_TIMEOUT_NAME: string;
+
+	/** Observaciones del parámetro del tiempo de caducidad de la sesión (parámetros de la aplicación). */
+	AS_SESSION_TIMEOUT_OBSERVATIONS: string;
+
 	/** Aviso de que el modelo se ha añadido correctamente (BimModelEditor). */
 	BME_ADDED: string;
 
@@ -47,9 +101,6 @@ export type LanguageBase = {
 
 	/** Aviso de que no se ha podido borrar un modelo (BimModelEditor). */
 	BME_DELETE_ERROR: string;
-
-	/** Pregunta de confirmación para descartar cambios sin guardar (BimModelEditor). */
-	BME_DISCARD_CONFIRM: string;
 
 	/** Texto de la zona donde se suelta o se elige el fichero IFC (BimModelEditor). */
 	BME_DROP_FILE: string;
@@ -219,6 +270,9 @@ export type LanguageBase = {
 	/** Aviso de que no se ha podido iniciar sesión por otro motivo (pantalla de inicio de sesión). */
 	LOGIN_ERROR_UNEXPECTED: string;
 
+	/** Etiqueta del selector de idioma (pantalla de inicio de sesión). */
+	LOGIN_LANGUAGE: string;
+
 	/** Etiqueta del campo del nick (pantalla de inicio de sesión). */
 	LOGIN_NICK: string;
 
@@ -264,8 +318,20 @@ export type LanguageBase = {
 	/** Descripción de un modelo (se usa en más de un sitio). */
 	WEB_DESCRIPTION: string;
 
+	/** Pregunta de confirmación para descartar cambios sin guardar (se usa en más de un sitio). */
+	WEB_DISCARD_CONFIRM: string;
+
 	/** Inicio: botón de la barra lateral y título de la pantalla principal (se usa en más de un sitio). */
 	WEB_HOME: string;
+
+	/** Nombre del idioma inglés, en inglés (se usa en más de un sitio). */
+	WEB_LANGUAGE_EN: string;
+
+	/** Nombre del idioma castellano, en castellano (se usa en más de un sitio). */
+	WEB_LANGUAGE_ES: string;
+
+	/** Nombre del idioma gallego, en gallego (se usa en más de un sitio). */
+	WEB_LANGUAGE_GL: string;
 
 	/** Cargando: se muestra mientras llega una información (se usa en más de un sitio). */
 	WEB_LOADING: string;
@@ -281,6 +347,9 @@ export type LanguageBase = {
 
 	/** Observaciones de un modelo (se usa en más de un sitio). */
 	WEB_OBSERVATIONS: string;
+
+	/** Parámetros: entrada del panel de edición y título de su editor (se usa en más de un sitio). */
+	WEB_SETTINGS: string;
 
 	/** Usuarios: entrada del panel de edición (se usará también en su editor). */
 	WEB_USERS: string;

@@ -21,11 +21,8 @@
 					@if (CanEditBimModels) {
 						<button mat-menu-item class="sid_menu_option sid_menu_option-nested" (click)="OnBimModelsClicked()">{{ MODELS_TEXT }}</button>
 					}
-					@if (CanEditVisualizations) {
-						<button mat-menu-item disabled class="sid_menu_option sid_menu_option-nested">{{ VISUALIZATIONS_TEXT }}</button>
-					}
-					@if (CanManageUsers) {
-						<button mat-menu-item disabled class="sid_menu_option sid_menu_option-nested">{{ USERS_TEXT }}</button>
+					@if (CanEditSettings) {
+						<button mat-menu-item class="sid_menu_option sid_menu_option-nested" (click)="OnSettingsClicked()">{{ SETTINGS_TEXT }}</button>
 					}
 				}
 			}
@@ -85,11 +82,8 @@
 						@if (CanEditBimModels) {
 							<button class="sid_panel_item" mat-list-item (click)="OnBimModelsClicked()">{{ MODELS_TEXT }}</button>
 						}
-						@if (CanEditVisualizations) {
-							<button class="sid_panel_item" mat-list-item disabled>{{ VISUALIZATIONS_TEXT }}</button>
-						}
-						@if (CanManageUsers) {
-							<button class="sid_panel_item" mat-list-item disabled>{{ USERS_TEXT }}</button>
+						@if (CanEditSettings) {
+							<button class="sid_panel_item" mat-list-item (click)="OnSettingsClicked()">{{ SETTINGS_TEXT }}</button>
 						}
 					</mat-action-list>
 				</ng-template>

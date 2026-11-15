@@ -9,4 +9,14 @@ enum LanguageCode {
 
 //#endregion ENUMS
 
-export { LanguageCode };
+//#region TYPES
+
+/** Idioma que se ofrece para elegir: su código y su nombre, escrito en el propio idioma. */
+type LanguageOption = {
+	Code: LanguageCode;
+	Name: string;
+};
+
+//#endregion TYPES
+
+export { LanguageCode, type LanguageOption };

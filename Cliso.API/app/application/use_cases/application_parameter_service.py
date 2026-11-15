@@ -14,13 +14,23 @@ class ApplicationParameterService(ApplicationParameterServiceBase):
 	`APPLICATION_PARAMETERS_EDIT`.
 	"""
 
+	# region PUBLIC CONSTANTS
+
+	MAX_SESSION_TIMEOUT_MILLISECONDS: ClassVar[int] = 31_536_000_000;
+	"""Tiempo máximo de caducidad de la sesión: 1 año (365 días), en milisegundos."""
+
+	# endregion PUBLIC CONSTANTS
+
 	# region PRIVATE CONSTANTS
 
 	_MAX_VALUE_LENGTH: ClassVar[int] = 500;
 	"""Longitud máxima, en caracteres, del valor de cualquier parámetro."""
 
-	_MAX_SESSION_TIMEOUT_MILLISECONDS: ClassVar[int] = 31_536_000_000;
-	"""Tiempo máximo de caducidad de la sesión: 1 año (365 días), en milisegundos."""
+	_MIN_BIM_MODELS_REFRESH_INTERVAL_MILLISECONDS: ClassVar[int] = 5_000;
+	"""Intervalo mínimo de refresco de los modelos BIM: 5 segundos, en milisegundos, para no saturar la API."""
+
+	_MAX_BIM_MODELS_REFRESH_INTERVAL_MILLISECONDS: ClassVar[int] = 86_400_000;
+	"""Intervalo máximo de refresco de los modelos BIM: 1 día, en milisegundos (el navegador no admite más de unos 24 días)."""
 
 	# endregion PRIVATE CONSTANTS
 
@@ -142,7 +152,10 @@ class ApplicationParameterService(ApplicationParameterServiceBase):
 
 	@staticmethod
 	def _validate_bim_models_directory(value: str) -> None:
-		"""Comprueba el valor de la carpeta de los modelos BIM: no puede estar vacío ni empezar o acabar con espacios.
+		"""Comprueba el valor de la carpeta de los modelos BIM: que no esté vacío ni empiece o acabe con espacios.
+
+		No se comprueba que exista y los mensajes no repiten el valor, para que quien pueda modificarla no use la API
+		para averiguar la estructura de carpetas del servidor: si está mal escrita, no se verán modelos.
 
 		Raises:
 			ApplicationParameterValidationError: Si está vacío, en blanco o tiene espacios al principio o al final.
@@ -152,19 +165,29 @@ class ApplicationParameterService(ApplicationParameterServiceBase):
 
 		if ApplicationParameterUtils.has_surrounding_spaces(value):
 			raise ApplicationParameterValidationError(
-				f"La carpeta de los modelos BIM no puede empezar ni acabar con espacios: '{value}'"
+				"La carpeta de los modelos BIM no puede empezar ni acabar con espacios"
 			);
 
 	@staticmethod
 	def _validate_bim_models_refresh_interval(value: str) -> None:
-		"""Comprueba el valor del intervalo de refresco de los modelos BIM: un entero mayor que cero.
+		"""Comprueba el valor del intervalo de refresco de los modelos BIM: un entero entre 5 segundos y 1 día.
 
 		Raises:
-			ApplicationParameterValidationError: Si no es un entero mayor que cero.
+			ApplicationParameterValidationError: Si no es un entero mayor que cero o está fuera de los límites.
 		"""
 		if not ApplicationParameterUtils.is_positive_integer(value):
 			raise ApplicationParameterValidationError(
 				f"El intervalo de refresco de los modelos BIM debe ser un número entero mayor que cero: '{value}'"
+			);
+
+		if int(value) < ApplicationParameterService._MIN_BIM_MODELS_REFRESH_INTERVAL_MILLISECONDS:
+			raise ApplicationParameterValidationError(
+				f"El intervalo de refresco de los modelos BIM no puede ser menor que {ApplicationParameterService._MIN_BIM_MODELS_REFRESH_INTERVAL_MILLISECONDS} milisegundos (5 segundos): '{value}'"
+			);
+
+		if int(value) > ApplicationParameterService._MAX_BIM_MODELS_REFRESH_INTERVAL_MILLISECONDS:
+			raise ApplicationParameterValidationError(
+				f"El intervalo de refresco de los modelos BIM no puede superar {ApplicationParameterService._MAX_BIM_MODELS_REFRESH_INTERVAL_MILLISECONDS} milisegundos (1 día): '{value}'"
 			);
 
 	@staticmethod
@@ -179,9 +202,9 @@ class ApplicationParameterService(ApplicationParameterServiceBase):
 				f"El tiempo de caducidad de la sesión debe ser un número entero mayor que cero: '{value}'"
 			);
 
-		if int(value) > ApplicationParameterService._MAX_SESSION_TIMEOUT_MILLISECONDS:
+		if int(value) > ApplicationParameterService.MAX_SESSION_TIMEOUT_MILLISECONDS:
 			raise ApplicationParameterValidationError(
-				f"El tiempo de caducidad de la sesión no puede superar {ApplicationParameterService._MAX_SESSION_TIMEOUT_MILLISECONDS} milisegundos (1 año): '{value}'"
+				f"El tiempo de caducidad de la sesión no puede superar {ApplicationParameterService.MAX_SESSION_TIMEOUT_MILLISECONDS} milisegundos (1 año): '{value}'"
 			);
 
 	# endregion PRIVATE STATIC METHODS

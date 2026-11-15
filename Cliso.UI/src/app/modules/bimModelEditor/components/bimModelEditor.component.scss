@@ -133,13 +133,14 @@
 	padding-block: var(--space-4) 0;
 }
 
-// Descripción y observaciones se reparten el alto que queda del detalle (14 rem: pestañas, nombre, huecos y marcos de los campos)
+// Descripción y observaciones se reparten el alto que queda del detalle (15 rem: pestañas, nombre, huecos y marcos de los
+// campos, con un margen para que el redondeo no provoque scroll)
 .bme_description {
-	height: max(4rem, calc((100cqh - 14rem) * 0.45));
+	height: max(4rem, calc((100cqh - 15rem) * 0.45));
 	resize: none;
 }
 
 .bme_observations {
-	height: max(4rem, calc((100cqh - 14rem) * 0.55));
+	height: max(4rem, calc((100cqh - 15rem) * 0.55));
 	resize: none;
 }

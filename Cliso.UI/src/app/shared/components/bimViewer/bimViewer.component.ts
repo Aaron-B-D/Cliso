@@ -21,6 +21,7 @@ import { BimViewerManager } from 'src/app/shared/utils/bimViewer/bimViewerManage
 import { CheckUtils } from 'src/app/shared/utils/check.utils';
 import { ErrorUtils } from 'src/app/shared/utils/error.utils';
 import { LanguageManager } from 'src/app/shared/utils/language/languageManager.utils';
+import { StringUtils } from 'src/app/shared/utils/string.utils';
 
 /** El visor 3D está listo: trae el acceso con el que se le puede operar. */
 export class BimViewerCompiledEvent {
@@ -316,7 +317,7 @@ export class BimViewerComponent implements AfterViewInit, OnChanges, OnDestroy {
 			this.DownloadPercent = Math.min(BIM_VIEWER_MAX_PROGRESS, Math.max(0, this.DownloadProgress));
 		}
 
-		this.DownloadText = this._DOWNLOADING_TEXT.replace('{0}', String(this.DownloadPercent));
+		this.DownloadText = StringUtils.Format(this._DOWNLOADING_TEXT, [String(this.DownloadPercent)]);
 	}
 
 	//#endregion PRIVATE METHODS

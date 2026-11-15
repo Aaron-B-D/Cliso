@@ -1,0 +1,8 @@
+<mat-form-field class="textPanelDir" appearance="outline" subscriptSizing="dynamic">
+	<mat-label>{{ Label }}</mat-label>
+	<input matInput
+		[readonly]="IsReadOnly"
+		[value]="Value"
+		(input)="OnInput($event)"
+	/>
+</mat-form-field>

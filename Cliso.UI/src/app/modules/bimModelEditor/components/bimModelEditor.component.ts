@@ -9,6 +9,7 @@ import { BimViewerComponent } from 'src/app/shared/components/bimViewer/bimViewe
 import { EditorShellComponent } from 'src/app/shared/components/editorShell/editorShell.component';
 import { ID_NUMERIC_UNDEFINED, STRING_UNDEFINED } from 'src/app/shared/definitions/constants.definitions';
 import { BimModelDto } from 'src/app/shared/definitions/dtos.definitions';
+import { ConfirmDialogType } from 'src/app/shared/definitions/dialogs.definitions';
 import { IconName } from 'src/app/shared/definitions/icons.definitions';
 import { NotificationLevel } from 'src/app/shared/definitions/notifications.definitions';
 import { Permission } from 'src/app/shared/definitions/user.definitions';
@@ -23,6 +24,7 @@ import { IconsUtils } from 'src/app/shared/utils/icons.utils';
 import { LanguageManager } from 'src/app/shared/utils/language/languageManager.utils';
 import { BimModelMapper } from 'src/app/shared/utils/mappers/bimModelMapper.utils';
 import { RequestUtils } from 'src/app/shared/utils/request.utils';
+import { StringUtils } from 'src/app/shared/utils/string.utils';
 import { LoggedUserManager } from 'src/app/shared/utils/session/loggedUserManager.utils';
 import { TryGetResult } from 'src/app/shared/models/common/tryGetResult.models';
 
@@ -114,7 +116,7 @@ export class BimModelEditorComponent implements OnDestroy, OnInit {
 	private readonly _DELETE_ERROR_TEXT: string = LanguageManager.GetText('BME_DELETE_ERROR');
 
 	/** Pregunta de confirmación para descartar los cambios sin guardar. */
-	private readonly _DISCARD_CONFIRM_TEXT: string = LanguageManager.GetText('BME_DISCARD_CONFIRM');
+	private readonly _DISCARD_CONFIRM_TEXT: string = LanguageManager.GetText('WEB_DISCARD_CONFIRM');
 
 	/** Aviso de que el fichero elegido no es un IFC. */
 	private readonly _FILE_INVALID_TEXT: string = LanguageManager.GetText('BME_FILE_INVALID');
@@ -324,7 +326,7 @@ export class BimModelEditorComponent implements OnDestroy, OnInit {
 		if (!CheckUtils.IsNull(this._Selected)) {
 			const model: BimModel = this._Selected;
 
-			if (await this._Confirm.Ask(this._DELETE_CONFIRM_TEXT.replace('{0}', model.Name), true)) {
+			if (await this._Confirm.Show(StringUtils.Format(this._DELETE_CONFIRM_TEXT, [model.Name]), ConfirmDialogType.DANGER)) {
 				await this.deleteModel(model);
 			} else {
 				// El usuario cancela el borrado
@@ -431,7 +433,7 @@ export class BimModelEditorComponent implements OnDestroy, OnInit {
 		let result: boolean = true;
 
 		if (this.IsEditing && this._IsDirty) {
-			result = await this._Confirm.Ask(this._DISCARD_CONFIRM_TEXT, false);
+			result = await this._Confirm.Show(this._DISCARD_CONFIRM_TEXT, ConfirmDialogType.QUESTION);
 		} else {
 			// No hay cambios que perder
 		}
@@ -689,7 +691,7 @@ export class BimModelEditorComponent implements OnDestroy, OnInit {
 		if (file.name.toLowerCase().endsWith(this.FILE_EXTENSION)) {
 			this._PendingFile = file;
 			this._IsDirty = true;
-			this.PendingFileText = this._PENDING_FILE_TEXT.replace('{0}', file.name);
+			this.PendingFileText = StringUtils.Format(this._PENDING_FILE_TEXT, [file.name]);
 		} else {
 			this._Notification.Send(this._FILE_INVALID_TEXT, NotificationLevel.WARNING);
 		}
@@ -734,14 +736,14 @@ export class BimModelEditorComponent implements OnDestroy, OnInit {
 
 		this.ShowUpload = true;
 		this.UploadPercent = 0;
-		this.UploadText = this._UPLOADING_TEXT.replace('{0}', '0');
+		this.UploadText = StringUtils.Format(this._UPLOADING_TEXT, ['0']);
 
 		const response: TryGetResult<BimModelDto> = await RequestUtils.AwaitRequestWithProgress(
 			this._DataAccess.BimModels.SetContent(id, file),
 			this._Canceller,
 			(percent: number): void => {
 				this.UploadPercent = percent;
-				this.UploadText = this._UPLOADING_TEXT.replace('{0}', String(percent));
+				this.UploadText = StringUtils.Format(this._UPLOADING_TEXT, [String(percent)]);
 			}
 		);
 

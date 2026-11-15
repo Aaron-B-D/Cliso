@@ -4,6 +4,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
+import { STRING_UNDEFINED } from 'src/app/shared/definitions/constants.definitions';
 import { IconName } from 'src/app/shared/definitions/icons.definitions';
 import { IconsUtils } from 'src/app/shared/utils/icons.utils';
 import { LanguageManager } from 'src/app/shared/utils/language/languageManager.utils';
@@ -28,6 +29,9 @@ export class EditorShellComponent implements OnChanges, OnDestroy {
 	/** Se emite al pulsar volver a la lista (en móvil). */
 	@Output() public backClicked: EventEmitter<void> = new EventEmitter<void>();
 
+	/** `true` si el editor permite añadir elementos: si no, el pie no muestra el botón de añadir. */
+	@Input() public CanAdd: boolean = true;
+
 	/** `true` si el usuario puede borrar: si no, el pie no muestra el botón de borrar. */
 	@Input() public CanDelete: boolean = true;
 
@@ -42,6 +46,9 @@ export class EditorShellComponent implements OnChanges, OnDestroy {
 
 	/** Se emite al pulsar editar. */
 	@Output() public editClicked: EventEmitter<void> = new EventEmitter<void>();
+
+	/** Alto inicial de la ventana desde `md`, como valor CSS. Vacío para el de por defecto. */
+	@Input() public Height: string = STRING_UNDEFINED;
 
 	/** `true` si hay un elemento seleccionado: solo entonces se puede editar o borrar. */
 	@Input() public HasSelection: boolean = false;

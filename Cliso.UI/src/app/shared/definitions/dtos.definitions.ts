@@ -1,5 +1,22 @@
 //#region TYPES
 
+/** Parámetro de la aplicación tal y como lo envía el API: su tipo y sus valores, como texto. */
+type ApplicationParameterDto = {
+	type: string;
+	default_value: string;
+	value: string;
+};
+
+/** Datos que se envían al API para modificar el valor actual de un parámetro de la aplicación. */
+type ApplicationParameterModificationDto = {
+	value: string;
+};
+
+/** Parámetros de la aplicación tal y como los envía el API. */
+type ApplicationParametersDto = {
+	parameters: ApplicationParameterDto[];
+};
+
 /** Modelo BIM tal y como lo envía y lo recibe el API. Solo se usa en la capa de acceso a datos. */
 type BimModelDto = {
 	id: number | null;
@@ -27,4 +44,11 @@ type SessionDto = {
 
 //#endregion TYPES
 
-export { type BimModelDto, type LoginDto, type SessionDto };
+export {
+	type ApplicationParameterDto,
+	type ApplicationParameterModificationDto,
+	type ApplicationParametersDto,
+	type BimModelDto,
+	type LoginDto,
+	type SessionDto
+};

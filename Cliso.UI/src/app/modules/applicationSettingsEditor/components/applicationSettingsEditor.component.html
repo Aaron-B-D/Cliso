@@ -1,0 +1,107 @@
+<app-editor-shell class="applicationSettingsEditorDir"
+	[CanAdd]="false"
+	[CanDelete]="false"
+	[HasSelection]="HasSelection"
+	[Height]="EDITOR_HEIGHT"
+	[IsBusy]="IsBusy"
+	[IsEditing]="IsEditing"
+	[SearchLabel]="SEARCH_TEXT"
+	[ShowDetail]="HasDetail"
+	[Title]="TITLE_TEXT"
+	(backClicked)="OnBackClicked()"
+	(closeRequested)="OnCloseRequested()"
+	(discardClicked)="OnDiscardClicked()"
+	(editClicked)="OnEditClicked()"
+	(saveClicked)="OnSaveClicked()"
+	(searchChanged)="OnSearchChanged($event)"
+>
+	<div editorList>
+		@if (IsLoadingList) {
+			<div class="ase_loading">
+				<p class="ase_empty">{{ LOADING_TEXT }}</p>
+				<mat-progress-bar mode="indeterminate"></mat-progress-bar>
+			</div>
+		} @else if (HasItems) {
+			<ul class="ase_list">
+				@for (item of ListItems; track item.Parameter.Parameter) {
+					<li>
+						<button class="ase_item"
+							type="button"
+							[class.ase_item-selected]="item.IsSelected"
+							(click)="OnParameterSelected(item.Parameter)"
+						>
+							<span class="ase_item_text">
+								<span class="ase_item_name">{{ item.Name }}</span>
+								<span class="ase_item_value">{{ item.ValueText }}</span>
+							</span>
+							<img class="ase_item_arrow d-md-none" alt="" [src]="ArrowIcon" />
+						</button>
+					</li>
+				}
+			</ul>
+		} @else {
+			<p class="ase_empty">{{ LIST_EMPTY_TEXT }}</p>
+		}
+	</div>
+	<div class="ase_detail" editorDetail>
+		@if (HasDetail) {
+			<h3 class="ase_detail_title">{{ DetailName }}</h3>
+			<p class="ase_text">{{ DetailDescription }}</p>
+			<p class="ase_text ase_text-muted">{{ DetailObservations }}</p>
+			<div class="ase_value">
+				@switch (Panel) {
+					@case (PANEL_LANGUAGE) {
+						<app-application-settings-editor-language-panel class="ase_value_panel"
+							[IsReadOnly]="IsReadOnly"
+							[Label]="VALUE_TEXT"
+							[Value]="DraftValue"
+							(valueChanged)="OnValueChanged($event)"
+						/>
+					}
+					@case (PANEL_NUMBER) {
+						<app-application-settings-editor-number-panel class="ase_value_panel"
+							[IsReadOnly]="IsReadOnly"
+							[Label]="VALUE_TEXT"
+							[Max]="NumberMax"
+							[Min]="NumberMin"
+							[Value]="DraftValue"
+							(valueChanged)="OnValueChanged($event)"
+						/>
+					}
+					@case (PANEL_TEXT) {
+						<app-application-settings-editor-text-panel class="ase_value_panel"
+							[IsReadOnly]="IsReadOnly"
+							[Label]="VALUE_TEXT"
+							[Value]="DraftValue"
+							(valueChanged)="OnValueChanged($event)"
+						/>
+					}
+					@default {
+						<!-- Panel imprevisto: se edita como texto libre y el API valida el valor -->
+						<app-application-settings-editor-text-panel class="ase_value_panel"
+							[IsReadOnly]="IsReadOnly"
+							[Label]="VALUE_TEXT"
+							[Value]="DraftValue"
+							(valueChanged)="OnValueChanged($event)"
+						/>
+					}
+				}
+				<button mat-icon-button
+					matTooltip="{{ RESTORE_DEFAULT_TEXT }}"
+					type="button"
+					[attr.aria-label]="RESTORE_DEFAULT_TEXT"
+					[disabled]="IsRestoreDisabled"
+					(click)="OnRestoreDefaultClicked()"
+				>
+					<img class="ase_icon" alt="" [src]="RestoreIcon" />
+				</button>
+			</div>
+			@if (HasError) {
+				<p class="ase_error" role="alert">{{ ErrorText }}</p>
+			}
+			<p class="ase_text ase_text-muted">{{ DefaultValueText }}</p>
+		} @else {
+			<p class="ase_empty">{{ NO_SELECTION_TEXT }}</p>
+		}
+	</div>
+</app-editor-shell>

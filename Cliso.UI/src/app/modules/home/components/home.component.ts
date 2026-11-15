@@ -7,6 +7,7 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { HomeCardComponent } from 'src/app/modules/home/components/card/card.component';
 import { BimViewerPanelComponent } from 'src/app/shared/components/bimViewerPanel/bimViewerPanel.component';
 import { ID_NUMERIC_UNDEFINED, STRING_UNDEFINED } from 'src/app/shared/definitions/constants.definitions';
+import { ConfirmDialogType } from 'src/app/shared/definitions/dialogs.definitions';
 import { BimModelDto } from 'src/app/shared/definitions/dtos.definitions';
 import { IconName } from 'src/app/shared/definitions/icons.definitions';
 import { NotificationLevel } from 'src/app/shared/definitions/notifications.definitions';
@@ -26,6 +27,7 @@ import { LanguageManager } from 'src/app/shared/utils/language/languageManager.u
 import { LocalStorageManager } from 'src/app/shared/utils/localStorage/localStorageManager.utils';
 import { BimModelMapper } from 'src/app/shared/utils/mappers/bimModelMapper.utils';
 import { RequestUtils } from 'src/app/shared/utils/request.utils';
+import { StringUtils } from 'src/app/shared/utils/string.utils';
 
 /** Pantalla principal de la aplicación: el buscador de modelos y visualizaciones. */
 @Component({
@@ -208,7 +210,7 @@ export class HomeComponent implements OnDestroy, OnInit {
 	public async OnModelSelected(model: BimModel): Promise<void> {
 		if (model.FileName === STRING_UNDEFINED) {
 			this._Notification.Send(this._NO_FILE_TEXT, NotificationLevel.WARNING);
-		} else if (await this._Confirm.Ask(this._OPEN_CONFIRM_TEXT.replace('{0}', model.Name), false)) {
+		} else if (await this._Confirm.Show(StringUtils.Format(this._OPEN_CONFIRM_TEXT, [model.Name]), ConfirmDialogType.QUESTION)) {
 			// Un modelo abierto desde la lista arranca con el resaltado de piezas activado, a diferencia del aspecto por defecto
 			const style: BimViewerStyle = new BimViewerStyle();
 
@@ -346,7 +348,7 @@ export class HomeComponent implements OnDestroy, OnInit {
 			if (CheckUtils.IsUndefined(model) || model.FileName === STRING_UNDEFINED) {
 				// El modelo ya no existe o no tiene fichero: la sesión guardada no sirve
 				LocalStorageManager.ClearLastBimModelConfiguration();
-			} else if (await this._Confirm.Ask(this._RESTORE_CONFIRM_TEXT, false)) {
+			} else if (await this._Confirm.Show(this._RESTORE_CONFIRM_TEXT, ConfirmDialogType.QUESTION)) {
 				this.openModel(model, last);
 			} else {
 				LocalStorageManager.ClearLastBimModelConfiguration();

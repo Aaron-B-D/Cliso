@@ -148,23 +148,27 @@ La guía completa está en [`Documentation/UI/[Diseño] Cliso.UI - Guía de esti
   formato lo fija Prettier (tabuladores, 130 columnas) y `npm run lint` pasa ESLint sobre `src`.
 - **Tokens de diseño** (colores, espaciado, formas) como propiedades CSS en `Cliso.UI/src/styles/_variables.scss`;
   los componentes los leen con `var(--color-...)` y no llevan valores sueltos.
-- **Editores** (modelos, y después visualizaciones y usuarios): modal redimensionable con lista y buscador a la
+- **Editores** (modelos y parámetros, y después visualizaciones y usuarios): modal redimensionable con lista y buscador a la
   izquierda (con un splitter siempre visible, plegable), detalle en pestañas a la derecha y un pie solo con iconos
   pequeños: añadir, editar y borrar y, mientras se edita, guardar y descartar. El detalle es de solo lectura hasta
   pulsar editar, y con cambios sin guardar se pide confirmación antes de cerrar, cambiar de ficha o descartar.
   Comparten el esqueleto `EditorShell` (en `shared/components`), que da al detalle su alto como contenedor (`cqh`)
-  para que lo aprovechen los elementos de dentro (por ejemplo, la previsualización).
+  para que lo aprovechen los elementos de dentro (por ejemplo, la previsualización). Cada editor puede ocultar los
+  botones de añadir y borrar (`CanAdd`, `CanDelete`) y fijar su alto inicial (`Height`).
 - **Avisos y confirmaciones:** `NotificationService` muestra un toast arriba al centro (3 s) con el color de su nivel
   (peligro en rojo, éxito en verde, aviso con borde blanco, informativo con el borde normal) y
-  `ConfirmDialogService` hace preguntas de aceptar o cancelar. En un borrado, el botón de aceptar (en rojo) va a la
-  izquierda del de cancelar.
+  `ConfirmDialogService.Show(mensaje, tipo)` abre un diálogo según su tipo (`ConfirmDialogType`): `QUESTION` (cancelar
+  y aceptar), `DANGER` (el aceptar, en rojo, va a la izquierda del de cancelar; por ejemplo, en un borrado) e
+  `INFORMATION` (solo aceptar, para un mensaje que no pide decidir nada).
+- **Textos con valores:** llevan marcadores (`{0}`, `{1}`...) que se sustituyen con `StringUtils.Format`, como el
+  `string.Format` de C#.
 - **Fechas:** el API manda texto ISO 8601 y el front trabaja con fechas con las que se puede operar. El constructor
   de un model con fechas acepta cualquier `DateInput` (texto, número, `Date` o un tipo de Temporal) y `DateUtils.Parse`
   lo convierte en un `Temporal.ZonedDateTime`. El texto sin zona (como lo manda hoy el back) se entiende como hora local
   del navegador. Hoy ningún model del front las usa (`BimModel` ignora la fecha de creación, que la UI no muestra),
   pero la utilidad queda lista.
-- El diseño de pantallas está en los diagramas `.drawio` de `Documentation/UI/` (barra de herramientas, editor, home
-  e inicio de sesión). Cada uno incluye páginas «(móvil)» de ≈ 360 px que sirven de referencia de responsividad: la
+- El diseño de pantallas está en los diagramas `.drawio` de `Documentation/UI/` (barra de herramientas, editor, home,
+  inicio de sesión y parámetros). Cada uno incluye páginas «(móvil)» de ≈ 360 px que sirven de referencia de responsividad: la
   barra lateral pasa a barra superior con menú desplegable, el Home muestra las fichas en una columna con los paneles
   apilados, los editores ocupan la pantalla completa con lista y detalle en dos pasos y el inicio de sesión es una
   tarjeta centrada a ancho completo menos el margen.
@@ -177,14 +181,21 @@ Implementado hasta ahora (`Cliso.UI/src/app`):
   *Edición* y, abajo, el usuario actual, que abre un panel con *Cerrar sesión*; en móvil, barra superior con menú
   desplegable en el que *Edición* se despliega como un acordeón y *Cerrar sesión* va al final) y el Home a la
   derecha (ver más abajo). *Edición* abre un panel a la derecha de su botón con
-  *Modelos* (activo) y *Visualizaciones* y *Usuarios* (deshabilitados hasta que existan). Rutas en `app.routes.ts`
+  *Modelos* y *Parámetros*; una entrada que el usuario no puede usar, o que aún no existe (*Visualizaciones* y
+  *Usuarios*), no se muestra. Rutas en `app.routes.ts`
   (`AppRoute`): `/login` va aparte, sin barra lateral, y el resto cuelgan de `MainLayoutComponent` (la barra lateral
   y el contenido) con `AuthGuard`, que sin sesión lleva a `/login`.
-- **Arranque** (`AppBootstrapUtils`): fija el idioma con el parámetro de la aplicación y pregunta al API
-  (`GET /auth/me`) si el navegador ya tiene una sesión abierta, porque la cookie sobrevive a recargar la página.
-  Pendiente: ejecutarlo tras el login y recuperar del API los parámetros y las visualizaciones (los modelos BIM los
-  pide el Home al abrirse).
-- **Inicio de sesión** (`modules/login`): tarjeta centrada, sin barra lateral, con *Nick* y *Contraseña*. Un fallo
+- **Arranque** (`AppBootstrapUtils`): fija el idioma del inicio de sesión (ver más abajo) y pregunta al API
+  (`GET /auth/me`) si el navegador ya tiene una sesión abierta, porque la cookie sobrevive a recargar la página. Si la
+  hay, recupera del API los parámetros de la aplicación (`LoadApplicationSettings`), los guarda en
+  `ApplicationSettingsManager` y fija el idioma con el suyo; si fallan, lo deja en la consola y sigue con los valores
+  por defecto. Al iniciar sesión se hace lo mismo antes de ir al Home. Las visualizaciones aún no se recuperan (los
+  modelos BIM los pide el Home al abrirse).
+- **Inicio de sesión** (`modules/login`): tarjeta centrada, sin barra lateral, con un selector de *Idioma*, *Nick* y
+  *Contraseña*. El selector parte del último idioma elegido en él (guardado con `LocalStorageManager`, clave
+  `LOGIN_LANGUAGE`) o, si no hay ninguno, del primero de los preferidos del navegador que se admita (inglés si
+  ninguno); cambia al momento los textos de la pantalla y solo vale para ella: al entrar manda el parámetro `LANGUAGE`.
+  Al volver al login tras cerrar sesión o caducar, recupera su idioma. Un fallo
   se explica bajo los campos: datos incorrectos (401), demasiados intentos (429), sesión caducada por inactividad o
   error inesperado. `SessionManager` (estático) guarda la sesión actual (`Session`: `UserId`, `Nick`, `Role` y `Permissions`). La
   barra lateral muestra el nick, porque la sesión del API no trae el nombre completo.
@@ -193,20 +204,35 @@ Implementado hasta ahora (`Cliso.UI/src/app`):
   inactividad), cierra los diálogos abiertos, lleva a `/login` y la pantalla de login lo explica. Un 401 sin sesión
   (un login fallido) no hace nada.
 - **Parámetros de la aplicación** (`ApplicationSettingsManager`): guarda un parámetro por cada valor de
-  `ApplicationSettingsParameter` (`LANGUAGE`, `BIM_MODELS_DIRECTORY` y `BIM_MODELS_REFRESH_INTERVAL`), con valores por
-  defecto hasta que se recuperen del API (hoy siempre se usan los de por defecto). Sus nombres, descripciones y
+  `ApplicationSettingsParameter` (`LANGUAGE`, `BIM_MODELS_DIRECTORY`, `BIM_MODELS_REFRESH_INTERVAL` y
+  `SESSION_TIMEOUT_MILLISECONDS`), cada uno con su clase en `shared/models/applicationSettings`. Arranca con valores
+  por defecto y `SetParameters` los sustituye por los recuperados del API (`DataAccessService.ApplicationSettings`, con
+  `ApplicationSettingsMapper`, que descarta los tipos que el front no conoce). Sus nombres, descripciones y
   observaciones están en los textos multidioma (`AS_*`).
+- **Editor de parámetros** (`modules/applicationSettingsEditor`, se abre desde *Edición → Parámetros* y va en el
+  bundle principal, porque es ligero): usa `EditorShell` sin añadir ni borrar (los parámetros son fijos) y con un alto inicial menor (26 rem).
+  La lista muestra una ficha por parámetro (nombre y valor actual) con buscador; el detalle, su descripción,
+  observaciones y valor por defecto, y un panel según el tipo: texto libre (carpeta de los modelos), número (intervalo
+  de refresco y caducidad de la sesión) o lista de idiomas. Junto al campo, un botón restaura el valor por defecto.
+  Antes de guardar se comprueba lo básico (número entero mayor que cero, carpeta no vacía, el intervalo de refresco
+  entre 5 segundos y 1 día y la caducidad de la sesión de 1 año como máximo, con los límites `MIN_VALUE` y `MAX_VALUE`
+  de cada clase de parámetro) y el resto lo valida el API.
+  El campo numérico recibe esos límites (`Min`, `Max`): las flechas no los superan y, al salir del campo, un número
+  fuera de ellos se lleva al más cercano
+  (un 400 se muestra bajo el campo). Al guardar, un diálogo informativo avisa de que el cambio se aplica al recargar
+  la página y, en la carpeta de los modelos y la caducidad de la sesión, además al reiniciar la API.
 - **Permisos en la interfaz** (`LoggedUserManager`, estático): responde a quién es el usuario de la sesión
-  (`GetNick`) y a qué puede hacer (`HasPermission`, con el enumerado `Permission`, que replica el de la API salvo
-  `APPLICATION_PARAMETERS_EDIT`, que la interfaz aún no usa; los permisos salen de la lista `permissions` de la sesión). Solo decide qué se muestra, porque la API exige los permisos igualmente: el botón
-  *Edición* de la barra lateral solo aparece si el usuario puede abrir alguno de los editores, y cada opción
-  (*Modelos*, *Visualizaciones*, *Usuarios*) solo si tiene su permiso (`BIM_MODELS_EDIT`, `VISUALIZATIONS_CREATE` y
-  `USERS_MANAGE`); el editor de modelos solo muestra el botón de borrar con `BIM_MODELS_DELETE`.
+  (`GetNick`) y a qué puede hacer (`HasPermission`, con el enumerado `Permission`, que replica el de la API; los
+  permisos salen de la lista `permissions` de la sesión). Solo decide qué se muestra, porque la API exige los permisos
+  igualmente: el botón *Edición* de la barra lateral solo aparece si el usuario puede abrir alguno de los editores, y
+  cada opción (*Modelos*, *Parámetros*) solo si tiene su permiso (`BIM_MODELS_EDIT`, `APPLICATION_PARAMETERS_EDIT`);
+  el editor de modelos solo muestra el botón de borrar con `BIM_MODELS_DELETE`.
 - **Home** (`modules/home`): catálogo de modelos BIM en fichas verticales (`HomeCardComponent`, de `mat-card`: portada
   con un icono genérico mientras los modelos no tengan una propia, y debajo nombre y descripción; al pasar el ratón se
   marca el borde), en una columna en móvil y hasta tres desde `lg`. Pide los modelos al API al abrirse (con barra de carga) y el buscador filtra por nombre y descripción, con
   mensajes para «no hay modelos» y «ninguno coincide». Cada cierto tiempo, marcado por el parámetro
-  `BIM_MODELS_REFRESH_INTERVAL` (30 s por defecto), vuelve a pedirlos para mostrar los que otro usuario o otra sesión
+  `BIM_MODELS_REFRESH_INTERVAL` (30 s por defecto; si el valor recibido está fuera de 5 s – 1 día, se usa el de por
+  defecto), vuelve a pedirlos para mostrar los que otro usuario o otra sesión
   añada, y solo cambia la lista si hay diferencias (`BimModel.Equals`, de la interfaz `IComparable`). Al pulsar una
   ficha, pide confirmación (un modelo sin fichero IFC avisa y no se abre) y el visor sustituye al catálogo, con el
   nombre del modelo y el botón *Volver a la lista*; el visor ocupa todo el alto que queda. Mientras se descarga el
@@ -254,15 +280,17 @@ Implementado hasta ahora (`Cliso.UI/src/app`):
   visor 3D (`BimViewer`) y el visor con barra de herramientas y panel de carga (`BimViewerPanel`,
   `BimViewerToolbar` y `BimViewerLoadingPanel`).
 - **Acceso al API:** `DataAccessService` agrupa las llamadas por concepto; hoy `Auth` (iniciar y cerrar sesión, y
-  consultar la actual) y `BimModels` (listar, obtener, crear, modificar, borrar, y subir y descargar el IFC, con
-  progreso). La URL base, `Environment.API_URL`, es
+  consultar la actual), `BimModels` (listar, obtener, crear, modificar, borrar, y subir y descargar el IFC, con
+  progreso) y `ApplicationSettings` (listar los parámetros y modificar el valor de uno). La URL base, `Environment.API_URL`, es
   `http://localhost:8000` en desarrollo y la ruta relativa `/api` en el build de producción, que el servidor web
   reenvía a la API. Cada concepto tiene su DTO (`dtos.definitions.ts`, campos como los manda el API), su model
   (`shared/models`) y su mapper (`shared/utils/mappers`). También `RequestUtils` (`AwaitRequest` y
   `AwaitRequestWithProgress`) y `HttpRequestCanceller`.
 - **Fechas:** `DateUtils` y el tipo `DateInput`, con tests.
 - **Avisos y confirmaciones:** `NotificationService` y `ConfirmDialogService` (ver «Diseño de la interfaz»).
-- **Textos multidioma:** gallego, castellano e inglés (`LanguageGl`, `LanguageEs`, `LanguageEn`), con `LanguageManager`.
+- **Textos multidioma:** gallego, castellano e inglés (`LanguageGl`, `LanguageEs`, `LanguageEn`), con `LanguageManager`,
+  que además da los idiomas que se pueden elegir (`GetOptions`, cada uno con su nombre en su idioma) y el preferido
+  del navegador (`GetBrowserLanguage`).
 - **Pendiente** (según los diagramas): editores de visualizaciones (con los marcadores) y de usuarios,
   Configuración, las portadas de los modelos y las visualizaciones en el Home. Con `ng serve` (front en `localhost:4200`, API en
   `localhost:8000`) el navegador solo deja pasar las llamadas, y guarda la cookie de la sesión, si el API autoriza ese
@@ -294,6 +322,13 @@ Implementado hasta ahora (`Cliso.UI/src/app`):
   deja hacer no se piden con un `@Input()` de órdenes ni con `@ViewChild`; el componente emite `compiled` con un objeto
   que implementa una interfaz de métodos (`IBimViewerAccess`) y quien lo recibe lo guarda y llama a sus métodos. La
   clase del evento se declara en el propio componente que lo emite. Los datos de estado siguen entrando por `@Input()`.
+- **Los parámetros se aplican al recargar:** el front los lee al arrancar o al iniciar sesión y los componentes copian
+  sus textos y valores al crearse, así que aplicar un cambio en caliente obligaría a recrear la interfaz. Por eso el
+  editor de parámetros guarda el valor y avisa de cuándo surte efecto (recargar la página y, para lo que la API lee
+  al arrancar, reiniciarla), en lugar de aplicarlo a medias.
+- **Idioma del inicio de sesión aparte del de la aplicación:** antes de iniciar sesión no se pueden pedir los
+  parámetros (exigen sesión), así que el login usa el último idioma elegido en él o el del navegador, y al entrar
+  manda el parámetro `LANGUAGE`.
 - **Tamaño del bundle:** el inicial (≈ 800 kB) lo forman Angular, Material y el CDK, no el visor; los avisos del
   presupuesto están en 1 MB (aviso) y 1,5 MB (error).
 
@@ -489,7 +524,7 @@ Parámetros iniciales de `application_parameter` (los que carga la autoinstalaci
 |---|---|---|
 | `LANGUAGE` | Idioma de la aplicación, con código internacional (por ejemplo, `es-ES`). | `es-ES` |
 | `BIM_MODELS_DIRECTORY` | Ruta, relativa o absoluta, de la carpeta donde se guardan los ficheros `.ifc` de los modelos BIM. Si es relativa, lo es a `Cliso.API`, como `data/` y `logs/`. | `data/models` |
-| `SESSION_TIMEOUT_MILLISECONDS` | Milisegundos de inactividad tras los que caduca una sesión (en milisegundos para poder fijar plazos muy cortos). Debe ser un entero mayor que cero, o la API no arranca. | `1800000` (30 minutos) |
+| `SESSION_TIMEOUT_MILLISECONDS` | Milisegundos de inactividad tras los que caduca una sesión (en milisegundos para poder fijar plazos muy cortos). Debe ser un entero mayor que cero y de 1 año (`31536000000`) como máximo, o la API no arranca. | `1800000` (30 minutos) |
 | `BIM_MODELS_REFRESH_INTERVAL` | Cada cuántos milisegundos comprueba el front si hay modelos BIM nuevos. La API no lo usa. | `30000` (30 segundos) |
 
 Una base de datos creada antes de añadir un parámetro no lo tiene, y la API no arranca (error «no existe el parámetro de
@@ -765,9 +800,9 @@ Cada respuesta lleva `default_value`, así que el front puede restaurar un pará
 | Parámetro | Valor válido |
 |---|---|
 | `LANGUAGE` | Un código de idioma con la forma `xx-XX` (por ejemplo, `es-ES`). |
-| `BIM_MODELS_DIRECTORY` | Un texto que no esté vacío ni en blanco. |
-| `BIM_MODELS_REFRESH_INTERVAL` | Un número entero mayor que cero, escrito solo con dígitos. |
-| `SESSION_TIMEOUT_MILLISECONDS` | Un número entero mayor que cero, escrito solo con dígitos. |
+| `BIM_MODELS_DIRECTORY` | Un texto que no esté vacío ni en blanco y no empiece ni acabe con espacios. No se comprueba que la carpeta exista y el mensaje de error no repite el valor, para no usar la API para averiguar las carpetas del servidor. |
+| `BIM_MODELS_REFRESH_INTERVAL` | Un número entero escrito solo con dígitos, entre `5000` (5 segundos, para no saturar la API) y `86400000` (1 día; el navegador no admite temporizadores de más de unos 24 días). |
+| `SESSION_TIMEOUT_MILLISECONDS` | Un número entero mayor que cero, escrito solo con dígitos, de `31536000000` (1 año) como máximo. |
 
 Para añadir un parámetro nuevo: un valor en `ApplicationParameterType`, una fila en los dos ficheros de datos básicos
 (`sqlite_basic_data.sql` y `mysql_basic_data.sql`) y su regla de validación en el servicio.

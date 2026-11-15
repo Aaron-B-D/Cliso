@@ -2,7 +2,7 @@ import { Component, Inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 
-import { ConfirmDialogData } from 'src/app/shared/definitions/dialogs.definitions';
+import { ConfirmDialogData, ConfirmDialogType } from 'src/app/shared/definitions/dialogs.definitions';
 import { LanguageManager } from 'src/app/shared/utils/language/languageManager.utils';
 
 /** Diálogo que hace una pregunta al usuario y devuelve `true` si acepta y `false` si cancela o lo cierra. */
@@ -14,6 +14,15 @@ import { LanguageManager } from 'src/app/shared/utils/language/languageManager.u
 })
 export class ConfirmDialogComponent {
 	//#region PUBLIC CONSTANTS
+
+	/** Tipo de diálogo para una pregunta destructiva. */
+	public readonly TYPE_DANGER: ConfirmDialogType = ConfirmDialogType.DANGER;
+
+	/** Tipo de diálogo para un mensaje que solo informa. */
+	public readonly TYPE_INFORMATION: ConfirmDialogType = ConfirmDialogType.INFORMATION;
+
+	/** Tipo de diálogo para una pregunta normal. */
+	public readonly TYPE_QUESTION: ConfirmDialogType = ConfirmDialogType.QUESTION;
 
 	//#region LANGUAGE TEXTS
 
@@ -29,11 +38,11 @@ export class ConfirmDialogComponent {
 
 	//#region PUBLIC PROPERTIES
 
-	/** `true` si lo que se confirma es destructivo. */
-	public IsDanger: boolean;
-
-	/** Pregunta que se hace al usuario. */
+	/** Mensaje o pregunta que se muestra al usuario. */
 	public Message: string;
+
+	/** Tipo de diálogo: decide sus botones. */
+	public Type: ConfirmDialogType;
 
 	//#endregion PUBLIC PROPERTIES
 
@@ -52,8 +61,8 @@ export class ConfirmDialogComponent {
 	 */
 	constructor(dialogRef: MatDialogRef<ConfirmDialogComponent, boolean>, @Inject(MAT_DIALOG_DATA) data: ConfirmDialogData) {
 		this._DialogRef = dialogRef;
-		this.IsDanger = data.IsDanger;
 		this.Message = data.Message;
+		this.Type = data.Type;
 	}
 
 	//#endregion CONSTRUCTOR

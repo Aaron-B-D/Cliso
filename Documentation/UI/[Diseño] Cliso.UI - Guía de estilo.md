@@ -100,15 +100,18 @@ Estructura funcional de la aplicación. Los diagramas `.drawio` de esta carpeta 
 - Barra lateral con **Home** (el botón se llama «Inicio»), **Edición** y **Configuración**, y el **usuario**
   anclado abajo.
 - **Edición** abre un panel a la derecha de su botón (para dar a entender que es un nivel inferior) con *Modelos*,
-  *Visualizaciones* y *Usuarios*; cada uno abre su editor. Mientras está abierto, el botón queda resaltado a todo el
-  ancho de la barra. Lo que aún no existe aparece deshabilitado (atenuado, sin fondo).
+  *Parámetros*, *Visualizaciones* y *Usuarios*; cada uno abre su editor. Mientras está abierto, el botón queda
+  resaltado a todo el ancho de la barra. Un botón que el usuario no puede usar, o que aún no existe, no se muestra.
 - El usuario abre un panel encima con *Cerrar sesión*. Los paneles se cierran al hacer clic fuera.
 - El botón activo o con el ratón encima se marca con `--color-hover`.
 
 ### Inicio de sesión
 
 - Pantalla aparte, sin barra lateral: una tarjeta (16 px, borde de 1 px en `--color-border`) centrada, de ancho máximo
-  25 rem, con el título, los campos *Nick* y *Contraseña* y el botón *Entrar* a ancho completo.
+  25 rem, con el título, un selector de *Idioma*, los campos *Nick* y *Contraseña* y el botón *Entrar* a ancho completo.
+- **Idioma:** el selector parte del último idioma elegido en él (guardado en el almacenamiento local) o, si no hay
+  ninguno, del idioma del navegador; si no está admitido, inglés. Cambia al momento los textos de esta pantalla y solo
+  vale para ella: al entrar manda el parámetro de la aplicación `LANGUAGE`.
 - El motivo de un fallo (datos incorrectos, demasiados intentos, sesión caducada por inactividad) se muestra en
   `--color-danger` bajo los campos, en un hueco que se reserva para que el formulario no se mueva.
 - Sin sesión, cualquier otra pantalla lleva aquí. Al caducar la sesión se cierran los diálogos abiertos y se vuelve
@@ -130,6 +133,25 @@ Estructura funcional de la aplicación. Los diagramas `.drawio` de esta carpeta 
 - Pestañas: *Usuarios* → General y Permisos; *Modelos* → General (nombre, descripción, observaciones y carga del fichero IFC
   (`.ifc`) arrastrando o con clic, que se sube al guardar) y Previsualización (visor 3D del IFC); *Visualizaciones* → General (modelo,
   nombre, descripción, observaciones) y Previsualización (visor con marcadores numerados, *+ Marcador* y su lista).
+
+### Parámetros (diagrama «Parámetros»)
+
+Editor de los parámetros de la aplicación, con la estructura de los editores (modal, lista a la izquierda, detalle a la
+derecha, pie), con estas diferencias:
+
+- Entrada *Parámetros* del panel de Edición, solo para quien puede modificarlos. Las entradas que el usuario no puede
+  usar, o que aún no existen, no se muestran.
+- Sin *Añadir* ni *Borrar* (los parámetros son fijos): el pie solo tiene *Editar* y, al editar, *Guardar* y *Descartar*.
+  Su alto inicial es menor que el de los demás (26 rem).
+- La lista tiene una ficha por parámetro (nombre y valor actual). El detalle muestra su descripción, sus observaciones y
+  su valor por defecto, y un **panel propio según el tipo**: texto libre (carpeta de modelos), número (intervalo de
+  refresco y caducidad de la sesión, un único panel compartido, con los límites del parámetro: al salir del campo, un
+  número fuera de ellos se lleva al más cercano) o lista de idiomas.
+- El campo del valor ocupa todo el ancho que deja el botón de icono *Restaurar el valor por defecto* (↻, con tooltip),
+  que solo vale al editar.
+- Al guardar se avisa con un diálogo informativo (solo *Aceptar*): los cambios se aplican cuando se recarga la página,
+  y la carpeta de modelos y la caducidad de la sesión además requieren reiniciar la API. El front no aplica el valor
+  nuevo hasta recargar.
 
 ### Home (diagrama «Home»)
 

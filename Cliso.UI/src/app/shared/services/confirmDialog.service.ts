@@ -3,8 +3,9 @@ import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { firstValueFrom } from 'rxjs';
 
 import { ConfirmDialogComponent } from 'src/app/shared/components/confirmDialog/confirmDialog.component';
+import { ConfirmDialogType } from 'src/app/shared/definitions/dialogs.definitions';
 
-/** Hace una pregunta al usuario con un diálogo de aceptar o cancelar. */
+/** Muestra diálogos de confirmación: preguntas de aceptar o cancelar y mensajes informativos. */
 @Injectable({ providedIn: 'root' })
 export class ConfirmDialogService {
 	//#region PRIVATE PROPERTIES
@@ -28,14 +29,14 @@ export class ConfirmDialogService {
 	//#region PUBLIC METHODS
 
 	/**
-	 * Pregunta al usuario y espera su respuesta.
-	 * @param message Pregunta que se hace.
-	 * @param isDanger `true` si lo que se confirma es destructivo (por ejemplo, un borrado).
+	 * Muestra un diálogo de confirmación del tipo indicado y espera la respuesta del usuario.
+	 * @param message Pregunta o mensaje que se muestra.
+	 * @param type Tipo de diálogo: decide sus botones.
 	 * @returns `true` si el usuario acepta; `false` si cancela o cierra el diálogo.
 	 */
-	public async Ask(message: string, isDanger: boolean): Promise<boolean> {
+	public async Show(message: string, type: ConfirmDialogType): Promise<boolean> {
 		const dialogRef: MatDialogRef<ConfirmDialogComponent, boolean> = this._Dialog.open(ConfirmDialogComponent, {
-			data: { IsDanger: isDanger, Message: message }
+			data: { Message: message, Type: type }
 		});
 
 		// Si se cierra sin responder (Escape, clic fuera), no llega ningún valor: cuenta como cancelar

@@ -13,6 +13,7 @@ enum IconName {
 	CHEVRONS_RIGHT = 'chevrons-right',
 	MAXIMIZE = 'maximize',
 	RESTORE = 'restore',
+	RESTART_ALT = 'restart-alt',
 	UPLOAD = 'upload',
 	LOGOUT = 'logout',
 	MENU = 'menu',

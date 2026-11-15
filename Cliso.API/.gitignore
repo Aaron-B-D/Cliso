@@ -1,4 +1,5 @@
 .venv/
 __pycache__/
+data/
 demo.db
 logs/

@@ -126,6 +126,11 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None]:
 			raise ApplicationParameterError(
 				f"El parámetro {ApplicationParameterType.SESSION_TIMEOUT_MILLISECONDS} debe ser mayor que cero: '{session_timeout_text}'"
 			);
+		# Al guardarlo ya se comprueba el máximo, pero la base de datos se puede editar a mano
+		if session_timeout_milliseconds > ApplicationParameterService.MAX_SESSION_TIMEOUT_MILLISECONDS:
+			raise ApplicationParameterError(
+				f"El parámetro {ApplicationParameterType.SESSION_TIMEOUT_MILLISECONDS} no puede superar {ApplicationParameterService.MAX_SESSION_TIMEOUT_MILLISECONDS} milisegundos (1 año): '{session_timeout_text}'"
+			);
 	except (DatabaseError, ApplicationParameterError, PersistenceError) as error:
 		Logger.error("Arranque fallido: no se pudo preparar la base de datos ni leer sus parámetros.", error);
 		Logger.close();

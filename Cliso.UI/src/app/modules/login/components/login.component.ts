@@ -4,9 +4,12 @@ import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { MatSelectChange, MatSelectModule } from '@angular/material/select';
 import { Router } from '@angular/router';
 
+import { AppBootstrapUtils } from 'src/app/core/utils/appBootstrap.utils';
 import { STRING_UNDEFINED } from 'src/app/shared/definitions/constants.definitions';
+import { LanguageCode, LanguageOption } from 'src/app/shared/definitions/language.definitions';
 import { AppRoute } from 'src/app/shared/definitions/routes.definitions';
 import { TryGetResult } from 'src/app/shared/models/common/tryGetResult.models';
 import { Session } from 'src/app/shared/models/session/session.models';
@@ -14,37 +17,18 @@ import { DataAccessService } from 'src/app/shared/services/dataAccess.service';
 import { CheckUtils } from 'src/app/shared/utils/check.utils';
 import { HttpRequestCanceller } from 'src/app/shared/utils/httpRequestCanceller.utils';
 import { LanguageManager } from 'src/app/shared/utils/language/languageManager.utils';
+import { LocalStorageManager } from 'src/app/shared/utils/localStorage/localStorageManager.utils';
 import { RequestUtils } from 'src/app/shared/utils/request.utils';
 import { SessionManager } from 'src/app/shared/utils/session/sessionManager.utils';
 
 /** Pantalla de inicio de sesión: pide el nick y la contraseña y, si son correctos, lleva a la pantalla principal. */
 @Component({
 	selector: 'app-login',
-	imports: [FormsModule, MatButtonModule, MatFormFieldModule, MatInputModule],
+	imports: [FormsModule, MatButtonModule, MatFormFieldModule, MatInputModule, MatSelectModule],
 	templateUrl: './login.component.html',
 	styleUrl: './login.component.scss'
 })
 export class LoginComponent implements OnDestroy, OnInit {
-	//#region PUBLIC CONSTANTS
-
-	//#region LANGUAGE TEXTS
-
-	/** Etiqueta del campo del nick. */
-	public readonly NICK_TEXT: string = LanguageManager.GetText('LOGIN_NICK');
-
-	/** Etiqueta del campo de la contraseña. */
-	public readonly PASSWORD_TEXT: string = LanguageManager.GetText('LOGIN_PASSWORD');
-
-	/** Texto del botón que inicia sesión. */
-	public readonly SUBMIT_TEXT: string = LanguageManager.GetText('LOGIN_SUBMIT');
-
-	/** Título de la pantalla. */
-	public readonly TITLE: string = LanguageManager.GetText('LOGIN_TITLE');
-
-	//#endregion LANGUAGE TEXTS
-
-	//#endregion PUBLIC CONSTANTS
-
 	//#region PUBLIC PROPERTIES
 
 	/** Aviso del último intento fallido; vacío si no hay. */
@@ -53,11 +37,33 @@ export class LoginComponent implements OnDestroy, OnInit {
 	/** Indica si hay un inicio de sesión en curso. */
 	public IsLoading: boolean = false;
 
+	// Los textos no son constantes: se vuelven a leer al cambiar el idioma con el selector
+	/** Etiqueta del selector de idioma. */
+	public LanguageText: string = LanguageManager.GetText('LOGIN_LANGUAGE');
+
 	/** Alias escrito por el usuario. */
 	public Nick: string = STRING_UNDEFINED;
 
+	/** Etiqueta del campo del nick. */
+	public NickText: string = LanguageManager.GetText('LOGIN_NICK');
+
+	/** Idiomas que se ofrecen en el selector, con el nombre de cada uno en su idioma. */
+	public Options: LanguageOption[] = LanguageManager.GetOptions();
+
 	/** Contraseña escrita por el usuario. */
 	public Password: string = STRING_UNDEFINED;
+
+	/** Etiqueta del campo de la contraseña. */
+	public PasswordText: string = LanguageManager.GetText('LOGIN_PASSWORD');
+
+	/** Idioma elegido en el selector. */
+	public SelectedLanguage: LanguageCode = LanguageManager.GetCode();
+
+	/** Texto del botón que inicia sesión. */
+	public SubmitText: string = LanguageManager.GetText('LOGIN_SUBMIT');
+
+	/** Título de la pantalla. */
+	public Title: string = LanguageManager.GetText('LOGIN_TITLE');
 
 	//#endregion PUBLIC PROPERTIES
 
@@ -83,6 +89,14 @@ export class LoginComponent implements OnDestroy, OnInit {
 	constructor(dataAccess: DataAccessService, router: Router) {
 		this._DataAccess = dataAccess;
 		this._Router = router;
+
+		if (CheckUtils.IsNull(SessionManager.GetCurrentSession())) {
+			// Al volver aquí tras cerrar sesión o caducar, la pantalla recupera su idioma en vez del de la aplicación
+			AppBootstrapUtils.SetLoginLanguage();
+			this.loadTexts();
+		} else {
+			// Con sesión se va a la pantalla principal: se mantiene el idioma de la aplicación
+		}
 
 		if (SessionManager.TakeExpirationNotice()) {
 			this.ErrorText = LanguageManager.GetText('LOGIN_SESSION_EXPIRED');
@@ -114,6 +128,18 @@ export class LoginComponent implements OnDestroy, OnInit {
 
 	//#region SUBSCRIBERS
 
+	/**
+	 * Cambia el idioma de esta pantalla y lo recuerda para la próxima vez. Al entrar, manda el parámetro de la aplicación.
+	 * @param event Idioma elegido en el selector.
+	 */
+	public OnLanguageChanged(event: MatSelectChange): void {
+		const code: LanguageCode = event.value as LanguageCode;
+
+		LanguageManager.SetLanguage(code);
+		LocalStorageManager.SetLoginLanguage(code);
+		this.loadTexts();
+	}
+
 	/** Inicia sesión con el nick y la contraseña escritos y, si son correctos, va a la pantalla principal. */
 	public async OnSubmit(): Promise<void> {
 		this.ErrorText = STRING_UNDEFINED;
@@ -130,6 +156,8 @@ export class LoginComponent implements OnDestroy, OnInit {
 				);
 
 				if (result.Success) {
+					// Con la cookie ya puesta se piden los parámetros: la pantalla principal se crea con su idioma
+					await AppBootstrapUtils.LoadApplicationSettings(this._DataAccess, this._HttpRequestCanceller);
 					SessionManager.SetCurrentSession(result.Result);
 					await this._Router.navigateByUrl('/' + AppRoute.HOME);
 				} else {
@@ -164,6 +192,17 @@ export class LoginComponent implements OnDestroy, OnInit {
 		}
 
 		return result;
+	}
+
+	/** Vuelve a leer los textos de la pantalla, los idiomas del selector y el elegido, en el idioma actual. */
+	private loadTexts(): void {
+		this.Options = LanguageManager.GetOptions();
+		this.SelectedLanguage = LanguageManager.GetCode();
+		this.LanguageText = LanguageManager.GetText('LOGIN_LANGUAGE');
+		this.NickText = LanguageManager.GetText('LOGIN_NICK');
+		this.PasswordText = LanguageManager.GetText('LOGIN_PASSWORD');
+		this.SubmitText = LanguageManager.GetText('LOGIN_SUBMIT');
+		this.Title = LanguageManager.GetText('LOGIN_TITLE');
 	}
 
 	//#endregion PRIVATE METHODS

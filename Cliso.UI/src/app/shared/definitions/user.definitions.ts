@@ -2,6 +2,7 @@
 
 /** Permiso para hacer una operación en la aplicación. Los valores son los que usa el API. */
 enum Permission {
+	APPLICATION_PARAMETERS_EDIT = 'APPLICATION_PARAMETERS_EDIT',
 	BIM_MODELS_DELETE = 'BIM_MODELS_DELETE',
 	BIM_MODELS_EDIT = 'BIM_MODELS_EDIT',
 	BIM_MODELS_READ = 'BIM_MODELS_READ',

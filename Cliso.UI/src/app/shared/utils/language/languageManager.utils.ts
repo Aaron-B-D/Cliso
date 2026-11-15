@@ -1,4 +1,4 @@
-import { LanguageCode } from 'src/app/shared/definitions/language.definitions';
+import { LanguageCode, LanguageOption } from 'src/app/shared/definitions/language.definitions';
 import { CheckUtils } from 'src/app/shared/utils/check.utils';
 import { LanguageBase } from 'src/resources/languages/languageBase.type';
 import { LanguageEn } from 'src/resources/languages/languageEn';
@@ -20,11 +20,44 @@ export class LanguageManager {
 	//#region PUBLIC STATIC METHODS
 
 	/**
+	 * Busca, entre los idiomas que prefiere el navegador y por orden de preferencia, el primero que la aplicación admite.
+	 * @returns El código del idioma; inglés si el navegador no prefiere ninguno de los admitidos.
+	 */
+	public static GetBrowserLanguage(): LanguageCode {
+		let result: LanguageCode = LanguageCode.EN_GB;
+
+		for (const browserLanguage of window.navigator.languages) {
+			const code: LanguageCode | null = LanguageManager.getSupportedCode(browserLanguage);
+
+			if (!CheckUtils.IsNull(code)) {
+				result = code;
+				break;
+			} else {
+				// Este idioma no está admitido: se mira el siguiente
+			}
+		}
+
+		return result;
+	}
+
+	/**
 	 * Devuelve el código del idioma actual.
 	 * @returns El código del idioma.
 	 */
 	public static GetCode(): LanguageCode {
 		return LanguageManager._Code;
+	}
+
+	/**
+	 * Devuelve los idiomas admitidos para que el usuario elija uno.
+	 * @returns Un elemento por idioma, con su nombre escrito en el propio idioma.
+	 */
+	public static GetOptions(): LanguageOption[] {
+		return [
+			{ Code: LanguageCode.ES_ES, Name: LanguageManager.GetText('WEB_LANGUAGE_ES') },
+			{ Code: LanguageCode.GL_ES, Name: LanguageManager.GetText('WEB_LANGUAGE_GL') },
+			{ Code: LanguageCode.EN_GB, Name: LanguageManager.GetText('WEB_LANGUAGE_EN') }
+		];
 	}
 
 	/**
@@ -69,6 +102,32 @@ export class LanguageManager {
 	//#endregion PUBLIC STATIC METHODS
 
 	//#region PRIVATE STATIC METHODS
+
+	/**
+	 * Traduce un idioma del navegador (por ejemplo, `es-MX`) al idioma admitido de la misma lengua.
+	 * @param browserLanguage Idioma del navegador, con o sin región.
+	 * @returns El código admitido (`es` → castellano, `gl` → gallego, `en` → inglés), o `null` si la lengua no está admitida.
+	 */
+	private static getSupportedCode(browserLanguage: string): LanguageCode | null {
+		let result: LanguageCode | null = null;
+
+		switch (browserLanguage.toLowerCase().split('-')[0]) {
+			case 'en':
+				result = LanguageCode.EN_GB;
+				break;
+			case 'es':
+				result = LanguageCode.ES_ES;
+				break;
+			case 'gl':
+				result = LanguageCode.GL_ES;
+				break;
+			default:
+				// Lengua no admitida
+				break;
+		}
+
+		return result;
+	}
 
 	/**
 	 * Devuelve la hoja de textos de un idioma.

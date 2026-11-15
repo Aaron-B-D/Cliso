@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 
+import { ApplicationSettingsDataAccessService } from 'src/app/shared/services/applicationSettingsDataAccess.service';
 import { AuthDataAccessService } from 'src/app/shared/services/authDataAccess.service';
 import { BimModelDataAccessService } from 'src/app/shared/services/bimModelDataAccess.service';
 import { Environment } from 'src/environments/environment';
@@ -13,6 +14,9 @@ import { Environment } from 'src/environments/environment';
 @Injectable({ providedIn: 'root' })
 export class DataAccessService {
 	//#region PUBLIC PROPERTIES
+
+	/** Llamadas de los parámetros de la aplicación. */
+	public readonly ApplicationSettings: ApplicationSettingsDataAccessService;
 
 	/** Llamadas de la autenticación. */
 	public readonly Auth: AuthDataAccessService;
@@ -28,6 +32,7 @@ export class DataAccessService {
 	 * @param http Cliente HTTP de Angular.
 	 */
 	constructor(http: HttpClient) {
+		this.ApplicationSettings = new ApplicationSettingsDataAccessService(http, Environment.API_URL);
 		this.Auth = new AuthDataAccessService(http, Environment.API_URL);
 		this.BimModels = new BimModelDataAccessService(http, Environment.API_URL);
 	}
