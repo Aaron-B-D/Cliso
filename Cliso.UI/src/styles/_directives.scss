@@ -1,0 +1,11 @@
+// Estilos que aplican las directivas de shared/directives: una directiva no tiene hoja de estilos propia.
+
+// Selector en solo lectura (SelectReadOnlyDirective). El interior del campo no recibe el ratón: el clic no abre la
+// lista y el cursor que se ve es el del propio campo, el de acción no permitida.
+.selectReadOnlyDir {
+	cursor: not-allowed;
+
+	* {
+		pointer-events: none;
+	}
+}

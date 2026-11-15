@@ -42,6 +42,34 @@ type SessionDto = {
 	permissions: string[];
 };
 
+/** Datos que se envían al API para crear un usuario, con su contraseña en texto plano. */
+type UserCreationDto = {
+	nick: string;
+	name: string;
+	surname: string;
+	role: string;
+	password: string;
+};
+
+/** Usuario tal y como lo envía el API. Nunca trae la contraseña. */
+type UserDto = {
+	id: number;
+	nick: string;
+	name: string;
+	surname: string;
+	role: string;
+	active: boolean;
+};
+
+/** Datos que se envían al API para modificar un usuario. Sin contraseña (`null`), conserva la que tiene. */
+type UserModificationDto = {
+	nick: string;
+	name: string;
+	surname: string;
+	role: string;
+	password: string | null;
+};
+
 //#endregion TYPES
 
 export {
@@ -50,5 +78,8 @@ export {
 	type ApplicationParametersDto,
 	type BimModelDto,
 	type LoginDto,
-	type SessionDto
+	type SessionDto,
+	type UserCreationDto,
+	type UserDto,
+	type UserModificationDto
 };

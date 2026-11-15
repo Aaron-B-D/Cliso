@@ -9,6 +9,7 @@ import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 
 import { ApplicationSettingsEditorComponent } from 'src/app/modules/applicationSettingsEditor/components/applicationSettingsEditor.component';
 import { BimModelEditorComponent } from 'src/app/modules/bimModelEditor/components/bimModelEditor.component';
+import { UserEditorComponent } from 'src/app/modules/userEditor/components/userEditor.component';
 import { IconName } from 'src/app/shared/definitions/icons.definitions';
 import { NotificationLevel } from 'src/app/shared/definitions/notifications.definitions';
 import { AppRoute } from 'src/app/shared/definitions/routes.definitions';
@@ -82,6 +83,9 @@ export class SidebarComponent implements OnDestroy, OnInit {
 	/** Texto de la entrada de parámetros. */
 	public readonly SETTINGS_TEXT: string = LanguageManager.GetText('WEB_SETTINGS');
 
+	/** Texto de la entrada de usuarios. */
+	public readonly USERS_TEXT: string = LanguageManager.GetText('WEB_USERS');
+
 	//#endregion LANGUAGE TEXTS
 
 	//#endregion PUBLIC CONSTANTS
@@ -94,9 +98,12 @@ export class SidebarComponent implements OnDestroy, OnInit {
 	/** `true` si el usuario puede abrir el editor de los parámetros de la aplicación. */
 	public CanEditSettings: boolean = LoggedUserManager.HasPermission(Permission.APPLICATION_PARAMETERS_EDIT);
 
-	// Se calcula con las dos anteriores, por eso va después de ellas
+	/** `true` si el usuario puede abrir el editor de los usuarios. */
+	public CanEditUsers: boolean = LoggedUserManager.HasPermission(Permission.USERS_MANAGE);
+
+	// Se calcula con las tres anteriores, por eso va después de ellas
 	/** `true` si el usuario puede abrir alguno de los editores: si no, el panel de edición no se muestra. */
-	public CanEdit: boolean = this.CanEditBimModels || this.CanEditSettings;
+	public CanEdit: boolean = this.CanEditBimModels || this.CanEditSettings || this.CanEditUsers;
 
 	/** Icono del botón del panel de edición. */
 	public EditionIcon: string = IconsUtils.GetUrl(IconName.EDIT);
@@ -303,6 +310,24 @@ export class SidebarComponent implements OnDestroy, OnInit {
 
 	public OnUserPanelToggled(): void {
 		this.IsUserPanelOpen = !this.IsUserPanelOpen;
+	}
+
+	public OnUsersClicked(): void {
+		this.IsEditionPanelOpen = false;
+
+		try {
+			// El botón del menú conserva el foco mientras el diálogo oculta la página a los lectores de pantalla: se le quita para que el foco pase al diálogo
+			(document.activeElement as HTMLElement).blur();
+
+			this._Dialog.open(UserEditorComponent, {
+				ariaLabel: this.USERS_TEXT,
+				maxHeight: this.EDITOR_MAX_HEIGHT,
+				maxWidth: this.EDITOR_MAX_WIDTH
+			});
+		} catch (error) {
+			this._Notification.Send(this.EDITOR_ERROR_TEXT, NotificationLevel.DANGER);
+			console.warn(`Sidebar.OnUsersClicked() => ${ErrorUtils.GetMessage(error)}`);
+		}
 	}
 
 	//#endregion SUBSCRIBERS

@@ -45,7 +45,7 @@ export class LoginComponent implements OnDestroy, OnInit {
 	public Nick: string = STRING_UNDEFINED;
 
 	/** Etiqueta del campo del nick. */
-	public NickText: string = LanguageManager.GetText('LOGIN_NICK');
+	public NickText: string = LanguageManager.GetText('WEB_NICK');
 
 	/** Idiomas que se ofrecen en el selector, con el nombre de cada uno en su idioma. */
 	public Options: LanguageOption[] = LanguageManager.GetOptions();
@@ -54,7 +54,7 @@ export class LoginComponent implements OnDestroy, OnInit {
 	public Password: string = STRING_UNDEFINED;
 
 	/** Etiqueta del campo de la contraseña. */
-	public PasswordText: string = LanguageManager.GetText('LOGIN_PASSWORD');
+	public PasswordText: string = LanguageManager.GetText('WEB_PASSWORD');
 
 	/** Idioma elegido en el selector. */
 	public SelectedLanguage: LanguageCode = LanguageManager.GetCode();
@@ -199,8 +199,8 @@ export class LoginComponent implements OnDestroy, OnInit {
 		this.Options = LanguageManager.GetOptions();
 		this.SelectedLanguage = LanguageManager.GetCode();
 		this.LanguageText = LanguageManager.GetText('LOGIN_LANGUAGE');
-		this.NickText = LanguageManager.GetText('LOGIN_NICK');
-		this.PasswordText = LanguageManager.GetText('LOGIN_PASSWORD');
+		this.NickText = LanguageManager.GetText('WEB_NICK');
+		this.PasswordText = LanguageManager.GetText('WEB_PASSWORD');
 		this.SubmitText = LanguageManager.GetText('LOGIN_SUBMIT');
 		this.Title = LanguageManager.GetText('LOGIN_TITLE');
 	}

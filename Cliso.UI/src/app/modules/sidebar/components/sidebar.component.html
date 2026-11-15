@@ -24,6 +24,9 @@
 					@if (CanEditSettings) {
 						<button mat-menu-item class="sid_menu_option sid_menu_option-nested" (click)="OnSettingsClicked()">{{ SETTINGS_TEXT }}</button>
 					}
+					@if (CanEditUsers) {
+						<button mat-menu-item class="sid_menu_option sid_menu_option-nested" (click)="OnUsersClicked()">{{ USERS_TEXT }}</button>
+					}
 				}
 			}
 			<button mat-menu-item disabled class="sid_menu_option">
@@ -84,6 +87,9 @@
 						}
 						@if (CanEditSettings) {
 							<button class="sid_panel_item" mat-list-item (click)="OnSettingsClicked()">{{ SETTINGS_TEXT }}</button>
+						}
+						@if (CanEditUsers) {
+							<button class="sid_panel_item" mat-list-item (click)="OnUsersClicked()">{{ USERS_TEXT }}</button>
 						}
 					</mat-action-list>
 				</ng-template>

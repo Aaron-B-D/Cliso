@@ -35,6 +35,9 @@ export class EditorShellComponent implements OnChanges, OnDestroy {
 	/** `true` si el usuario puede borrar: si no, el pie no muestra el botón de borrar. */
 	@Input() public CanDelete: boolean = true;
 
+	/** `true` si el elemento seleccionado se puede borrar: si no, el botón de borrar se muestra desactivado. */
+	@Input() public CanDeleteSelection: boolean = true;
+
 	/** Se emite al pedir cerrar el editor: quien lo contiene decide si se cierra. */
 	@Output() public closeRequested: EventEmitter<void> = new EventEmitter<void>();
 
@@ -165,6 +168,9 @@ export class EditorShellComponent implements OnChanges, OnDestroy {
 	/** `true` si la lista está plegada a una franja. */
 	public IsCollapsed: boolean = false;
 
+	/** `true` si no se puede borrar: no se puede operar o el elemento seleccionado no admite el borrado. */
+	public IsDeleteDisabled: boolean = true;
+
 	/** `true` si el editor ocupa toda la pantalla. */
 	public IsMaximized: boolean = false;
 
@@ -246,6 +252,7 @@ export class EditorShellComponent implements OnChanges, OnDestroy {
 
 	public ngOnChanges(): void {
 		this.IsOperationDisabled = this.IsBusy || !this.HasSelection;
+		this.IsDeleteDisabled = this.IsOperationDisabled || !this.CanDeleteSelection;
 	}
 
 	public ngOnDestroy(): void {

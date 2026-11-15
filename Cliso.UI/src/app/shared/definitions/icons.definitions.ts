@@ -27,7 +27,9 @@ enum IconName {
 	BOOKMARK = 'bookmark',
 	GRID_ON = 'grid-on',
 	TOUCH_APP = 'touch-app',
-	PALETTE = 'palette'
+	PALETTE = 'palette',
+	VISIBILITY = 'visibility',
+	VISIBILITY_OFF = 'visibility-off'
 }
 
 //#endregion ENUMS

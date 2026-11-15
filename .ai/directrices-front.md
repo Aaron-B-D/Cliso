@@ -18,7 +18,8 @@ regiones, una clase por fichero...) **no se aplican aquí**.
   no haya `console` salvo `warn` y que las plantillas no llamen a funciones. El formato lo resuelve Prettier.
 - **Estilos:** todo color, medida y forma sale de los tokens de `src/styles/_variables.scss` (`var(--color-bg)`...).
   Nada de valores sueltos en los componentes. `styles.scss` solo importa parciales; los parciales viven en
-  `src/styles/`.
+  `src/styles/`. Una directiva no tiene hoja de estilos: los estilos globales que aplique van en
+  `src/styles/_directives.scss`, con una clase propia de la directiva (nunca sobre clases internas de Material).
 - **Componentes: Angular Material** (instalado; tema en `src/styles/_material.scss`). No se reimplementa lo que
   Material ya ofrece (botón, campo, diálogo, menú, pestañas, tarjeta, chip...). Se personaliza con los tokens
   `--mat-sys-*` y los mixins `*-overrides`; **nunca con `::ng-deep` ni sobrescribiendo clases internas (`.mdc-*`)**.
@@ -123,9 +124,9 @@ regiones, una clase por fichero...) **no se aplican aquí**.
   pantalla tras un `await`). RxJS solo aparece en la capa HTTP: `DataAccessService` (devuelve los `Observable` de
   `HttpClient`), `RequestUtils.AwaitRequest`, `HttpRequestCanceller` y el interceptor de sesión (`SessionInterceptor`:
   envía la cookie a las llamadas al API y trata el 401; es la capa HTTP, y el interceptor de `HttpClient` trabaja con
-  `Observable`). Otra excepción acordada: `ConfirmDialogService`,
-  que convierte en promesa el `afterClosed()` de `MatDialog` (que solo ofrece un `Observable`) y así los componentes
-  siguen usando `await`.
+  `Observable`). Otra excepción acordada: `ConfirmDialogService` y los servicios que, como él, abren un diálogo y
+  esperan su respuesta (`UserEditorPasswordDialogService`): convierten en promesa el `afterClosed()` de `MatDialog`
+  (que solo ofrece un `Observable`) y así los componentes siguen usando `await`.
 - **Llamadas al API:** solo a través de `DataAccessService`, y cada una se espera con
   `RequestUtils.AwaitRequest(llamada$, canceller)`. Devuelve un `TryGetResult` (`Success` es `false` si la petición
   se canceló; si no, `Result` trae la respuesta) y lanza el error si la petición falla. Se comprueba siempre
@@ -394,6 +395,10 @@ La guía de estilo (`Documentation/UI/[Diseño] Cliso.UI - Guía de estilo.md`) 
 - Formas distintas de las fijadas: botones en píldora, campos y elementos resaltados de listas con 8 px, tarjetas y
   diálogos con 16 px.
 - Anular el contorno de foco (blanco, 2 px, siempre visible) o dejar el estado deshabilitado sin opacidad 0,5.
+- **Solo lectura no es deshabilitado (decidido):** los campos del detalle de un editor fuera de la edición se ven
+  normales, con el cursor `not-allowed`. Los de texto llevan `[appReadOnly]` (no `[readonly]`) y los selectores,
+  `[appSelectReadOnly]` en su `mat-form-field` (no `[disabled]` en el `mat-select`); las directivas están en
+  `shared/directives`. `disabled`, con su opacidad 0,5, queda para lo que no se puede usar (un botón sin acción posible).
 
 **Pantallas:** su estructura (barra lateral, paneles, editores, Home) está en el apartado «Pantallas» de la guía de
 estilo. Lo no decidido (el diseño móvil de los paneles y el editor, la disposición de los paneles del Home) **no lo

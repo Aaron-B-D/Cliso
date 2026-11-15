@@ -27,7 +27,7 @@ export class ConfirmDialogComponent {
 	//#region LANGUAGE TEXTS
 
 	/** Texto del botón de aceptar. */
-	public readonly ACCEPT_TEXT: string = LanguageManager.GetText('CD_ACCEPT');
+	public readonly ACCEPT_TEXT: string = LanguageManager.GetText('WEB_ACCEPT');
 
 	/** Texto del botón de cancelar. */
 	public readonly CANCEL_TEXT: string = LanguageManager.GetText('WEB_CANCEL');

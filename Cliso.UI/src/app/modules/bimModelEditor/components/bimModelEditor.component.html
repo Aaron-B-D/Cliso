@@ -54,8 +54,8 @@
 						<mat-form-field appearance="outline" subscriptSizing="dynamic">
 							<mat-label>{{ NAME_TEXT }}</mat-label>
 							<input matInput
-								[readonly]="IsReadOnly"
 								[value]="Draft.Name"
+								[appReadOnly]="IsReadOnly"
 								(input)="OnNameInput($event)"
 							/>
 						</mat-form-field>
@@ -65,16 +65,16 @@
 						<mat-form-field appearance="outline" subscriptSizing="dynamic">
 							<mat-label>{{ DESCRIPTION_TEXT }}</mat-label>
 							<textarea class="bme_description" matInput
-								[readonly]="IsReadOnly"
 								[value]="Draft.Description"
+								[appReadOnly]="IsReadOnly"
 								(input)="OnDescriptionInput($event)"
 							></textarea>
 						</mat-form-field>
 						<mat-form-field appearance="outline" subscriptSizing="dynamic">
 							<mat-label>{{ OBSERVATIONS_TEXT }}</mat-label>
 							<textarea class="bme_observations" matInput
-								[readonly]="IsReadOnly"
 								[value]="Draft.Observations"
+								[appReadOnly]="IsReadOnly"
 								(input)="OnObservationsInput($event)"
 							></textarea>
 						</mat-form-field>

@@ -1,0 +1,144 @@
+<app-editor-shell class="userEditorDir"
+	[CanDeleteSelection]="CanDeleteSelection"
+	[HasSelection]="HasSelection"
+	[IsBusy]="IsBusy"
+	[IsEditing]="IsEditing"
+	[SearchLabel]="SEARCH_TEXT"
+	[ShowDetail]="HasDetail"
+	[Title]="TITLE_TEXT"
+	(addClicked)="OnAddClicked()"
+	(backClicked)="OnBackClicked()"
+	(closeRequested)="OnCloseRequested()"
+	(deleteClicked)="OnDeleteClicked()"
+	(discardClicked)="OnDiscardClicked()"
+	(editClicked)="OnEditClicked()"
+	(saveClicked)="OnSaveClicked()"
+	(searchChanged)="OnSearchChanged($event)"
+>
+	<div editorList>
+		@if (IsLoadingList) {
+			<div class="ue_loading">
+				<p class="ue_empty">{{ LOADING_TEXT }}</p>
+				<mat-progress-bar mode="indeterminate"></mat-progress-bar>
+			</div>
+		} @else if (HasItems) {
+			<ul class="ue_list">
+				@for (item of ListItems; track item.User.Id) {
+					<li>
+						<button class="ue_item"
+							type="button"
+							[class.ue_item-selected]="item.IsSelected"
+							(click)="OnUserSelected(item.User)"
+						>
+							<span class="ue_item_text">
+								<span class="ue_item_nick">{{ item.User.Nick }}</span>
+								<span class="ue_item_name">{{ item.FullName }}</span>
+							</span>
+							<img class="ue_item_arrow d-md-none" alt="" [src]="ArrowIcon" />
+						</button>
+					</li>
+				}
+			</ul>
+		} @else {
+			<p class="ue_empty">{{ NO_USERS_TEXT }}</p>
+		}
+	</div>
+	<div editorDetail>
+		@if (HasDetail) {
+			<div class="ue_general">
+				<mat-form-field appearance="outline" subscriptSizing="dynamic">
+					<mat-label>{{ NICK_TEXT }}</mat-label>
+					<input matInput autocomplete="off"
+						[maxLength]="NICK_MAX_LENGTH"
+						[value]="Draft.Nick"
+						[appReadOnly]="IsNickReadOnly"
+						(input)="OnNickInput($event)"
+					/>
+				</mat-form-field>
+				@if (NickError) {
+					<p class="ue_error" role="alert">{{ FIELD_REQUIRED_TEXT }}</p>
+				}
+				<mat-form-field appearance="outline" subscriptSizing="dynamic">
+					<mat-label>{{ NAME_TEXT }}</mat-label>
+					<input matInput autocomplete="off"
+						[maxLength]="NAME_MAX_LENGTH"
+						[value]="Draft.Name"
+						[appReadOnly]="IsReadOnly"
+						(input)="OnNameInput($event)"
+					/>
+				</mat-form-field>
+				@if (NameError) {
+					<p class="ue_error" role="alert">{{ FIELD_REQUIRED_TEXT }}</p>
+				}
+				<mat-form-field appearance="outline" subscriptSizing="dynamic">
+					<mat-label>{{ SURNAME_TEXT }}</mat-label>
+					<input matInput autocomplete="off"
+						[maxLength]="SURNAME_MAX_LENGTH"
+						[value]="Draft.Surname"
+						[appReadOnly]="IsReadOnly"
+						(input)="OnSurnameInput($event)"
+					/>
+				</mat-form-field>
+				@if (SurnameError) {
+					<p class="ue_error" role="alert">{{ FIELD_REQUIRED_TEXT }}</p>
+				}
+				<mat-form-field appearance="outline" subscriptSizing="dynamic"
+					[appSelectReadOnly]="IsRoleReadOnly"
+				>
+					<mat-label>{{ ROLE_TEXT }}</mat-label>
+					<mat-select
+						[value]="Draft.Role"
+						(selectionChange)="OnRoleChanged($event)"
+					>
+						@for (option of ROLE_OPTIONS; track option.Role) {
+							<mat-option [value]="option.Role">{{ option.Text }}</mat-option>
+						}
+					</mat-select>
+				</mat-form-field>
+				@if (ShowPasswordFields) {
+					<app-user-editor-password-field
+						[Label]="PASSWORD_TEXT"
+						[Value]="Password"
+						(valueChanged)="OnPasswordChanged($event)"
+					></app-user-editor-password-field>
+				}
+				@if (PasswordError) {
+					<p class="ue_error" role="alert">{{ FIELD_REQUIRED_TEXT }}</p>
+				}
+				@if (ShowPasswordFields) {
+					<app-user-editor-password-field
+						[Label]="PASSWORD_REPEAT_TEXT"
+						[Value]="PasswordRepeat"
+						(valueChanged)="OnPasswordRepeatChanged($event)"
+					></app-user-editor-password-field>
+				}
+				@if (PasswordMismatchError) {
+					<p class="ue_error" role="alert">{{ PASSWORD_MISMATCH_TEXT }}</p>
+				}
+				@if (ShowPasswordButton) {
+					<div class="ue_password">
+						<button mat-stroked-button type="button"
+							[disabled]="IsBusy"
+							(click)="OnPasswordClicked()"
+						>{{ CHANGE_PASSWORD_TEXT }}</button>
+						@if (HasPendingPassword) {
+							<p class="ue_hint">{{ PASSWORD_PENDING_TEXT }}</p>
+						}
+					</div>
+				}
+				@if (HasPasswordRequirements) {
+					<section class="ue_error" role="alert">
+						<p>{{ PASSWORD_REQUIREMENTS_TEXT }}</p>
+						<ul class="ue_requirements">
+							@for (text of PasswordRequirementTexts; track text) {
+								<li>{{ text }}</li>
+							}
+						</ul>
+					</section>
+				}
+			</div>
+		} @else {
+			<p class="ue_empty">{{ NO_SELECTION_TEXT }}</p>
+		}
+	</div>
+</app-editor-shell>

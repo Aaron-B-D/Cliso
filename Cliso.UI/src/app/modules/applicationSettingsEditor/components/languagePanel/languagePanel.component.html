@@ -1,7 +1,8 @@
-<mat-form-field class="languagePanelDir" appearance="outline" subscriptSizing="dynamic">
+<mat-form-field class="languagePanelDir" appearance="outline" subscriptSizing="dynamic"
+	[appSelectReadOnly]="IsReadOnly"
+>
 	<mat-label>{{ Label }}</mat-label>
 	<mat-select
-		[disabled]="IsReadOnly"
 		[value]="Value"
 		(selectionChange)="OnSelectionChange($event)"
 	>

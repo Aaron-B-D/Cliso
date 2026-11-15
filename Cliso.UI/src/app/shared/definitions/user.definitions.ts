@@ -1,5 +1,14 @@
 //#region ENUMS
 
+/** Requisito mínimo que debe cumplir una contraseña. Los valores son los códigos que devuelve el API cuando no se cumple. */
+enum PasswordRequirement {
+	DIGIT = 'DIGIT',
+	LOWERCASE = 'LOWERCASE',
+	MIN_LENGTH = 'MIN_LENGTH',
+	SYMBOL = 'SYMBOL',
+	UPPERCASE = 'UPPERCASE'
+}
+
 /** Permiso para hacer una operación en la aplicación. Los valores son los que usa el API. */
 enum Permission {
 	APPLICATION_PARAMETERS_EDIT = 'APPLICATION_PARAMETERS_EDIT',
@@ -24,4 +33,11 @@ enum UserRole {
 
 //#endregion ENUMS
 
-export { Permission, UserRole };
+//#region CONSTANTS
+
+/** Nick del usuario protegido del API: no se puede borrar ni cambiar su rol. */
+const PROTECTED_USER_NICK: string = 'admin';
+
+//#endregion CONSTANTS
+
+export { PasswordRequirement, Permission, PROTECTED_USER_NICK, UserRole };

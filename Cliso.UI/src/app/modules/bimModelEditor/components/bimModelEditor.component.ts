@@ -10,6 +10,7 @@ import { EditorShellComponent } from 'src/app/shared/components/editorShell/edit
 import { ID_NUMERIC_UNDEFINED, STRING_UNDEFINED } from 'src/app/shared/definitions/constants.definitions';
 import { BimModelDto } from 'src/app/shared/definitions/dtos.definitions';
 import { ConfirmDialogType } from 'src/app/shared/definitions/dialogs.definitions';
+import { ReadOnlyDirective } from 'src/app/shared/directives/readOnly.directive';
 import { IconName } from 'src/app/shared/definitions/icons.definitions';
 import { NotificationLevel } from 'src/app/shared/definitions/notifications.definitions';
 import { Permission } from 'src/app/shared/definitions/user.definitions';
@@ -38,7 +39,15 @@ type BimModelListItem = {
 /** Editor de los modelos BIM: lista de modelos, sus datos generales con la carga del fichero IFC y su previsualización 3D. */
 @Component({
 	selector: 'app-bim-model-editor',
-	imports: [BimViewerComponent, EditorShellComponent, MatFormFieldModule, MatInputModule, MatProgressBarModule, MatTabsModule],
+	imports: [
+		BimViewerComponent,
+		EditorShellComponent,
+		MatFormFieldModule,
+		MatInputModule,
+		MatProgressBarModule,
+		MatTabsModule,
+		ReadOnlyDirective
+	],
 	templateUrl: './bimModelEditor.component.html',
 	styleUrl: './bimModelEditor.component.scss'
 })

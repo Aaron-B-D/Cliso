@@ -108,7 +108,7 @@ export type LanguageBase = {
 	/** Aviso de que el fichero elegido no es un IFC (BimModelEditor). */
 	BME_FILE_INVALID: string;
 
-	/** Pestaña con los datos generales de un modelo (BimModelEditor). */
+	/** Pestaña con los datos generales del modelo (BimModelEditor). */
 	BME_GENERAL: string;
 
 	/** Aviso de que el nombre del modelo es obligatorio (BimModelEditor). */
@@ -207,9 +207,6 @@ export type LanguageBase = {
 	/** Mensaje mientras se procesa el modelo ya descargado (BimViewer). */
 	BV_PROCESSING: string;
 
-	/** Botón de aceptar del diálogo de confirmación (ConfirmDialog). */
-	CD_ACCEPT: string;
-
 	/** Botón de añadir del pie del editor (EditorShell). */
 	ES_ADD: string;
 
@@ -273,12 +270,6 @@ export type LanguageBase = {
 	/** Etiqueta del selector de idioma (pantalla de inicio de sesión). */
 	LOGIN_LANGUAGE: string;
 
-	/** Etiqueta del campo del nick (pantalla de inicio de sesión). */
-	LOGIN_NICK: string;
-
-	/** Etiqueta del campo de la contraseña (pantalla de inicio de sesión). */
-	LOGIN_PASSWORD: string;
-
 	/** Aviso de que la sesión ha caducado por inactividad y hay que iniciarla de nuevo (pantalla de inicio de sesión). */
 	LOGIN_SESSION_EXPIRED: string;
 
@@ -303,6 +294,90 @@ export type LanguageBase = {
 	/** Nombre accesible del botón que despliega el menú en móvil (Sidebar). */
 	SIDEBAR_MENU: string;
 
+	/** Título del submodal de la contraseña (UserEditorPasswordDialog). */
+	UEPD_TITLE: string;
+
+	/** Botón que oculta la contraseña escrita (UserEditorPasswordField). */
+	UEPF_HIDE_PASSWORD: string;
+
+	/** Botón que muestra la contraseña escrita (UserEditorPasswordField). */
+	UEPF_SHOW_PASSWORD: string;
+
+	/** Aviso de que el usuario se ha añadido correctamente (UserEditor). */
+	UE_ADDED: string;
+
+	/** Botón que abre el submodal para cambiar la contraseña de un usuario existente (UserEditor). */
+	UE_CHANGE_PASSWORD: string;
+
+	/** Aviso de que el usuario se ha eliminado correctamente (UserEditor). */
+	UE_DELETED: string;
+
+	/** Pregunta de confirmación del borrado de un usuario, con su nick en `{0}` (UserEditor). */
+	UE_DELETE_CONFIRM: string;
+
+	/** Aviso de que no se ha podido borrar un usuario (UserEditor). */
+	UE_DELETE_ERROR: string;
+
+	/** Aviso de que no se han podido cargar los usuarios (UserEditor). */
+	UE_LOAD_ERROR: string;
+
+	/** Aviso de que ya existe otro usuario con ese nick (UserEditor). */
+	UE_NICK_EXISTS: string;
+
+	/** Texto cuando no hay ningún usuario seleccionado (UserEditor). */
+	UE_NO_SELECTION: string;
+
+	/** Texto cuando no hay ningún usuario en la lista (UserEditor). */
+	UE_NO_USERS: string;
+
+	/** Requisito de contraseña: incluir un número (UserEditor). */
+	UE_PASSWORD_DIGIT: string;
+
+	/** Requisito de contraseña: incluir una minúscula (UserEditor). */
+	UE_PASSWORD_LOWERCASE: string;
+
+	/** Requisito de contraseña: tener la longitud mínima (UserEditor). */
+	UE_PASSWORD_MIN_LENGTH: string;
+
+	/** Aviso de que hay una contraseña nueva que se guardará con el resto de datos (UserEditor). */
+	UE_PASSWORD_PENDING: string;
+
+	/** Encabezado de la lista de requisitos que no cumple la contraseña (UserEditor). */
+	UE_PASSWORD_REQUIREMENTS: string;
+
+	/** Requisito de contraseña: incluir un símbolo (UserEditor). */
+	UE_PASSWORD_SYMBOL: string;
+
+	/** Requisito de contraseña: incluir una mayúscula (UserEditor). */
+	UE_PASSWORD_UPPERCASE: string;
+
+	/** Etiqueta del rol (UserEditor). */
+	UE_ROLE: string;
+
+	/** Nombre del rol de administrador (UserEditor). */
+	UE_ROLE_ADMIN: string;
+
+	/** Nombre del rol de operador (UserEditor). */
+	UE_ROLE_OPERATOR: string;
+
+	/** Nombre del rol de visor (UserEditor). */
+	UE_ROLE_VIEWER: string;
+
+	/** Aviso de que no se ha podido guardar un usuario (UserEditor). */
+	UE_SAVE_ERROR: string;
+
+	/** Texto de ayuda del buscador de usuarios (UserEditor). */
+	UE_SEARCH: string;
+
+	/** Etiqueta de los apellidos (UserEditor). */
+	UE_SURNAME: string;
+
+	/** Aviso de que el usuario se ha modificado correctamente (UserEditor). */
+	UE_UPDATED: string;
+
+	/** Botón de aceptar (se usa en más de un sitio). */
+	WEB_ACCEPT: string;
+
 	/** Botón para volver a la lista de modelos (se usa en más de un sitio). */
 	WEB_BACK_TO_LIST: string;
 
@@ -320,6 +395,9 @@ export type LanguageBase = {
 
 	/** Pregunta de confirmación para descartar cambios sin guardar (se usa en más de un sitio). */
 	WEB_DISCARD_CONFIRM: string;
+
+	/** Aviso de que un campo obligatorio está vacío (se usa en más de un sitio). */
+	WEB_FIELD_REQUIRED: string;
 
 	/** Inicio: botón de la barra lateral y título de la pantalla principal (se usa en más de un sitio). */
 	WEB_HOME: string;
@@ -339,8 +417,11 @@ export type LanguageBase = {
 	/** Modelos: entrada del panel de edición y título de su editor (se usa en más de un sitio). */
 	WEB_MODELS: string;
 
-	/** Nombre de un modelo (se usa en más de un sitio). */
+	/** Nombre de un modelo o de un usuario (se usa en más de un sitio). */
 	WEB_NAME: string;
+
+	/** Etiqueta del nombre de usuario (nick) con el que se inicia sesión (se usa en más de un sitio). */
+	WEB_NICK: string;
 
 	/** Mensaje cuando no hay ningún modelo (se usa en más de un sitio). */
 	WEB_NO_MODELS: string;
@@ -348,10 +429,19 @@ export type LanguageBase = {
 	/** Observaciones de un modelo (se usa en más de un sitio). */
 	WEB_OBSERVATIONS: string;
 
+	/** Etiqueta de la contraseña de un usuario (se usa en más de un sitio). */
+	WEB_PASSWORD: string;
+
+	/** Aviso de que la contraseña y su repetición no coinciden (se usa en más de un sitio). */
+	WEB_PASSWORD_MISMATCH: string;
+
+	/** Etiqueta del campo que repite la contraseña (se usa en más de un sitio). */
+	WEB_PASSWORD_REPEAT: string;
+
 	/** Parámetros: entrada del panel de edición y título de su editor (se usa en más de un sitio). */
 	WEB_SETTINGS: string;
 
-	/** Usuarios: entrada del panel de edición (se usará también en su editor). */
+	/** Usuarios: entrada del panel de edición y título de su editor (se usa en más de un sitio). */
 	WEB_USERS: string;
 
 	/** Visualizaciones: entrada del panel de edición (se usará también en su editor). */

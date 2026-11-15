@@ -3,11 +3,12 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 
 import { STRING_UNDEFINED } from 'src/app/shared/definitions/constants.definitions';
+import { ReadOnlyDirective } from 'src/app/shared/directives/readOnly.directive';
 
 /** Panel con el que se edita el valor de un parámetro de texto libre, sin ninguna comprobación. */
 @Component({
 	selector: 'app-application-settings-editor-text-panel',
-	imports: [MatFormFieldModule, MatInputModule],
+	imports: [MatFormFieldModule, MatInputModule, ReadOnlyDirective],
 	templateUrl: './textPanel.component.html',
 	styleUrl: './textPanel.component.scss'
 })

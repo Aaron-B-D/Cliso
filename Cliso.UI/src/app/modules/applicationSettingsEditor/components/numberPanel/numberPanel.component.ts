@@ -3,12 +3,13 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 
 import { STRING_UNDEFINED } from 'src/app/shared/definitions/constants.definitions';
+import { ReadOnlyDirective } from 'src/app/shared/directives/readOnly.directive';
 import { CheckUtils } from 'src/app/shared/utils/check.utils';
 
 /** Panel con el que se edita el valor de un parámetro numérico: un campo que solo admite números entre unos límites. */
 @Component({
 	selector: 'app-application-settings-editor-number-panel',
-	imports: [MatFormFieldModule, MatInputModule],
+	imports: [MatFormFieldModule, MatInputModule, ReadOnlyDirective],
 	templateUrl: './numberPanel.component.html',
 	styleUrl: './numberPanel.component.scss'
 })

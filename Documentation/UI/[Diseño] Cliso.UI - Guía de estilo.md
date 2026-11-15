@@ -67,7 +67,10 @@ texto secundario de tamaño normal o mayor.
 ## Estados
 
 - **Foco:** contorno blanco de 2 px con separación de 2 px (siempre visible, también con teclado).
-- **Deshabilitado:** opacidad 0,5 y cursor `not-allowed`.
+- **Deshabilitado:** opacidad 0,5 y cursor `not-allowed`. Solo para lo que no se puede usar (un botón sin acción
+  posible).
+- **Solo lectura:** los campos del detalle de un editor fuera de la edición se ven como al editar, sin atenuar, y solo
+  cambia el cursor a `not-allowed`; un selector en solo lectura no se abre ni con el ratón ni con el teclado.
 - **Error:** texto y borde en `--color-danger`.
 
 ## Mobile-first y rejilla
@@ -108,7 +111,7 @@ Estructura funcional de la aplicación. Los diagramas `.drawio` de esta carpeta 
 ### Inicio de sesión
 
 - Pantalla aparte, sin barra lateral: una tarjeta (16 px, borde de 1 px en `--color-border`) centrada, de ancho máximo
-  25 rem, con el título, un selector de *Idioma*, los campos *Nick* y *Contraseña* y el botón *Entrar* a ancho completo.
+  25 rem, con el título, un selector de *Idioma*, los campos *Nombre de usuario* (el nick) y *Contraseña* y el botón *Entrar* a ancho completo.
 - **Idioma:** el selector parte del último idioma elegido en él (guardado en el almacenamiento local) o, si no hay
   ninguno, del idioma del navegador; si no está admitido, inglés. Cambia al momento los textos de esta pantalla y solo
   vale para ella: al entrar manda el parámetro de la aplicación `LANGUAGE`.
@@ -123,14 +126,14 @@ Estructura funcional de la aplicación. Los diagramas `.drawio` de esta carpeta 
 - Izquierda, **selector**: buscador que filtra las fichas y fichas; la seleccionada va resaltada. Un **splitter**
   arrastrable (con ancho mínimo y máximo, también con las flechas del teclado) cambia su ancho y un botón
   `«` lo pliega a una franja con el nombre del tipo; `»` lo restaura con el ancho anterior.
-- Derecha, **detalle** en pestañas (`mat-tab-group`), de solo lectura mientras no se edita.
+- Derecha, **detalle** en pestañas (`mat-tab-group`) si tiene más de una, de solo lectura mientras no se edita.
 - **Pie** del modal, sin botones de aceptar ni cancelar, solo con iconos pequeños:
   - Sin editar: *Añadir* (deja el detalle en blanco y entra en edición), *Editar* y *Borrar* (estos dos solo valen
     con un elemento seleccionado; borrar pide confirmación).
   - En edición (también al añadir): *Guardar* y *Descartar* sustituyen a los otros tres.
 - **Cambios sin guardar:** cada editor lleva la marca de «sucio». Si la hay, cerrar el modal, cambiar de ficha,
   añadir, volver a la lista o descartar piden confirmación antes de perder los cambios.
-- Pestañas: *Usuarios* → General y Permisos; *Modelos* → General (nombre, descripción, observaciones y carga del fichero IFC
+- Pestañas: *Usuarios* → General y Permisos (hoy solo General, sin pestañas: los permisos están pendientes); *Modelos* → General (nombre, descripción, observaciones y carga del fichero IFC
   (`.ifc`) arrastrando o con clic, que se sube al guardar) y Previsualización (visor 3D del IFC); *Visualizaciones* → General (modelo,
   nombre, descripción, observaciones) y Previsualización (visor con marcadores numerados, *+ Marcador* y su lista).
 
@@ -152,6 +155,22 @@ derecha, pie), con estas diferencias:
 - Al guardar se avisa con un diálogo informativo (solo *Aceptar*): los cambios se aplican cuando se recarga la página,
   y la carpeta de modelos y la caducidad de la sesión además requieren reiniciar la API. El front no aplica el valor
   nuevo hasta recargar.
+
+### Usuarios (diagrama «Usuarios»)
+
+Editor de los usuarios, con la estructura de los editores, con estas diferencias:
+
+- Entrada *Usuarios* del panel de Edición, solo para quien puede gestionarlos.
+- La lista tiene una ficha por usuario (nick y, debajo, nombre completo), ordenadas por nick; el buscador filtra por
+  nick, nombre y apellidos.
+- El detalle, sin pestañas, tiene *Nombre de usuario*, *Nombre*, *Apellidos* y *Rol*. El nombre de usuario solo se
+  escribe al añadir; después es intocable.
+- **Contraseña:** al añadir se piden *Contraseña* y *Repetir contraseña*. Al editar, un botón secundario *Cambiar
+  contraseña* abre un submodal que la pide dos veces; la nueva se guarda con el resto de datos y, mientras tanto, un
+  texto secundario lo recuerda. Cada campo de contraseña tiene su botón de icono para verla u ocultarla (con tooltip).
+  Si el API la rechaza, se listan en `--color-danger` los requisitos que no cumple.
+- *Borrar* (con confirmación) se muestra desactivado con el usuario de la sesión y con `admin`, y el rol de ambos
+  no se puede cambiar.
 
 ### Home (diagrama «Home»)
 

@@ -1,0 +1,479 @@
+<mxfile host="app.diagrams.net">
+  <diagram name="Usuarios" id="usuarios-escritorio">
+    <mxGraphModel background="#000000" dx="1178" dy="654" grid="1" gridSize="4" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1560" pageHeight="620" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- Fondo oscurecido (backdrop del mat-dialog) -->
+        <mxCell id="backdrop" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#000000;opacity=32;strokeColor=none;" value="" vertex="1">
+          <mxGeometry x="80" y="20" width="1000" height="580" as="geometry" />
+        </mxCell>
+
+        <!-- Modal -->
+        <mxCell id="dialog" parent="1" style="rounded=1;arcSize=16;absoluteArcSize=1;whiteSpace=wrap;html=1;fillColor=#16181C;strokeColor=#2F3336;" value="" vertex="1">
+          <mxGeometry x="120" y="60" width="920" height="480" as="geometry" />
+        </mxCell>
+
+        <!-- Cabecera -->
+        <mxCell id="title" parent="1" style="text;html=1;align=left;verticalAlign=middle;fontSize=20;fontStyle=1;fontColor=#E7E9EA;" value="Usuarios" vertex="1">
+          <mxGeometry x="144" y="72" width="300" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="btn-maximize" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=none;strokeColor=none;fontSize=16;fontColor=#E7E9EA;" value="☐" vertex="1">
+          <mxGeometry x="956" y="76" width="32" height="32" as="geometry" />
+        </mxCell>
+        <mxCell id="btn-close" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=none;strokeColor=none;fontSize=16;fontColor=#E7E9EA;" value="✕" vertex="1">
+          <mxGeometry x="992" y="76" width="32" height="32" as="geometry" />
+        </mxCell>
+        <mxCell id="header-line" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#2F3336;strokeColor=none;" value="" vertex="1">
+          <mxGeometry x="120" y="124" width="920" height="1" as="geometry" />
+        </mxCell>
+
+        <!-- Selector: buscador y botón de plegar -->
+        <mxCell id="search" parent="1" style="rounded=1;arcSize=8;absoluteArcSize=1;whiteSpace=wrap;html=1;fillColor=#000000;strokeColor=#2F3336;align=left;spacingLeft=12;fontSize=14;fontColor=#71767B;" value="⌕&amp;nbsp;&amp;nbsp;Buscar usuarios" vertex="1">
+          <mxGeometry x="136" y="141" width="232" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="collapse" parent="1" style="text;html=1;align=center;verticalAlign=middle;fontSize=18;fontColor=#E7E9EA;" value="«" vertex="1">
+          <mxGeometry x="372" y="145" width="28" height="32" as="geometry" />
+        </mxCell>
+
+        <!-- Selector: fichas de usuarios (nick y nombre completo, ordenadas por nick) -->
+        <mxCell id="card-1" parent="1" style="rounded=1;arcSize=8;absoluteArcSize=1;whiteSpace=wrap;html=1;fillColor=#16181C;strokeColor=#2F3336;shadow=1;" value="" vertex="1">
+          <mxGeometry x="136" y="197" width="252" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="card-1-nick" parent="1" style="text;html=1;align=left;verticalAlign=middle;fontSize=14;fontStyle=1;fontColor=#E7E9EA;" value="admin" vertex="1">
+          <mxGeometry x="148" y="207" width="228" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="card-1-name" parent="1" style="text;html=1;align=left;verticalAlign=middle;fontSize=12;fontColor=#71767B;" value="Administrador Cliso" vertex="1">
+          <mxGeometry x="148" y="227" width="228" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="card-2" parent="1" style="rounded=1;arcSize=8;absoluteArcSize=1;whiteSpace=wrap;html=1;fillColor=#1D1F23;strokeColor=#2F3336;shadow=1;" value="" vertex="1">
+          <mxGeometry x="136" y="265" width="252" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="card-2-nick" parent="1" style="text;html=1;align=left;verticalAlign=middle;fontSize=14;fontStyle=1;fontColor=#E7E9EA;" value="lperez" vertex="1">
+          <mxGeometry x="148" y="275" width="228" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="card-2-name" parent="1" style="text;html=1;align=left;verticalAlign=middle;fontSize=12;fontColor=#71767B;" value="Luis Pérez" vertex="1">
+          <mxGeometry x="148" y="295" width="228" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="card-3" parent="1" style="rounded=1;arcSize=8;absoluteArcSize=1;whiteSpace=wrap;html=1;fillColor=#16181C;strokeColor=#2F3336;shadow=1;" value="" vertex="1">
+          <mxGeometry x="136" y="333" width="252" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="card-3-nick" parent="1" style="text;html=1;align=left;verticalAlign=middle;fontSize=14;fontStyle=1;fontColor=#E7E9EA;" value="mgarcia" vertex="1">
+          <mxGeometry x="148" y="343" width="228" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="card-3-name" parent="1" style="text;html=1;align=left;verticalAlign=middle;fontSize=12;fontColor=#71767B;" value="María García López" vertex="1">
+          <mxGeometry x="148" y="363" width="228" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- Splitter -->
+        <mxCell id="splitter" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#2F3336;strokeColor=none;" value="" vertex="1">
+          <mxGeometry x="404" y="125" width="2" height="363" as="geometry" />
+        </mxCell>
+
+        <!-- Detalle, sin pestañas y en solo lectura: los campos se ven normales, con el cursor not-allowed -->
+        <mxCell id="field-nick" parent="1" style="rounded=1;arcSize=8;absoluteArcSize=1;whiteSpace=wrap;html=1;fillColor=#000000;strokeColor=#2F3336;align=left;spacingLeft=16;fontSize=15;fontColor=#E7E9EA;" value="lperez" vertex="1">
+          <mxGeometry x="424" y="153" width="592" height="52" as="geometry" />
+        </mxCell>
+        <mxCell id="field-nick-label" parent="1" style="text;html=1;align=center;verticalAlign=middle;fontSize=11;fontColor=#71767B;fillColor=#16181C;" value="Nombre de usuario" vertex="1">
+          <mxGeometry x="436" y="145" width="108" height="16" as="geometry" />
+        </mxCell>
+        <mxCell id="field-name" parent="1" style="rounded=1;arcSize=8;absoluteArcSize=1;whiteSpace=wrap;html=1;fillColor=#000000;strokeColor=#2F3336;align=left;spacingLeft=16;fontSize=15;fontColor=#E7E9EA;" value="Luis" vertex="1">
+          <mxGeometry x="424" y="221" width="592" height="52" as="geometry" />
+        </mxCell>
+        <mxCell id="field-name-label" parent="1" style="text;html=1;align=center;verticalAlign=middle;fontSize=11;fontColor=#71767B;fillColor=#16181C;" value="Nombre" vertex="1">
+          <mxGeometry x="436" y="213" width="52" height="16" as="geometry" />
+        </mxCell>
+        <mxCell id="field-surname" parent="1" style="rounded=1;arcSize=8;absoluteArcSize=1;whiteSpace=wrap;html=1;fillColor=#000000;strokeColor=#2F3336;align=left;spacingLeft=16;fontSize=15;fontColor=#E7E9EA;" value="Pérez" vertex="1">
+          <mxGeometry x="424" y="289" width="592" height="52" as="geometry" />
+        </mxCell>
+        <mxCell id="field-surname-label" parent="1" style="text;html=1;align=center;verticalAlign=middle;fontSize=11;fontColor=#71767B;fillColor=#16181C;" value="Apellidos" vertex="1">
+          <mxGeometry x="436" y="281" width="60" height="16" as="geometry" />
+        </mxCell>
+        <mxCell id="field-role" parent="1" style="rounded=1;arcSize=8;absoluteArcSize=1;whiteSpace=wrap;html=1;fillColor=#000000;strokeColor=#2F3336;align=left;spacingLeft=16;fontSize=15;fontColor=#E7E9EA;" value="Operador" vertex="1">
+          <mxGeometry x="424" y="357" width="592" height="52" as="geometry" />
+        </mxCell>
+        <mxCell id="field-role-label" parent="1" style="text;html=1;align=center;verticalAlign=middle;fontSize=11;fontColor=#71767B;fillColor=#16181C;" value="Rol" vertex="1">
+          <mxGeometry x="436" y="349" width="32" height="16" as="geometry" />
+        </mxCell>
+        <mxCell id="field-role-arrow" parent="1" style="text;html=1;align=center;verticalAlign=middle;fontSize=14;fontColor=#71767B;" value="▾" vertex="1">
+          <mxGeometry x="984" y="369" width="24" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="cursor-note" parent="1" style="text;html=1;align=left;verticalAlign=middle;fontSize=12;fontColor=#71767B;" value="⊘ Fuera de la edición, cursor not-allowed: el selector no se abre" vertex="1">
+          <mxGeometry x="424" y="417" width="592" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- Pie: Añadir, Editar y Borrar -->
+        <mxCell id="footer-line" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#2F3336;strokeColor=none;" value="" vertex="1">
+          <mxGeometry x="120" y="488" width="920" height="1" as="geometry" />
+        </mxCell>
+        <mxCell id="btn-add" parent="1" style="shape=image;html=1;aspect=fixed;imageAspect=0;image=data:image/svg+xml,PHN2ZyB2aWV3Qm94PSIwIDAgOTYwIDk2MCIgd2lkdGg9IjI0IiBoZWlnaHQ9IjI0IiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxwYXRoIGZpbGw9IiNmZmZmZmYiIGQ9Ik00NTAgNTEwSDIwMHYtNjBoMjUwdi0yNTBoNjB2MjUwaDI1MHY2MEg1MTB2MjUwaC02MHYtMjUwWiIvPjwvc3ZnPg0K;" value="" vertex="1">
+          <mxGeometry x="924" y="502" width="24" height="24" as="geometry" />
+        </mxCell>
+        <mxCell id="btn-edit" parent="1" style="shape=image;html=1;aspect=fixed;imageAspect=0;image=data:image/svg+xml,PHN2ZyB2aWV3Qm94PSIwIDAgOTYwIDk2MCIgd2lkdGg9IjI0IiBoZWlnaHQ9IjI0IiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxwYXRoIGZpbGw9IiNmZmZmZmYiIGQ9Ik0xODAgNzgwaDQ0bDQ3Mi00NzEtNDQtNDQtNDcyIDQ3MXY0NFptLTYwIDYwdi0xMjhsNTc1LTU3NHE4LTggMTktMTIuNXQyMy00LjVxMTEgMCAyMiA0LjV0MjAgMTIuNWw0NCA0NHE5IDkgMTMgMjB0NCAyMnEwIDExLTQuNSAyMi41VDgyMyAyNjZMMjQ4IDg0MEgxMjBabTY1OS02MTdsLTQxLTQxIDQxIDQxWm0tMTA1IDY0bC0yMi0yMiA0NCA0NC0yMi0yMloiLz48L3N2Zz4NCg==;" value="" vertex="1">
+          <mxGeometry x="960" y="502" width="24" height="24" as="geometry" />
+        </mxCell>
+        <mxCell id="btn-delete" parent="1" style="shape=image;html=1;aspect=fixed;imageAspect=0;image=data:image/svg+xml,PHN2ZyB2aWV3Qm94PSIwIDAgOTYwIDk2MCIgd2lkdGg9IjI0IiBoZWlnaHQ9IjI0IiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxwYXRoIGZpbGw9IiNmZmZmZmYiIGQ9Ik0yNjEgODQwcS0yNC43NSAwLTQyLjM3LTE3LjYzUTIwMSA4MDQuNzUgMjAxIDc4MHYtNTcwaC00MXYtNjBoMTg4di0zMGgyNjR2MzBoMTg4djYwaC00MXY1NzBxMCAyNC0xOCA0MnQtNDIgMThIMjYxWm00MzgtNjMwSDI2MXY1NzBoNDM4di01NzBaTTM2NyA2OTRoNjB2LTM5OWgtNjB2Mzk5Wm0xNjYgMGg2MHYtMzk5aC02MHYzOTlaTTI2MSAyMTB2NTcwLTU3MFoiLz48L3N2Zz4NCg==;" value="" vertex="1">
+          <mxGeometry x="996" y="502" width="24" height="24" as="geometry" />
+        </mxCell>
+
+        <!-- Notas -->
+        <mxCell id="notes" parent="1" style="shape=note;size=16;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=12;fontSize=13;fillColor=#16181C;strokeColor=#2F3336;fontColor=#E7E9EA;" value="&lt;b&gt;Editor de usuarios&lt;/b&gt;&lt;br&gt;&lt;br&gt;Entrada &lt;b&gt;Usuarios&lt;/b&gt; del panel de Edición, solo para quien puede gestionarlos. Mismo modal que los demás editores.&lt;br&gt;&lt;br&gt;La lista tiene una ficha por usuario (nick y, debajo, nombre completo), ordenadas por nick; el buscador filtra por nick, nombre y apellidos.&lt;br&gt;&lt;br&gt;El detalle, &lt;b&gt;sin pestañas&lt;/b&gt; (los permisos están pendientes), tiene &lt;b&gt;Nombre de usuario&lt;/b&gt;, &lt;b&gt;Nombre&lt;/b&gt;, &lt;b&gt;Apellidos&lt;/b&gt; y &lt;b&gt;Rol&lt;/b&gt;. Fuera de la edición los campos se ven normales, sin atenuar, con el cursor not-allowed (solo lectura no es deshabilitado).&lt;br&gt;&lt;br&gt;El nombre de usuario solo se escribe al añadir; después es intocable.&lt;br&gt;&lt;br&gt;&lt;b&gt;Borrar&lt;/b&gt; (borrado lógico, con confirmación) sale desactivado, con opacidad 0,5, para el usuario de la sesión y para &lt;b&gt;admin&lt;/b&gt;; el rol de ambos tampoco se puede cambiar." vertex="1">
+          <mxGeometry x="1120" y="20" width="400" height="440" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram name="Usuarios (añadir)" id="usuarios-anadir">
+    <mxGraphModel background="#000000" dx="1178" dy="654" grid="1" gridSize="4" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1560" pageHeight="720" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <mxCell id="backdrop" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#000000;opacity=32;strokeColor=none;" value="" vertex="1">
+          <mxGeometry x="80" y="20" width="1000" height="680" as="geometry" />
+        </mxCell>
+        <mxCell id="dialog" parent="1" style="rounded=1;arcSize=16;absoluteArcSize=1;whiteSpace=wrap;html=1;fillColor=#16181C;strokeColor=#2F3336;" value="" vertex="1">
+          <mxGeometry x="120" y="60" width="920" height="600" as="geometry" />
+        </mxCell>
+
+        <!-- Cabecera -->
+        <mxCell id="title" parent="1" style="text;html=1;align=left;verticalAlign=middle;fontSize=20;fontStyle=1;fontColor=#E7E9EA;" value="Usuarios" vertex="1">
+          <mxGeometry x="144" y="72" width="300" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="btn-maximize" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=none;strokeColor=none;fontSize=16;fontColor=#E7E9EA;" value="☐" vertex="1">
+          <mxGeometry x="956" y="76" width="32" height="32" as="geometry" />
+        </mxCell>
+        <mxCell id="btn-close" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=none;strokeColor=none;fontSize=16;fontColor=#E7E9EA;" value="✕" vertex="1">
+          <mxGeometry x="992" y="76" width="32" height="32" as="geometry" />
+        </mxCell>
+        <mxCell id="header-line" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#2F3336;strokeColor=none;" value="" vertex="1">
+          <mxGeometry x="120" y="124" width="920" height="1" as="geometry" />
+        </mxCell>
+
+        <!-- Selector, sin ficha seleccionada mientras se añade -->
+        <mxCell id="search" parent="1" style="rounded=1;arcSize=8;absoluteArcSize=1;whiteSpace=wrap;html=1;fillColor=#000000;strokeColor=#2F3336;align=left;spacingLeft=12;fontSize=14;fontColor=#71767B;" value="⌕&amp;nbsp;&amp;nbsp;Buscar usuarios" vertex="1">
+          <mxGeometry x="136" y="141" width="232" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="collapse" parent="1" style="text;html=1;align=center;verticalAlign=middle;fontSize=18;fontColor=#E7E9EA;" value="«" vertex="1">
+          <mxGeometry x="372" y="145" width="28" height="32" as="geometry" />
+        </mxCell>
+        <mxCell id="card-1" parent="1" style="rounded=1;arcSize=8;absoluteArcSize=1;whiteSpace=wrap;html=1;fillColor=#16181C;strokeColor=#2F3336;shadow=1;" value="" vertex="1">
+          <mxGeometry x="136" y="197" width="252" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="card-1-nick" parent="1" style="text;html=1;align=left;verticalAlign=middle;fontSize=14;fontStyle=1;fontColor=#E7E9EA;" value="admin" vertex="1">
+          <mxGeometry x="148" y="207" width="228" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="card-1-name" parent="1" style="text;html=1;align=left;verticalAlign=middle;fontSize=12;fontColor=#71767B;" value="Administrador Cliso" vertex="1">
+          <mxGeometry x="148" y="227" width="228" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="card-2" parent="1" style="rounded=1;arcSize=8;absoluteArcSize=1;whiteSpace=wrap;html=1;fillColor=#16181C;strokeColor=#2F3336;shadow=1;" value="" vertex="1">
+          <mxGeometry x="136" y="265" width="252" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="card-2-nick" parent="1" style="text;html=1;align=left;verticalAlign=middle;fontSize=14;fontStyle=1;fontColor=#E7E9EA;" value="lperez" vertex="1">
+          <mxGeometry x="148" y="275" width="228" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="card-2-name" parent="1" style="text;html=1;align=left;verticalAlign=middle;fontSize=12;fontColor=#71767B;" value="Luis Pérez" vertex="1">
+          <mxGeometry x="148" y="295" width="228" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="card-3" parent="1" style="rounded=1;arcSize=8;absoluteArcSize=1;whiteSpace=wrap;html=1;fillColor=#16181C;strokeColor=#2F3336;shadow=1;" value="" vertex="1">
+          <mxGeometry x="136" y="333" width="252" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="card-3-nick" parent="1" style="text;html=1;align=left;verticalAlign=middle;fontSize=14;fontStyle=1;fontColor=#E7E9EA;" value="mgarcia" vertex="1">
+          <mxGeometry x="148" y="343" width="228" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="card-3-name" parent="1" style="text;html=1;align=left;verticalAlign=middle;fontSize=12;fontColor=#71767B;" value="María García López" vertex="1">
+          <mxGeometry x="148" y="363" width="228" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="splitter" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#2F3336;strokeColor=none;" value="" vertex="1">
+          <mxGeometry x="404" y="125" width="2" height="483" as="geometry" />
+        </mxCell>
+
+        <!-- Detalle en edición: el nombre de usuario se escribe solo ahora; contraseña y su repetición, cada una con su ojo -->
+        <mxCell id="field-nick" parent="1" style="rounded=1;arcSize=8;absoluteArcSize=1;whiteSpace=wrap;html=1;fillColor=#000000;strokeColor=#FFFFFF;align=left;spacingLeft=16;fontSize=15;fontColor=#E7E9EA;" value="agomez" vertex="1">
+          <mxGeometry x="424" y="153" width="592" height="52" as="geometry" />
+        </mxCell>
+        <mxCell id="field-nick-label" parent="1" style="text;html=1;align=center;verticalAlign=middle;fontSize=11;fontColor=#E7E9EA;fillColor=#16181C;" value="Nombre de usuario" vertex="1">
+          <mxGeometry x="436" y="145" width="108" height="16" as="geometry" />
+        </mxCell>
+        <mxCell id="field-name" parent="1" style="rounded=1;arcSize=8;absoluteArcSize=1;whiteSpace=wrap;html=1;fillColor=#000000;strokeColor=#2F3336;align=left;spacingLeft=16;fontSize=15;fontColor=#E7E9EA;" value="Ana" vertex="1">
+          <mxGeometry x="424" y="221" width="592" height="52" as="geometry" />
+        </mxCell>
+        <mxCell id="field-name-label" parent="1" style="text;html=1;align=center;verticalAlign=middle;fontSize=11;fontColor=#71767B;fillColor=#16181C;" value="Nombre" vertex="1">
+          <mxGeometry x="436" y="213" width="52" height="16" as="geometry" />
+        </mxCell>
+        <mxCell id="field-surname" parent="1" style="rounded=1;arcSize=8;absoluteArcSize=1;whiteSpace=wrap;html=1;fillColor=#000000;strokeColor=#2F3336;align=left;spacingLeft=16;fontSize=15;fontColor=#E7E9EA;" value="Gómez" vertex="1">
+          <mxGeometry x="424" y="289" width="592" height="52" as="geometry" />
+        </mxCell>
+        <mxCell id="field-surname-label" parent="1" style="text;html=1;align=center;verticalAlign=middle;fontSize=11;fontColor=#71767B;fillColor=#16181C;" value="Apellidos" vertex="1">
+          <mxGeometry x="436" y="281" width="60" height="16" as="geometry" />
+        </mxCell>
+        <mxCell id="field-role" parent="1" style="rounded=1;arcSize=8;absoluteArcSize=1;whiteSpace=wrap;html=1;fillColor=#000000;strokeColor=#2F3336;align=left;spacingLeft=16;fontSize=15;fontColor=#E7E9EA;" value="Visor" vertex="1">
+          <mxGeometry x="424" y="357" width="592" height="52" as="geometry" />
+        </mxCell>
+        <mxCell id="field-role-label" parent="1" style="text;html=1;align=center;verticalAlign=middle;fontSize=11;fontColor=#71767B;fillColor=#16181C;" value="Rol" vertex="1">
+          <mxGeometry x="436" y="349" width="32" height="16" as="geometry" />
+        </mxCell>
+        <mxCell id="field-role-arrow" parent="1" style="text;html=1;align=center;verticalAlign=middle;fontSize=14;fontColor=#71767B;" value="▾" vertex="1">
+          <mxGeometry x="984" y="369" width="24" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="field-password" parent="1" style="rounded=1;arcSize=8;absoluteArcSize=1;whiteSpace=wrap;html=1;fillColor=#000000;strokeColor=#2F3336;align=left;spacingLeft=16;fontSize=15;fontColor=#E7E9EA;" value="••••••••••" vertex="1">
+          <mxGeometry x="424" y="425" width="592" height="52" as="geometry" />
+        </mxCell>
+        <mxCell id="field-password-label" parent="1" style="text;html=1;align=center;verticalAlign=middle;fontSize=11;fontColor=#71767B;fillColor=#16181C;" value="Contraseña" vertex="1">
+          <mxGeometry x="436" y="417" width="68" height="16" as="geometry" />
+        </mxCell>
+        <mxCell id="field-password-eye" parent="1" style="shape=image;html=1;aspect=fixed;imageAspect=0;image=data:image/svg+xml,PHN2ZyB2aWV3Qm94PSIwIDAgOTYwIDk2MCIgd2lkdGg9IjI0IiBoZWlnaHQ9IjI0IiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxwYXRoIGZpbGw9IiNmZmZmZmYiIGQ9Ik00ODAgNjQwcTc1IDAgMTI3LjUtNTIuNVQ2NjAgNDYwcTAtNzUtNTIuNS0xMjcuNVQ0ODAgMjgwcS03NSAwLTEyNy41IDUyLjVUMzAwIDQ2MHEwIDc1IDUyLjUgMTI3LjVUNDgwIDY0MFptMC03MnEtNDUgMC03Ni41LTMxLjVUMzcyIDQ2MHEwLTQ1IDMxLjUtNzYuNVQ0ODAgMzUycTQ1IDAgNzYuNSAzMS41VDU4OCA0NjBxMCA0NS0zMS41IDc2LjVUNDgwIDU2OFptMCAxOTJxLTE0NiAwLTI2Ni04MS41VDQwIDQ2MHE1NC0xMzcgMTc0LTIxOC41VDQ4MCAxNjBxMTQ2IDAgMjY2IDgxLjVUOTIwIDQ2MHEtNTQgMTM3LTE3NCAyMTguNVQ0ODAgNzYwWm0wLTMwMFptMCAyMjBxMTEzIDAgMjA3LjUtNTkuNVQ4MzIgNDYwcS01MC0xMDEtMTQ0LjUtMTYwLjVUNDgwIDI0MHEtMTEzIDAtMjA3LjUgNTkuNVQxMjggNDYwcTUwIDEwMSAxNDQuNSAxNjAuNVQ0ODAgNjgwWiIvPjwvc3ZnPgo=;" value="" vertex="1">
+          <mxGeometry x="980" y="439" width="24" height="24" as="geometry" />
+        </mxCell>
+        <mxCell id="field-repeat" parent="1" style="rounded=1;arcSize=8;absoluteArcSize=1;whiteSpace=wrap;html=1;fillColor=#000000;strokeColor=#2F3336;align=left;spacingLeft=16;fontSize=15;fontColor=#E7E9EA;" value="••••••••" vertex="1">
+          <mxGeometry x="424" y="493" width="592" height="52" as="geometry" />
+        </mxCell>
+        <mxCell id="field-repeat-label" parent="1" style="text;html=1;align=center;verticalAlign=middle;fontSize=11;fontColor=#71767B;fillColor=#16181C;" value="Repetir contraseña" vertex="1">
+          <mxGeometry x="436" y="485" width="112" height="16" as="geometry" />
+        </mxCell>
+        <mxCell id="field-repeat-eye" parent="1" style="shape=image;html=1;aspect=fixed;imageAspect=0;image=data:image/svg+xml,PHN2ZyB2aWV3Qm94PSIwIDAgOTYwIDk2MCIgd2lkdGg9IjI0IiBoZWlnaHQ9IjI0IiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxwYXRoIGZpbGw9IiNmZmZmZmYiIGQ9Ik00ODAgNjQwcTc1IDAgMTI3LjUtNTIuNVQ2NjAgNDYwcTAtNzUtNTIuNS0xMjcuNVQ0ODAgMjgwcS03NSAwLTEyNy41IDUyLjVUMzAwIDQ2MHEwIDc1IDUyLjUgMTI3LjVUNDgwIDY0MFptMC03MnEtNDUgMC03Ni41LTMxLjVUMzcyIDQ2MHEwLTQ1IDMxLjUtNzYuNVQ0ODAgMzUycTQ1IDAgNzYuNSAzMS41VDU4OCA0NjBxMCA0NS0zMS41IDc2LjVUNDgwIDU2OFptMCAxOTJxLTE0NiAwLTI2Ni04MS41VDQwIDQ2MHE1NC0xMzcgMTc0LTIxOC41VDQ4MCAxNjBxMTQ2IDAgMjY2IDgxLjVUOTIwIDQ2MHEtNTQgMTM3LTE3NCAyMTguNVQ0ODAgNzYwWm0wLTMwMFptMCAyMjBxMTEzIDAgMjA3LjUtNTkuNVQ4MzIgNDYwcS01MC0xMDEtMTQ0LjUtMTYwLjVUNDgwIDI0MHEtMTEzIDAtMjA3LjUgNTkuNVQxMjggNDYwcTUwIDEwMSAxNDQuNSAxNjAuNVQ0ODAgNjgwWiIvPjwvc3ZnPgo=;" value="" vertex="1">
+          <mxGeometry x="980" y="507" width="24" height="24" as="geometry" />
+        </mxCell>
+        <mxCell id="eye-tooltip" parent="1" style="rounded=1;arcSize=8;absoluteArcSize=1;whiteSpace=wrap;html=1;fillColor=#16181C;strokeColor=#2F3336;fontSize=11;fontColor=#E7E9EA;" value="Mostrar la contraseña" vertex="1">
+          <mxGeometry x="868" y="549" width="148" height="24" as="geometry" />
+        </mxCell>
+        <mxCell id="error-mismatch" parent="1" style="text;html=1;align=left;verticalAlign=middle;fontSize=12;fontColor=#F4212E;" value="Las contraseñas no coinciden" vertex="1">
+          <mxGeometry x="424" y="553" width="380" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- Pie en edición: Guardar y Descartar -->
+        <mxCell id="footer-line" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#2F3336;strokeColor=none;" value="" vertex="1">
+          <mxGeometry x="120" y="608" width="920" height="1" as="geometry" />
+        </mxCell>
+        <mxCell id="btn-save" parent="1" style="shape=image;html=1;aspect=fixed;imageAspect=0;image=data:image/svg+xml,PHN2ZyB2aWV3Qm94PSIwIDAgOTYwIDk2MCIgd2lkdGg9IjI0IiBoZWlnaHQ9IjI0IiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxwYXRoIGZpbGw9IiNmZmZmZmYiIGQ9Ik04NDAgMjc3djUwM3EwIDI0LTE4IDQydC00MiAxOEgxODBxLTI0IDAtNDItMTh0LTE4LTQydi02MDBxMC0yNCAxOC00MnQ0Mi0xOGg1MDNsMTU3IDE1N1ptLTYwIDI3TDY1NiAxODBIMTgwdjYwMGg2MDB2LTQ3NlpNNDc5Ljc2IDcxNXE0My4yNCAwIDczLjc0LTMwLjI2IDMwLjUtMzAuMjcgMzAuNS03My41IDAtNDMuMjQtMzAuMjYtNzMuNzQtMzAuMjctMzAuNS03My41LTMwLjUtNDMuMjQgMC03My43NCAzMC4yNi0zMC41IDMwLjI3LTMwLjUgNzMuNSAwIDQzLjI0IDMwLjI2IDczLjc0IDMwLjI3IDMwLjUgNzMuNSAzMC41Wk0yMzMgMzc2aDM1OHYtMTQzSDIzM3YxNDNabS01My03MnY0NzYtNjAwIDEyNFoiLz48L3N2Zz4NCg==;" value="" vertex="1">
+          <mxGeometry x="960" y="622" width="24" height="24" as="geometry" />
+        </mxCell>
+        <mxCell id="btn-discard" parent="1" style="shape=image;html=1;aspect=fixed;imageAspect=0;image=data:image/svg+xml,PHN2ZyB2aWV3Qm94PSIwIDAgOTYwIDk2MCIgd2lkdGg9IjI0IiBoZWlnaHQ9IjI0IiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxwYXRoIGZpbGw9IiNmZmZmZmYiIGQ9Ik0yNTkgNzYwdi02MGgzMTBxNzAgMCAxMjAuNS00Ni41VDc0MCA1MzhxMC02OS01MC41LTExNS41VDU2OSAzNzZIMjc0bDExNCAxMTQtNDIgNDItMTg2LTE4NiAxODYtMTg2IDQyIDQyLTExNCAxMTRoMjk0cTk1IDAgMTYzLjUgNjRUODAwIDUzOHEwIDk0LTY4LjUgMTU4VDU2OCA3NjBIMjU5WiIvPjwvc3ZnPg0K;" value="" vertex="1">
+          <mxGeometry x="996" y="622" width="24" height="24" as="geometry" />
+        </mxCell>
+
+        <mxCell id="notes" parent="1" style="shape=note;size=16;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=12;fontSize=13;fillColor=#16181C;strokeColor=#2F3336;fontColor=#E7E9EA;" value="&lt;b&gt;Añadir un usuario&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;b&gt;Añadir&lt;/b&gt; deja el detalle en blanco y en edición, con el rol de menos permisos (Visor). Es el único momento en que se escribe el &lt;b&gt;nombre de usuario&lt;/b&gt;.&lt;br&gt;&lt;br&gt;Se piden &lt;b&gt;Contraseña&lt;/b&gt; y &lt;b&gt;Repetir contraseña&lt;/b&gt;; cada campo tiene su botón de icono (ojo, con tooltip) para verla u ocultarla.&lt;br&gt;&lt;br&gt;Al guardar, los campos obligatorios vacíos y la repetición que no coincide se avisan bajo cada campo en --color-danger.&lt;br&gt;&lt;br&gt;Si el API rechaza la contraseña, se listan en --color-danger los requisitos que no cumple («La contraseña debe:» …). Un nombre de usuario repetido se avisa con un toast." vertex="1">
+          <mxGeometry x="1120" y="20" width="400" height="380" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram name="Usuarios (cambiar contraseña)" id="usuarios-contrasena">
+    <mxGraphModel background="#000000" dx="1178" dy="654" grid="1" gridSize="4" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1560" pageHeight="620" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- Editor en edición, detrás del submodal -->
+        <mxCell id="dialog" parent="1" style="rounded=1;arcSize=16;absoluteArcSize=1;whiteSpace=wrap;html=1;fillColor=#16181C;strokeColor=#2F3336;" value="" vertex="1">
+          <mxGeometry x="120" y="60" width="920" height="480" as="geometry" />
+        </mxCell>
+        <mxCell id="title" parent="1" style="text;html=1;align=left;verticalAlign=middle;fontSize=20;fontStyle=1;fontColor=#E7E9EA;" value="Usuarios" vertex="1">
+          <mxGeometry x="144" y="72" width="300" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="header-line" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#2F3336;strokeColor=none;" value="" vertex="1">
+          <mxGeometry x="120" y="124" width="920" height="1" as="geometry" />
+        </mxCell>
+        <mxCell id="splitter" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#2F3336;strokeColor=none;" value="" vertex="1">
+          <mxGeometry x="404" y="125" width="2" height="363" as="geometry" />
+        </mxCell>
+        <mxCell id="field-role" parent="1" style="rounded=1;arcSize=8;absoluteArcSize=1;whiteSpace=wrap;html=1;fillColor=#000000;strokeColor=#2F3336;align=left;spacingLeft=16;fontSize=15;fontColor=#E7E9EA;" value="Operador" vertex="1">
+          <mxGeometry x="424" y="357" width="592" height="52" as="geometry" />
+        </mxCell>
+        <mxCell id="field-role-label" parent="1" style="text;html=1;align=center;verticalAlign=middle;fontSize=11;fontColor=#71767B;fillColor=#16181C;" value="Rol" vertex="1">
+          <mxGeometry x="436" y="349" width="32" height="16" as="geometry" />
+        </mxCell>
+        <mxCell id="btn-change-password" parent="1" style="rounded=1;arcSize=50;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#2F3336;fontSize=14;fontColor=#E7E9EA;" value="Cambiar contraseña" vertex="1">
+          <mxGeometry x="636" y="425" width="168" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="password-pending" parent="1" style="text;html=1;align=center;verticalAlign=middle;fontSize=12;fontColor=#71767B;" value="La contraseña nueva se guardará al pulsar Guardar" vertex="1">
+          <mxGeometry x="424" y="469" width="592" height="16" as="geometry" />
+        </mxCell>
+        <mxCell id="footer-line" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#2F3336;strokeColor=none;" value="" vertex="1">
+          <mxGeometry x="120" y="488" width="920" height="1" as="geometry" />
+        </mxCell>
+
+        <!-- Fondo oscurecido del submodal, sobre el editor -->
+        <mxCell id="backdrop" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#000000;opacity=60;strokeColor=none;" value="" vertex="1">
+          <mxGeometry x="80" y="20" width="1000" height="560" as="geometry" />
+        </mxCell>
+
+        <!-- Submodal: 24 rem de ancho, título, dos campos con su ojo, Cancelar y Aceptar -->
+        <mxCell id="sub-dialog" parent="1" style="rounded=1;arcSize=16;absoluteArcSize=1;whiteSpace=wrap;html=1;fillColor=#16181C;strokeColor=#2F3336;" value="" vertex="1">
+          <mxGeometry x="388" y="140" width="384" height="300" as="geometry" />
+        </mxCell>
+        <mxCell id="sub-title" parent="1" style="text;html=1;align=left;verticalAlign=middle;fontSize=20;fontStyle=1;fontColor=#E7E9EA;" value="Nueva contraseña" vertex="1">
+          <mxGeometry x="412" y="156" width="336" height="36" as="geometry" />
+        </mxCell>
+        <mxCell id="sub-password" parent="1" style="rounded=1;arcSize=8;absoluteArcSize=1;whiteSpace=wrap;html=1;fillColor=#000000;strokeColor=#2F3336;align=left;spacingLeft=16;fontSize=15;fontColor=#E7E9EA;" value="••••••••••" vertex="1">
+          <mxGeometry x="412" y="212" width="336" height="52" as="geometry" />
+        </mxCell>
+        <mxCell id="sub-password-label" parent="1" style="text;html=1;align=center;verticalAlign=middle;fontSize=11;fontColor=#71767B;fillColor=#16181C;" value="Contraseña" vertex="1">
+          <mxGeometry x="424" y="204" width="68" height="16" as="geometry" />
+        </mxCell>
+        <mxCell id="sub-password-eye" parent="1" style="shape=image;html=1;aspect=fixed;imageAspect=0;image=data:image/svg+xml,PHN2ZyB2aWV3Qm94PSIwIDAgOTYwIDk2MCIgd2lkdGg9IjI0IiBoZWlnaHQ9IjI0IiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxwYXRoIGZpbGw9IiNmZmZmZmYiIGQ9Ik00ODAgNjQwcTc1IDAgMTI3LjUtNTIuNVQ2NjAgNDYwcTAtNzUtNTIuNS0xMjcuNVQ0ODAgMjgwcS03NSAwLTEyNy41IDUyLjVUMzAwIDQ2MHEwIDc1IDUyLjUgMTI3LjVUNDgwIDY0MFptMC03MnEtNDUgMC03Ni41LTMxLjVUMzcyIDQ2MHEwLTQ1IDMxLjUtNzYuNVQ0ODAgMzUycTQ1IDAgNzYuNSAzMS41VDU4OCA0NjBxMCA0NS0zMS41IDc2LjVUNDgwIDU2OFptMCAxOTJxLTE0NiAwLTI2Ni04MS41VDQwIDQ2MHE1NC0xMzcgMTc0LTIxOC41VDQ4MCAxNjBxMTQ2IDAgMjY2IDgxLjVUOTIwIDQ2MHEtNTQgMTM3LTE3NCAyMTguNVQ0ODAgNzYwWm0wLTMwMFptMCAyMjBxMTEzIDAgMjA3LjUtNTkuNVQ4MzIgNDYwcS01MC0xMDEtMTQ0LjUtMTYwLjVUNDgwIDI0MHEtMTEzIDAtMjA3LjUgNTkuNVQxMjggNDYwcTUwIDEwMSAxNDQuNSAxNjAuNVQ0ODAgNjgwWiIvPjwvc3ZnPgo=;" value="" vertex="1">
+          <mxGeometry x="712" y="226" width="24" height="24" as="geometry" />
+        </mxCell>
+        <mxCell id="sub-repeat" parent="1" style="rounded=1;arcSize=8;absoluteArcSize=1;whiteSpace=wrap;html=1;fillColor=#000000;strokeColor=#2F3336;align=left;spacingLeft=16;fontSize=15;fontColor=#E7E9EA;" value="••••••••••" vertex="1">
+          <mxGeometry x="412" y="280" width="336" height="52" as="geometry" />
+        </mxCell>
+        <mxCell id="sub-repeat-label" parent="1" style="text;html=1;align=center;verticalAlign=middle;fontSize=11;fontColor=#71767B;fillColor=#16181C;" value="Repetir contraseña" vertex="1">
+          <mxGeometry x="424" y="272" width="112" height="16" as="geometry" />
+        </mxCell>
+        <mxCell id="sub-repeat-eye" parent="1" style="shape=image;html=1;aspect=fixed;imageAspect=0;image=data:image/svg+xml,PHN2ZyB2aWV3Qm94PSIwIDAgOTYwIDk2MCIgd2lkdGg9IjI0IiBoZWlnaHQ9IjI0IiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxwYXRoIGZpbGw9IiNmZmZmZmYiIGQ9Ik00ODAgNjQwcTc1IDAgMTI3LjUtNTIuNVQ2NjAgNDYwcTAtNzUtNTIuNS0xMjcuNVQ0ODAgMjgwcS03NSAwLTEyNy41IDUyLjVUMzAwIDQ2MHEwIDc1IDUyLjUgMTI3LjVUNDgwIDY0MFptMC03MnEtNDUgMC03Ni41LTMxLjVUMzcyIDQ2MHEwLTQ1IDMxLjUtNzYuNVQ0ODAgMzUycTQ1IDAgNzYuNSAzMS41VDU4OCA0NjBxMCA0NS0zMS41IDc2LjVUNDgwIDU2OFptMCAxOTJxLTE0NiAwLTI2Ni04MS41VDQwIDQ2MHE1NC0xMzcgMTc0LTIxOC41VDQ4MCAxNjBxMTQ2IDAgMjY2IDgxLjVUOTIwIDQ2MHEtNTQgMTM3LTE3NCAyMTguNVQ0ODAgNzYwWm0wLTMwMFptMCAyMjBxMTEzIDAgMjA3LjUtNTkuNVQ4MzIgNDYwcS01MC0xMDEtMTQ0LjUtMTYwLjVUNDgwIDI0MHEtMTEzIDAtMjA3LjUgNTkuNVQxMjggNDYwcTUwIDEwMSAxNDQuNSAxNjAuNVQ0ODAgNjgwWiIvPjwvc3ZnPgo=;" value="" vertex="1">
+          <mxGeometry x="712" y="294" width="24" height="24" as="geometry" />
+        </mxCell>
+        <mxCell id="sub-cancel" parent="1" style="rounded=1;arcSize=50;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#2F3336;fontSize=15;fontColor=#E7E9EA;" value="Cancelar" vertex="1">
+          <mxGeometry x="500" y="372" width="120" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="sub-accept" parent="1" style="rounded=1;arcSize=50;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=none;fontSize=15;fontStyle=1;fontColor=#000000;" value="Aceptar" vertex="1">
+          <mxGeometry x="628" y="372" width="120" height="40" as="geometry" />
+        </mxCell>
+
+        <mxCell id="notes" parent="1" style="shape=note;size=16;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=12;fontSize=13;fillColor=#16181C;strokeColor=#2F3336;fontColor=#E7E9EA;" value="&lt;b&gt;Cambiar la contraseña&lt;/b&gt;&lt;br&gt;&lt;br&gt;Al editar un usuario existente no hay campos de contraseña: casi siempre se cambian solo sus datos. Bajo el rol aparece el botón secundario &lt;b&gt;Cambiar contraseña&lt;/b&gt;.&lt;br&gt;&lt;br&gt;Abre un &lt;b&gt;submodal&lt;/b&gt; (24 rem de ancho, limitado en pantallas estrechas) que la pide dos veces, cada campo con su ojo. &lt;b&gt;Aceptar&lt;/b&gt; comprueba que no esté vacía y que coincidan; &lt;b&gt;Cancelar&lt;/b&gt;, Escape o un clic fuera la dejan como estaba.&lt;br&gt;&lt;br&gt;La contraseña nueva no se envía al aceptar, sino con el resto de datos al pulsar &lt;b&gt;Guardar&lt;/b&gt;; mientras tanto, un texto secundario lo recuerda bajo el botón." vertex="1">
+          <mxGeometry x="1120" y="20" width="400" height="360" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram name="Usuarios (móvil)" id="usuarios-movil">
+    <mxGraphModel background="#000000" dx="1704" dy="946" grid="1" gridSize="4" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1300" pageHeight="827" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="label-1" parent="1" style="text;html=1;align=left;verticalAlign=middle;fontSize=13;fontStyle=1;fontColor=#71767B;" value="USUARIOS: LISTA (&lt; 768 px)" vertex="1">
+          <mxGeometry x="40" y="12" width="360" height="24" as="geometry" />
+        </mxCell>
+        <mxCell id="label-2" parent="1" style="text;html=1;align=left;verticalAlign=middle;fontSize=13;fontStyle=1;fontColor=#71767B;" value="USUARIOS: DETALLE (usuario protegido)" vertex="1">
+          <mxGeometry x="440" y="12" width="360" height="24" as="geometry" />
+        </mxCell>
+
+        <!-- Paso 1: lista -->
+        <mxCell id="l-frame" parent="1" style="rounded=1;arcSize=24;absoluteArcSize=1;whiteSpace=wrap;html=1;fillColor=#16181C;strokeColor=#2F3336;strokeWidth=2;" value="" vertex="1">
+          <mxGeometry x="40" y="40" width="360" height="720" as="geometry" />
+        </mxCell>
+        <mxCell id="l-title" parent="1" style="text;html=1;align=left;verticalAlign=middle;fontSize=20;fontStyle=1;fontColor=#E7E9EA;" value="Usuarios" vertex="1">
+          <mxGeometry x="60" y="52" width="260" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="l-close" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=none;strokeColor=none;fontSize=16;fontColor=#E7E9EA;" value="✕" vertex="1">
+          <mxGeometry x="356" y="56" width="32" height="32" as="geometry" />
+        </mxCell>
+        <mxCell id="l-header-line" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#2F3336;strokeColor=none;" value="" vertex="1">
+          <mxGeometry x="40" y="104" width="360" height="1" as="geometry" />
+        </mxCell>
+        <mxCell id="l-search" parent="1" style="rounded=1;arcSize=8;absoluteArcSize=1;whiteSpace=wrap;html=1;fillColor=#000000;strokeColor=#2F3336;align=left;spacingLeft=12;fontSize=14;fontColor=#71767B;" value="⌕&amp;nbsp;&amp;nbsp;Buscar usuarios" vertex="1">
+          <mxGeometry x="56" y="120" width="328" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="l-card-1" parent="1" style="rounded=1;arcSize=8;absoluteArcSize=1;whiteSpace=wrap;html=1;fillColor=#16181C;strokeColor=#2F3336;shadow=1;" value="" vertex="1">
+          <mxGeometry x="56" y="176" width="328" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="l-card-1-nick" parent="1" style="text;html=1;align=left;verticalAlign=middle;fontSize=14;fontStyle=1;fontColor=#E7E9EA;" value="admin" vertex="1">
+          <mxGeometry x="68" y="186" width="280" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="l-card-1-name" parent="1" style="text;html=1;align=left;verticalAlign=middle;fontSize=12;fontColor=#71767B;" value="Administrador Cliso" vertex="1">
+          <mxGeometry x="68" y="206" width="280" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="l-card-1-arrow" parent="1" style="text;html=1;align=center;verticalAlign=middle;fontSize=20;fontColor=#E7E9EA;" value="›" vertex="1">
+          <mxGeometry x="352" y="186" width="24" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="l-card-2" parent="1" style="rounded=1;arcSize=8;absoluteArcSize=1;whiteSpace=wrap;html=1;fillColor=#16181C;strokeColor=#2F3336;shadow=1;" value="" vertex="1">
+          <mxGeometry x="56" y="244" width="328" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="l-card-2-nick" parent="1" style="text;html=1;align=left;verticalAlign=middle;fontSize=14;fontStyle=1;fontColor=#E7E9EA;" value="lperez" vertex="1">
+          <mxGeometry x="68" y="254" width="280" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="l-card-2-name" parent="1" style="text;html=1;align=left;verticalAlign=middle;fontSize=12;fontColor=#71767B;" value="Luis Pérez" vertex="1">
+          <mxGeometry x="68" y="274" width="280" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="l-card-2-arrow" parent="1" style="text;html=1;align=center;verticalAlign=middle;fontSize=20;fontColor=#E7E9EA;" value="›" vertex="1">
+          <mxGeometry x="352" y="254" width="24" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="l-card-3" parent="1" style="rounded=1;arcSize=8;absoluteArcSize=1;whiteSpace=wrap;html=1;fillColor=#16181C;strokeColor=#2F3336;shadow=1;" value="" vertex="1">
+          <mxGeometry x="56" y="312" width="328" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="l-card-3-nick" parent="1" style="text;html=1;align=left;verticalAlign=middle;fontSize=14;fontStyle=1;fontColor=#E7E9EA;" value="mgarcia" vertex="1">
+          <mxGeometry x="68" y="322" width="280" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="l-card-3-name" parent="1" style="text;html=1;align=left;verticalAlign=middle;fontSize=12;fontColor=#71767B;" value="María García López" vertex="1">
+          <mxGeometry x="68" y="342" width="280" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="l-card-3-arrow" parent="1" style="text;html=1;align=center;verticalAlign=middle;fontSize=20;fontColor=#E7E9EA;" value="›" vertex="1">
+          <mxGeometry x="352" y="322" width="24" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="l-footer-line" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#2F3336;strokeColor=none;" value="" vertex="1">
+          <mxGeometry x="40" y="700" width="360" height="1" as="geometry" />
+        </mxCell>
+        <mxCell id="l-add" parent="1" style="shape=image;html=1;aspect=fixed;imageAspect=0;image=data:image/svg+xml,PHN2ZyB2aWV3Qm94PSIwIDAgOTYwIDk2MCIgd2lkdGg9IjI0IiBoZWlnaHQ9IjI0IiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxwYXRoIGZpbGw9IiNmZmZmZmYiIGQ9Ik00NTAgNTEwSDIwMHYtNjBoMjUwdi0yNTBoNjB2MjUwaDI1MHY2MEg1MTB2MjUwaC02MHYtMjUwWiIvPjwvc3ZnPg0K;" value="" vertex="1">
+          <mxGeometry x="288" y="716" width="24" height="24" as="geometry" />
+        </mxCell>
+        <mxCell id="l-edit" parent="1" style="shape=image;html=1;aspect=fixed;imageAspect=0;opacity=50;image=data:image/svg+xml,PHN2ZyB2aWV3Qm94PSIwIDAgOTYwIDk2MCIgd2lkdGg9IjI0IiBoZWlnaHQ9IjI0IiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxwYXRoIGZpbGw9IiNmZmZmZmYiIGQ9Ik0xODAgNzgwaDQ0bDQ3Mi00NzEtNDQtNDQtNDcyIDQ3MXY0NFptLTYwIDYwdi0xMjhsNTc1LTU3NHE4LTggMTktMTIuNXQyMy00LjVxMTEgMCAyMiA0LjV0MjAgMTIuNWw0NCA0NHE5IDkgMTMgMjB0NCAyMnEwIDExLTQuNSAyMi41VDgyMyAyNjZMMjQ4IDg0MEgxMjBabTY1OS02MTdsLTQxLTQxIDQxIDQxWm0tMTA1IDY0bC0yMi0yMiA0NCA0NC0yMi0yMloiLz48L3N2Zz4NCg==;" value="" vertex="1">
+          <mxGeometry x="324" y="716" width="24" height="24" as="geometry" />
+        </mxCell>
+        <mxCell id="l-delete" parent="1" style="shape=image;html=1;aspect=fixed;imageAspect=0;opacity=50;image=data:image/svg+xml,PHN2ZyB2aWV3Qm94PSIwIDAgOTYwIDk2MCIgd2lkdGg9IjI0IiBoZWlnaHQ9IjI0IiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxwYXRoIGZpbGw9IiNmZmZmZmYiIGQ9Ik0yNjEgODQwcS0yNC43NSAwLTQyLjM3LTE3LjYzUTIwMSA4MDQuNzUgMjAxIDc4MHYtNTcwaC00MXYtNjBoMTg4di0zMGgyNjR2MzBoMTg4djYwaC00MXY1NzBxMCAyNC0xOCA0MnQtNDIgMThIMjYxWm00MzgtNjMwSDI2MXY1NzBoNDM4di01NzBaTTM2NyA2OTRoNjB2LTM5OWgtNjB2Mzk5Wm0xNjYgMGg2MHYtMzk5aC02MHYzOTlaTTI2MSAyMTB2NTcwLTU3MFoiLz48L3N2Zz4NCg==;" value="" vertex="1">
+          <mxGeometry x="360" y="716" width="24" height="24" as="geometry" />
+        </mxCell>
+
+        <!-- Paso 2: detalle del usuario protegido (admin) -->
+        <mxCell id="d-frame" parent="1" style="rounded=1;arcSize=24;absoluteArcSize=1;whiteSpace=wrap;html=1;fillColor=#16181C;strokeColor=#2F3336;strokeWidth=2;" value="" vertex="1">
+          <mxGeometry x="440" y="40" width="360" height="720" as="geometry" />
+        </mxCell>
+        <mxCell id="d-title" parent="1" style="text;html=1;align=left;verticalAlign=middle;fontSize=20;fontStyle=1;fontColor=#E7E9EA;" value="Usuarios" vertex="1">
+          <mxGeometry x="460" y="52" width="260" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="d-close" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=none;strokeColor=none;fontSize=16;fontColor=#E7E9EA;" value="✕" vertex="1">
+          <mxGeometry x="756" y="56" width="32" height="32" as="geometry" />
+        </mxCell>
+        <mxCell id="d-header-line" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#2F3336;strokeColor=none;" value="" vertex="1">
+          <mxGeometry x="440" y="104" width="360" height="1" as="geometry" />
+        </mxCell>
+        <mxCell id="d-back" parent="1" style="text;html=1;align=left;verticalAlign=middle;fontSize=14;fontColor=#E7E9EA;" value="←&amp;nbsp;&amp;nbsp;Volver a la lista" vertex="1">
+          <mxGeometry x="456" y="116" width="200" height="32" as="geometry" />
+        </mxCell>
+        <mxCell id="d-field-nick" parent="1" style="rounded=1;arcSize=8;absoluteArcSize=1;whiteSpace=wrap;html=1;fillColor=#000000;strokeColor=#2F3336;align=left;spacingLeft=16;fontSize=15;fontColor=#E7E9EA;" value="admin" vertex="1">
+          <mxGeometry x="456" y="172" width="328" height="52" as="geometry" />
+        </mxCell>
+        <mxCell id="d-field-nick-label" parent="1" style="text;html=1;align=center;verticalAlign=middle;fontSize=11;fontColor=#71767B;fillColor=#16181C;" value="Nombre de usuario" vertex="1">
+          <mxGeometry x="468" y="164" width="108" height="16" as="geometry" />
+        </mxCell>
+        <mxCell id="d-field-name" parent="1" style="rounded=1;arcSize=8;absoluteArcSize=1;whiteSpace=wrap;html=1;fillColor=#000000;strokeColor=#2F3336;align=left;spacingLeft=16;fontSize=15;fontColor=#E7E9EA;" value="Administrador" vertex="1">
+          <mxGeometry x="456" y="240" width="328" height="52" as="geometry" />
+        </mxCell>
+        <mxCell id="d-field-name-label" parent="1" style="text;html=1;align=center;verticalAlign=middle;fontSize=11;fontColor=#71767B;fillColor=#16181C;" value="Nombre" vertex="1">
+          <mxGeometry x="468" y="232" width="52" height="16" as="geometry" />
+        </mxCell>
+        <mxCell id="d-field-surname" parent="1" style="rounded=1;arcSize=8;absoluteArcSize=1;whiteSpace=wrap;html=1;fillColor=#000000;strokeColor=#2F3336;align=left;spacingLeft=16;fontSize=15;fontColor=#E7E9EA;" value="Cliso" vertex="1">
+          <mxGeometry x="456" y="308" width="328" height="52" as="geometry" />
+        </mxCell>
+        <mxCell id="d-field-surname-label" parent="1" style="text;html=1;align=center;verticalAlign=middle;fontSize=11;fontColor=#71767B;fillColor=#16181C;" value="Apellidos" vertex="1">
+          <mxGeometry x="468" y="300" width="60" height="16" as="geometry" />
+        </mxCell>
+        <mxCell id="d-field-role" parent="1" style="rounded=1;arcSize=8;absoluteArcSize=1;whiteSpace=wrap;html=1;fillColor=#000000;strokeColor=#2F3336;align=left;spacingLeft=16;fontSize=15;fontColor=#E7E9EA;" value="Administrador" vertex="1">
+          <mxGeometry x="456" y="376" width="328" height="52" as="geometry" />
+        </mxCell>
+        <mxCell id="d-field-role-label" parent="1" style="text;html=1;align=center;verticalAlign=middle;fontSize=11;fontColor=#71767B;fillColor=#16181C;" value="Rol" vertex="1">
+          <mxGeometry x="468" y="368" width="32" height="16" as="geometry" />
+        </mxCell>
+        <mxCell id="d-field-role-arrow" parent="1" style="text;html=1;align=center;verticalAlign=middle;fontSize=14;fontColor=#71767B;" value="▾" vertex="1">
+          <mxGeometry x="752" y="388" width="24" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="d-footer-line" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#2F3336;strokeColor=none;" value="" vertex="1">
+          <mxGeometry x="440" y="700" width="360" height="1" as="geometry" />
+        </mxCell>
+        <mxCell id="d-add" parent="1" style="shape=image;html=1;aspect=fixed;imageAspect=0;image=data:image/svg+xml,PHN2ZyB2aWV3Qm94PSIwIDAgOTYwIDk2MCIgd2lkdGg9IjI0IiBoZWlnaHQ9IjI0IiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxwYXRoIGZpbGw9IiNmZmZmZmYiIGQ9Ik00NTAgNTEwSDIwMHYtNjBoMjUwdi0yNTBoNjB2MjUwaDI1MHY2MEg1MTB2MjUwaC02MHYtMjUwWiIvPjwvc3ZnPg0K;" value="" vertex="1">
+          <mxGeometry x="688" y="716" width="24" height="24" as="geometry" />
+        </mxCell>
+        <mxCell id="d-edit" parent="1" style="shape=image;html=1;aspect=fixed;imageAspect=0;image=data:image/svg+xml,PHN2ZyB2aWV3Qm94PSIwIDAgOTYwIDk2MCIgd2lkdGg9IjI0IiBoZWlnaHQ9IjI0IiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxwYXRoIGZpbGw9IiNmZmZmZmYiIGQ9Ik0xODAgNzgwaDQ0bDQ3Mi00NzEtNDQtNDQtNDcyIDQ3MXY0NFptLTYwIDYwdi0xMjhsNTc1LTU3NHE4LTggMTktMTIuNXQyMy00LjVxMTEgMCAyMiA0LjV0MjAgMTIuNWw0NCA0NHE5IDkgMTMgMjB0NCAyMnEwIDExLTQuNSAyMi41VDgyMyAyNjZMMjQ4IDg0MEgxMjBabTY1OS02MTdsLTQxLTQxIDQxIDQxWm0tMTA1IDY0bC0yMi0yMiA0NCA0NC0yMi0yMloiLz48L3N2Zz4NCg==;" value="" vertex="1">
+          <mxGeometry x="724" y="716" width="24" height="24" as="geometry" />
+        </mxCell>
+        <mxCell id="d-delete" parent="1" style="shape=image;html=1;aspect=fixed;imageAspect=0;opacity=50;image=data:image/svg+xml,PHN2ZyB2aWV3Qm94PSIwIDAgOTYwIDk2MCIgd2lkdGg9IjI0IiBoZWlnaHQ9IjI0IiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxwYXRoIGZpbGw9IiNmZmZmZmYiIGQ9Ik0yNjEgODQwcS0yNC43NSAwLTQyLjM3LTE3LjYzUTIwMSA4MDQuNzUgMjAxIDc4MHYtNTcwaC00MXYtNjBoMTg4di0zMGgyNjR2MzBoMTg4djYwaC00MXY1NzBxMCAyNC0xOCA0MnQtNDIgMThIMjYxWm00MzgtNjMwSDI2MXY1NzBoNDM4di01NzBaTTM2NyA2OTRoNjB2LTM5OWgtNjB2Mzk5Wm0xNjYgMGg2MHYtMzk5aC02MHYzOTlaTTI2MSAyMTB2NTcwLTU3MFoiLz48L3N2Zz4NCg==;" value="" vertex="1">
+          <mxGeometry x="760" y="716" width="24" height="24" as="geometry" />
+        </mxCell>
+
+        <mxCell id="notes" parent="1" style="shape=note;size=16;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=12;fontSize=13;fillColor=#16181C;strokeColor=#2F3336;fontColor=#E7E9EA;" value="&lt;b&gt;Usuarios en móvil&lt;/b&gt;&lt;br&gt;&lt;br&gt;El modal ocupa toda la pantalla, sin maximizar ni splitter. Lista (buscador y fichas con ›) y, al tocar una ficha, detalle con ← para volver.&lt;br&gt;&lt;br&gt;En la lista, sin selección, &lt;b&gt;Editar&lt;/b&gt; y &lt;b&gt;Borrar&lt;/b&gt; salen desactivados.&lt;br&gt;&lt;br&gt;El detalle es de &lt;b&gt;admin&lt;/b&gt;, el usuario protegido: &lt;b&gt;Borrar&lt;/b&gt; sale desactivado (igual que con el usuario de la sesión) y, al editar, su rol sigue en solo lectura. Sí se pueden cambiar su nombre, sus apellidos y su contraseña." vertex="1">
+          <mxGeometry x="840" y="40" width="360" height="300" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

@@ -3,8 +3,8 @@
 	<input matInput type="number" step="1"
 		[attr.max]="Max"
 		[attr.min]="Min"
-		[readonly]="IsReadOnly"
 		[value]="Value"
+		[appReadOnly]="IsReadOnly"
 		(change)="OnChange($event)"
 		(input)="OnInput($event)"
 	/>

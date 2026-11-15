@@ -103,7 +103,7 @@ Proyecto/
 │       ├── app/          # core/ (arranque, guard e interceptor de sesión), modules/ (una carpeta por pantalla) y shared/ (lo común)
 │       ├── resources/    # img/icons (iconos SVG) y languages (textos multidioma)
 │       ├── styles.scss   # Estilos globales (importa src/styles/)
-│       └── styles/       # Tokens de diseño, breakpoints, rejilla, tema de Material, base y clases provisionales
+│       └── styles/       # Tokens de diseño, breakpoints, rejilla, tema de Material, base, clases provisionales y estilos de las directivas
 ├── Cliso.Docker/  # Entorno local con Docker Compose (ver "Con Docker")
 │   ├── api/       # Dockerfile de la API y sus settings (SQLite y MySQL)
 │   ├── ui/        # Dockerfile de la UI (Node compila, nginx sirve) y nginx.conf
@@ -127,7 +127,7 @@ La memoria del proyecto (formato `.odt`) se encuentra en la carpeta `Documentati
 La guía completa está en [`Documentation/UI/[Diseño] Cliso.UI - Guía de estilo.md`](<Documentation/UI/[Diseño] Cliso.UI - Guía de estilo.md>). Lo esencial:
 
 - **Estilo inspirado en X:** fondo negro, texto blanco y grises; el blanco es el único acento y los colores solo se
-  usan para estados (error, éxito). Bordes finos en lugar de sombras, botones y campos en píldora. Única excepción:
+  usan para estados (error, éxito). Bordes finos en lugar de sombras, botones en píldora y campos con esquinas de 8 px. Única excepción:
   las fichas de las listas de los editores llevan un borde y una sombra sólida y sin desenfoque (`--shadow-item`),
   para que se distingan unas de otras.
 - **Solo tema oscuro.** Tipografía del sistema, tamaño base de 15 px.
@@ -140,21 +140,26 @@ La guía completa está en [`Documentation/UI/[Diseño] Cliso.UI - Guía de esti
   Los iconos son SVG propios (trazo, 24×24) en `Cliso.UI/src/resources/img/icons/`, sin librería de iconos. Los textos multidioma (gallego, castellano e inglés)
   viven en `Cliso.UI/src/resources/languages/` y los gestiona `LanguageManager`.
 - **Estructura del código del front** (`Cliso.UI/src`): `app/core` (arranque, guard de rutas e interceptor de sesión), `app/modules` (una
-  carpeta por pantalla), `app/shared` (lo común: definiciones, interfaces generales, modelos, servicios, utilidades), `resources` (imágenes
+  carpeta por pantalla), `app/shared` (lo común: definiciones, directivas, interfaces generales, modelos, servicios, utilidades), `resources` (imágenes
   y textos multidioma) y `styles`. Las llamadas al API pasan por `DataAccessService`, agrupadas por concepto
-  (`Auth`, `BimModels`...), y se esperan con `RequestUtils.AwaitRequest` (o `AwaitRequestWithProgress`, para subir y descargar
+  (`Auth`, `BimModels`, `Users`...), y se esperan con `RequestUtils.AwaitRequest` (o `AwaitRequestWithProgress`, para subir y descargar
   ficheros con su porcentaje). Las normas
   de código (nombres, regiones, control de flujo, comentarios, HTML y CSS) están en `.ai/directrices-front.md`. El
   formato lo fija Prettier (tabuladores, 130 columnas) y `npm run lint` pasa ESLint sobre `src`.
 - **Tokens de diseño** (colores, espaciado, formas) como propiedades CSS en `Cliso.UI/src/styles/_variables.scss`;
   los componentes los leen con `var(--color-...)` y no llevan valores sueltos.
-- **Editores** (modelos y parámetros, y después visualizaciones y usuarios): modal redimensionable con lista y buscador a la
-  izquierda (con un splitter siempre visible, plegable), detalle en pestañas a la derecha y un pie solo con iconos
+- **Editores** (modelos, parámetros y usuarios, y después visualizaciones): modal redimensionable con lista y buscador a la
+  izquierda (con un splitter siempre visible, plegable), detalle a la derecha (en pestañas si tiene más de una) y un pie solo con iconos
   pequeños: añadir, editar y borrar y, mientras se edita, guardar y descartar. El detalle es de solo lectura hasta
   pulsar editar, y con cambios sin guardar se pide confirmación antes de cerrar, cambiar de ficha o descartar.
   Comparten el esqueleto `EditorShell` (en `shared/components`), que da al detalle su alto como contenedor (`cqh`)
   para que lo aprovechen los elementos de dentro (por ejemplo, la previsualización). Cada editor puede ocultar los
-  botones de añadir y borrar (`CanAdd`, `CanDelete`) y fijar su alto inicial (`Height`).
+  botones de añadir y borrar (`CanAdd`, `CanDelete`), desactivar el borrado de la ficha seleccionada
+  (`CanDeleteSelection`) y fijar su alto inicial (`Height`).
+- **Campos en solo lectura:** se ven como el resto, sin atenuar, y con el cursor de acción no permitida. Los de texto
+  usan la directiva `appReadOnly` (en vez de `[readonly]`) y los selectores, `appSelectReadOnly` sobre su
+  `mat-form-field` (en vez de `[disabled]`): ni el ratón ni el teclado abren la lista. Las directivas están en
+  `shared/directives` y sus estilos globales, en `styles/_directives.scss`.
 - **Avisos y confirmaciones:** `NotificationService` muestra un toast arriba al centro (3 s) con el color de su nivel
   (peligro en rojo, éxito en verde, aviso con borde blanco, informativo con el borde normal) y
   `ConfirmDialogService.Show(mensaje, tipo)` abre un diálogo según su tipo (`ConfirmDialogType`): `QUESTION` (cancelar
@@ -168,7 +173,7 @@ La guía completa está en [`Documentation/UI/[Diseño] Cliso.UI - Guía de esti
   del navegador. Hoy ningún model del front las usa (`BimModel` ignora la fecha de creación, que la UI no muestra),
   pero la utilidad queda lista.
 - El diseño de pantallas está en los diagramas `.drawio` de `Documentation/UI/` (barra de herramientas, editor, home,
-  inicio de sesión y parámetros). Cada uno incluye páginas «(móvil)» de ≈ 360 px que sirven de referencia de responsividad: la
+  inicio de sesión, parámetros y usuarios). Cada uno incluye páginas «(móvil)» de ≈ 360 px que sirven de referencia de responsividad: la
   barra lateral pasa a barra superior con menú desplegable, el Home muestra las fichas en una columna con los paneles
   apilados, los editores ocupan la pantalla completa con lista y detalle en dos pasos y el inicio de sesión es una
   tarjeta centrada a ancho completo menos el margen.
@@ -181,8 +186,8 @@ Implementado hasta ahora (`Cliso.UI/src/app`):
   *Edición* y, abajo, el usuario actual, que abre un panel con *Cerrar sesión*; en móvil, barra superior con menú
   desplegable en el que *Edición* se despliega como un acordeón y *Cerrar sesión* va al final) y el Home a la
   derecha (ver más abajo). *Edición* abre un panel a la derecha de su botón con
-  *Modelos* y *Parámetros*; una entrada que el usuario no puede usar, o que aún no existe (*Visualizaciones* y
-  *Usuarios*), no se muestra. Rutas en `app.routes.ts`
+  *Modelos*, *Parámetros* y *Usuarios*; una entrada que el usuario no puede usar, o que aún no existe
+  (*Visualizaciones*), no se muestra. Rutas en `app.routes.ts`
   (`AppRoute`): `/login` va aparte, sin barra lateral, y el resto cuelgan de `MainLayoutComponent` (la barra lateral
   y el contenido) con `AuthGuard`, que sin sesión lleva a `/login`.
 - **Arranque** (`AppBootstrapUtils`): fija el idioma del inicio de sesión (ver más abajo) y pregunta al API
@@ -191,8 +196,8 @@ Implementado hasta ahora (`Cliso.UI/src/app`):
   `ApplicationSettingsManager` y fija el idioma con el suyo; si fallan, lo deja en la consola y sigue con los valores
   por defecto. Al iniciar sesión se hace lo mismo antes de ir al Home. Las visualizaciones aún no se recuperan (los
   modelos BIM los pide el Home al abrirse).
-- **Inicio de sesión** (`modules/login`): tarjeta centrada, sin barra lateral, con un selector de *Idioma*, *Nick* y
-  *Contraseña*. El selector parte del último idioma elegido en él (guardado con `LocalStorageManager`, clave
+- **Inicio de sesión** (`modules/login`): tarjeta centrada, sin barra lateral, con un selector de *Idioma*, *Nombre de usuario*
+  (el nick) y *Contraseña*. El selector parte del último idioma elegido en él (guardado con `LocalStorageManager`, clave
   `LOGIN_LANGUAGE`) o, si no hay ninguno, del primero de los preferidos del navegador que se admita (inglés si
   ninguno); cambia al momento los textos de la pantalla y solo vale para ella: al entrar manda el parámetro `LANGUAGE`.
   Al volver al login tras cerrar sesión o caducar, recupera su idioma. Un fallo
@@ -222,11 +227,12 @@ Implementado hasta ahora (`Cliso.UI/src/app`):
   (un 400 se muestra bajo el campo). Al guardar, un diálogo informativo avisa de que el cambio se aplica al recargar
   la página y, en la carpeta de los modelos y la caducidad de la sesión, además al reiniciar la API.
 - **Permisos en la interfaz** (`LoggedUserManager`, estático): responde a quién es el usuario de la sesión
-  (`GetNick`) y a qué puede hacer (`HasPermission`, con el enumerado `Permission`, que replica el de la API; los
+  (`GetNick`, `GetUserId`) y a qué puede hacer (`HasPermission`, con el enumerado `Permission`, que replica el de la API; los
   permisos salen de la lista `permissions` de la sesión). Solo decide qué se muestra, porque la API exige los permisos
   igualmente: el botón *Edición* de la barra lateral solo aparece si el usuario puede abrir alguno de los editores, y
-  cada opción (*Modelos*, *Parámetros*) solo si tiene su permiso (`BIM_MODELS_EDIT`, `APPLICATION_PARAMETERS_EDIT`);
-  el editor de modelos solo muestra el botón de borrar con `BIM_MODELS_DELETE`.
+  cada opción (*Modelos*, *Parámetros*, *Usuarios*) solo si tiene su permiso (`BIM_MODELS_EDIT`,
+  `APPLICATION_PARAMETERS_EDIT`, `USERS_MANAGE`); el editor de modelos solo muestra el botón de borrar con
+  `BIM_MODELS_DELETE`.
 - **Home** (`modules/home`): catálogo de modelos BIM en fichas verticales (`HomeCardComponent`, de `mat-card`: portada
   con un icono genérico mientras los modelos no tengan una propia, y debajo nombre y descripción; al pasar el ratón se
   marca el borde), en una columna en móvil y hasta tres desde `lg`. Pide los modelos al API al abrirse (con barra de carga) y el buscador filtra por nombre y descripción, con
@@ -250,6 +256,20 @@ Implementado hasta ahora (`Cliso.UI/src/app`):
   y sombra sólida; la lista tiene su propio scroll vertical. El editor
   se descarga aparte al mostrarse la barra lateral, y el visor 3D, que es lo pesado, solo al abrir *Previsualización*
   (`@defer`), para que el modal abra sin esperas.
+- **Editor de usuarios** (`modules/userEditor`, se abre desde *Edición → Usuarios*): lista de usuarios ordenada por
+  nick (nick y nombre completo) con buscador por nick, nombre y apellidos, y un detalle sin pestañas con *Nombre de
+  usuario*, *Nombre*, *Apellidos* y *Rol*. Las longitudes máximas de los campos replican las del API.
+  - **Añadir:** el nombre de usuario solo se escribe al añadir; después es intocable. Al añadir se piden
+    *Contraseña* y *Repetir contraseña*.
+  - **Modificar:** un botón *Cambiar contraseña* abre un submodal (`UserEditorPasswordDialog`) que la pide dos veces.
+    La contraseña nueva se envía con el resto de datos al guardar y, si no se cambia, se conserva la actual.
+  - **Contraseñas:** cada campo de contraseña (`UserEditorPasswordField`) tiene su propio botón para verla u ocultarla.
+    Si el API la rechaza por débil, se listan los requisitos que no cumple (`PasswordRequirement`).
+  - **Avisos:** un nick repetido (409) se avisa aparte.
+  - **Borrar:** es un borrado lógico, con confirmación, y está desactivado para el usuario de la sesión y para `admin`.
+  - **Rol:** no se puede cambiar el de `admin` ni el propio.
+- **Directivas** (`shared/directives`): `ReadOnlyDirective` (`appReadOnly`) y `SelectReadOnlyDirective`
+  (`appSelectReadOnly`), ver «Campos en solo lectura».
 - **Visor 3D reutilizable** (`shared/components/bimViewer`, motor en `BimViewerManager`): carga un IFC (`Blob`) con
   ThatOpen, lo encuadra, permite orbitar y acercar y emite el punto del modelo (en coordenadas del mundo) sobre el
   que se hace clic, que servirá para los marcadores de las visualizaciones. Muestra la descarga con su porcentaje, el
@@ -281,7 +301,8 @@ Implementado hasta ahora (`Cliso.UI/src/app`):
   `BimViewerToolbar` y `BimViewerLoadingPanel`).
 - **Acceso al API:** `DataAccessService` agrupa las llamadas por concepto; hoy `Auth` (iniciar y cerrar sesión, y
   consultar la actual), `BimModels` (listar, obtener, crear, modificar, borrar, y subir y descargar el IFC, con
-  progreso) y `ApplicationSettings` (listar los parámetros y modificar el valor de uno). La URL base, `Environment.API_URL`, es
+  progreso), `ApplicationSettings` (listar los parámetros y modificar el valor de uno) y `Users` (listar, crear,
+  modificar y borrar). La URL base, `Environment.API_URL`, es
   `http://localhost:8000` en desarrollo y la ruta relativa `/api` en el build de producción, que el servidor web
   reenvía a la API. Cada concepto tiene su DTO (`dtos.definitions.ts`, campos como los manda el API), su model
   (`shared/models`) y su mapper (`shared/utils/mappers`). También `RequestUtils` (`AwaitRequest` y
@@ -291,8 +312,8 @@ Implementado hasta ahora (`Cliso.UI/src/app`):
 - **Textos multidioma:** gallego, castellano e inglés (`LanguageGl`, `LanguageEs`, `LanguageEn`), con `LanguageManager`,
   que además da los idiomas que se pueden elegir (`GetOptions`, cada uno con su nombre en su idioma) y el preferido
   del navegador (`GetBrowserLanguage`).
-- **Pendiente** (según los diagramas): editores de visualizaciones (con los marcadores) y de usuarios,
-  Configuración, las portadas de los modelos y las visualizaciones en el Home. Con `ng serve` (front en `localhost:4200`, API en
+- **Pendiente** (según los diagramas): editor de visualizaciones (con los marcadores), los permisos de los usuarios
+  en su editor, Configuración, las portadas de los modelos y las visualizaciones en el Home. Con `ng serve` (front en `localhost:4200`, API en
   `localhost:8000`) el navegador solo deja pasar las llamadas, y guarda la cookie de la sesión, si el API autoriza ese
   origen (CORS, con credenciales): en modo demo acepta todos y, si no, solo los de `allowed_origins` (ver
   «Configuración y modo demo»). Con Docker no hace falta, porque nginx sirve la UI y reenvía `/api`.
@@ -329,7 +350,17 @@ Implementado hasta ahora (`Cliso.UI/src/app`):
 - **Idioma del inicio de sesión aparte del de la aplicación:** antes de iniciar sesión no se pueden pedir los
   parámetros (exigen sesión), así que el login usa el último idioma elegido en él o el del navegador, y al entrar
   manda el parámetro `LANGUAGE`.
-- **Tamaño del bundle:** el inicial (≈ 800 kB) lo forman Angular, Material y el CDK, no el visor; los avisos del
+- **Solo lectura con directivas en vez de `disabled`:** un campo desactivado se ve atenuado (opacidad 0,5) y parece
+  que no tiene valor o que falla; en solo lectura se lee igual que al editar y solo cambia el cursor. Para el
+  selector no basta con `[readonly]` (Material no lo admite), así que su directiva bloquea el ratón con estilos y las
+  teclas que lo abrirían.
+- **Submodal de contraseña con un servicio que devuelve una promesa:** como `ConfirmDialogService`, convierte el
+  cierre del diálogo (un `Observable` de Material) en una promesa, para que el editor siga usando `await`. Al
+  modificar un usuario la contraseña es un botón aparte porque casi siempre se cambian solo sus datos.
+- **Las reglas del API se replican en el front solo como ayuda:** las longitudes máximas y el usuario protegido están
+  copiados en el front para avisar antes de enviar; el API los vuelve a comprobar y es quien manda. Los requisitos de
+  la contraseña los comprueba solo el API, y el front muestra los que no se cumplen.
+- **Tamaño del bundle:** el inicial (≈ 930 kB) lo forman Angular, Material y el CDK, no el visor; los avisos del
   presupuesto están en 1 MB (aviso) y 1,5 MB (error).
 
 ## Clases: objetos de dominio y DTO
@@ -1086,7 +1117,8 @@ Las normas completas están en `.ai/` (`directrices.md` común, `directrices-bac
   regiones, sin returns tempranos, una clase por fichero y tipado estricto con `pyright`.
 - Front: lo fija su `.editorconfig` (Prettier con tabuladores y 130 columnas; ESLint con `npm run lint`), con regiones
   en cada clase (los decoradores de Angular, `@Input` y `@Output` entre ellos, en una región `DECORATORS` arriba del
-  todo), fechas con Temporal y sin RxJS ni signals fuera de la capa HTTP.
+  todo), fechas con Temporal y sin RxJS ni signals fuera de la capa HTTP (salvo los servicios que esperan el cierre
+  de un diálogo).
 - Cada campo/clase documentado con docstring (back) o comentario de documentación (front).
 - Antes de subir una tarea, `/cliso-revisar-tarea` la revisa contra la tarjeta de Trello y las directrices (con un
   comprobador automático de estilo, esquemas, dependencias y limpieza); `/cliso-mensaje-commit` redacta el mensaje

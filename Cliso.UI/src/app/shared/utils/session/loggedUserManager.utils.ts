@@ -1,4 +1,4 @@
-import { STRING_UNDEFINED } from 'src/app/shared/definitions/constants.definitions';
+import { ID_NUMERIC_UNDEFINED, STRING_UNDEFINED } from 'src/app/shared/definitions/constants.definitions';
 import { Permission } from 'src/app/shared/definitions/user.definitions';
 import { Session } from 'src/app/shared/models/session/session.models';
 import { CheckUtils } from 'src/app/shared/utils/check.utils';
@@ -20,6 +20,23 @@ export class LoggedUserManager {
 			result = session.Nick;
 		} else {
 			// Sin sesión no hay alias que mostrar
+		}
+
+		return result;
+	}
+
+	/**
+	 * Devuelve el identificador del usuario de la sesión abierta.
+	 * @returns El identificador, o el identificador sin definir si no se ha iniciado sesión.
+	 */
+	public static GetUserId(): number {
+		const session: Session | null = SessionManager.GetCurrentSession();
+		let result: number = ID_NUMERIC_UNDEFINED;
+
+		if (!CheckUtils.IsNull(session)) {
+			result = session.UserId;
+		} else {
+			// Sin sesión no hay usuario
 		}
 
 		return result;

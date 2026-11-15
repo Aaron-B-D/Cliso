@@ -4,12 +4,13 @@ import { MatSelectChange, MatSelectModule } from '@angular/material/select';
 
 import { STRING_UNDEFINED } from 'src/app/shared/definitions/constants.definitions';
 import { LanguageOption } from 'src/app/shared/definitions/language.definitions';
+import { SelectReadOnlyDirective } from 'src/app/shared/directives/selectReadOnly.directive';
 import { LanguageManager } from 'src/app/shared/utils/language/languageManager.utils';
 
 /** Panel con el que se elige el idioma de la aplicación entre los admitidos. */
 @Component({
 	selector: 'app-application-settings-editor-language-panel',
-	imports: [MatFormFieldModule, MatSelectModule],
+	imports: [MatFormFieldModule, MatSelectModule, SelectReadOnlyDirective],
 	templateUrl: './languagePanel.component.html',
 	styleUrl: './languagePanel.component.scss'
 })
