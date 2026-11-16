@@ -70,7 +70,7 @@ pregunta antes de saltártela.
 - **Sin carpetas para una sola clase.** Una carpeta (con su `__init__.py`) solo se justifica si reúne varias clases de
   un mismo tema. Si una carpeta tendría un único fichero de clase, esa clase sube al namespace padre y se reexporta
   desde su `__init__.py` (por ejemplo, todas las clases base de persistencia están en `persistence/`, no una carpeta
-  por cada una). Lo mismo con un módulo suelto de una sola clase: no necesita carpeta (`app/logger.py`). La única
+  por cada una). Lo mismo con un módulo suelto de una sola clase: no necesita carpeta (`app/app_startup_configurator.py`). La única
   excepción acordada es `domain/wrappers/`, que el autor quiere separada de `domain/models/` para diferenciarlas.
 - **Paquetes:** cada `__init__.py` lleva un docstring que explica el directorio y, si el paquete tiene clases
   públicas, las reexporta con `__all__` para poder importar desde el paquete
@@ -120,9 +120,9 @@ privado (los auxiliares); y cada método privado después de quienes lo usan.
 ```
 Cliso.API/app/
 ├── main.py            # Raíz de composición: elige adaptadores y los conecta (lifespan)
-├── app_startup_configurator.py  # AppStartupConfigurator (estático): CORS y respuestas HTTP a las excepciones, que solo se registran al crear la app
+├── app_startup_configurator.py  # AppStartupConfigurator (estático): CORS, respuestas HTTP a las excepciones y log de las peticiones, que solo se registran al crear la app
 ├── config/            # StartupParameters + StartupParametersManager (estático) + exceptions/
-├── logger.py          # Logger estático (info, warning, error) en fichero
+├── logger/            # Logger estático (debug, info, warning, error) en fichero, con cola e hilo escritor, y LogLevel
 ├── utils/             # PathUtils y FileUtils (estáticas): rutas y operaciones sobre carpetas y ficheros
 ├── initializer/       # DatabaseInitializer (prepara la base de datos al arrancar) y DemoData (objetos de dominio)
 ├── domain/            # Núcleo: models/ (objetos de dominio, dataclasses kw_only=True) y wrappers/ (los amplían con datos calculados)

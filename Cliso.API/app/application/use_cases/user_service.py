@@ -9,6 +9,7 @@ from app.application.exceptions import (
 from app.application.ports.inbound import AuthServiceBase, PermissionServiceBase, UserServiceBase;
 from app.application.ports.outbound import UserRepositoryBase;
 from app.domain.models import Permission, Session, User;
+from app.logger import Logger;
 from app.utils import PasswordUtils;
 
 
@@ -121,7 +122,9 @@ class UserService(UserServiceBase):
 		user.surname = self._validate_text("apellidos", user.surname, self._SURNAME_MAX_LENGTH);
 		self._validate_password(password);
 		user.password = PasswordUtils.hash(password);
-		return self._repository.add(user);
+		saved = self._repository.add(user);
+		Logger.info(f"Usuario '{saved.nick}' (id {saved.id}, rol {saved.role}) creado por '{session.nick}'.");
+		return saved;
 
 	def update_user(self, session: Session, user_id: int, user: User, password: str | None) -> User:
 		"""Modifica el nombre, los apellidos y el rol de un usuario, y opcionalmente su contraseña. El nick no se puede cambiar.
@@ -175,6 +178,17 @@ class UserService(UserServiceBase):
 			# Sin contraseña nueva se conserva la que ya tiene.
 			pass;
 		self._repository.update(stored);
+		role_text = "";
+		if is_role_changed:
+			role_text = f" (rol cambiado a {stored.role})";
+		else:
+			pass;  # El rol no cambia: no hay nada que añadir al mensaje.
+		password_text = "";
+		if password is not None:
+			password_text = " (contraseña cambiada)";
+		else:
+			pass;  # La contraseña no cambia: no hay nada que añadir al mensaje.
+		Logger.info(f"Usuario '{stored.nick}' (id {stored.id}) modificado por '{session.nick}'{role_text}{password_text}.");
 
 		# 3. Si ha cambiado de rol, sus sesiones abiertas llevan el rol antiguo: se cierran para que vuelva a entrar.
 		if is_role_changed and stored.id is not None:
@@ -203,11 +217,14 @@ class UserService(UserServiceBase):
 		self._permission_service.check(session, Permission.USERS_MANAGE);
 		if user_id == session.user_id:
 			raise UserSelfDeletionError("Un usuario no puede borrarse a sí mismo");
-		self._check_not_protected(self._repository.get_by_id(user_id, include_inactive=True));
+		stored = self._repository.get_by_id(user_id, include_inactive=True);
+		self._check_not_protected(stored);
 		if force:
 			self._repository.delete(user_id);
+			Logger.info(f"Usuario '{stored.nick}' (id {user_id}) borrado definitivamente por '{session.nick}'.");
 		else:
 			self._repository.deactivate(user_id);
+			Logger.info(f"Usuario '{stored.nick}' (id {user_id}) desactivado por '{session.nick}'.");
 		# Un usuario borrado no puede seguir con sesiones abiertas.
 		self._auth_service.close_user_sessions(user_id);
 

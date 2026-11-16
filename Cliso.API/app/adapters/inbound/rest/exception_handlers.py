@@ -64,6 +64,9 @@ class ExceptionHandlers:
 	async def unauthorized(request: Request, error: Exception) -> JSONResponse:
 		"""Responde 401 cuando no hay una sesión válida o las credenciales no son correctas.
 
+		Se anota en el log solo como depuración: pedir algo sin sesión es lo normal al abrir la web, y los login
+		fallidos ya los anota la autenticación, con el nick y la IP.
+
 		Args:
 			request: Petición que provocó la excepción.
 			error: Excepción de «no autenticado».
@@ -71,11 +74,12 @@ class ExceptionHandlers:
 		Returns:
 			Respuesta 401 con el motivo.
 		"""
+		Logger.debug(f"Petición no autenticada en {request.method} {request.url.path}: {error}");
 		return JSONResponse(status_code=401, content={"detail": str(error)});
 
 	@staticmethod
 	async def forbidden(request: Request, error: Exception) -> JSONResponse:
-		"""Responde 403 cuando la operación pedida no está permitida sobre lo indicado.
+		"""Responde 403 cuando la operación pedida no está permitida sobre lo indicado, y lo anota como aviso en el log.
 
 		Args:
 			request: Petición que provocó la excepción.
@@ -84,6 +88,8 @@ class ExceptionHandlers:
 		Returns:
 			Respuesta 403 con el motivo.
 		"""
+		client_address = request.client.host if request.client is not None else "desconocida";
+		Logger.warning(f"Operación no permitida en {request.method} {request.url.path} desde {client_address}: {error}");
 		return JSONResponse(status_code=403, content={"detail": str(error)});
 
 	@staticmethod

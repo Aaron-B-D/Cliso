@@ -21,6 +21,7 @@ from app.adapters.inbound.rest.mappers import (
 	VisualizationPieceMapper,
 );
 from app.adapters.inbound.rest.exception_handlers import ExceptionHandlers;
+from app.adapters.inbound.rest.request_logger import RequestLogger;
 from app.adapters.inbound.rest.session_dependency import SessionDependency;
 from app.adapters.inbound.rest.application_parameter_router import ApplicationParameterRouter;
 from app.adapters.inbound.rest.auth_router import AuthRouter;
@@ -40,6 +41,7 @@ __all__ = [
 	"BIMModelVisualizationMarkerPieceDto",
 	"ExceptionHandlers",
 	"LoginDto",
+	"RequestLogger",
 	"SessionDependency",
 	"SessionDto",
 	"SessionMapper",

@@ -7,6 +7,7 @@ from app.application.ports.inbound import BIMModelServiceBase, PermissionService
 from app.application.ports.outbound import BIMModelFileStorageBase, BIMModelRepositoryBase;
 from app.domain.models import BIMModel, Permission, Session;
 from app.domain.wrappers import BIMModelWrapper;
+from app.logger import Logger;
 
 
 class BIMModelService(BIMModelServiceBase):
@@ -112,7 +113,9 @@ class BIMModelService(BIMModelServiceBase):
 		"""
 		self._permission_service.check(session, Permission.BIM_MODELS_EDIT);
 		model.name = self._validate_name(model.name);
-		return self._wrap(self._repository.add(model));
+		saved = self._repository.add(model);
+		Logger.info(f"Modelo BIM '{saved.name}' (id {saved.id}) creado por '{session.nick}'.");
+		return self._wrap(saved);
 
 	def update_bim_model(self, session: Session, model_id: int, model: BIMModel) -> BIMModelWrapper:
 		"""Modifica los datos básicos (nombre, descripción y observaciones) de un modelo BIM. No toca su fichero.
@@ -139,6 +142,7 @@ class BIMModelService(BIMModelServiceBase):
 		stored.description = model.description;
 		stored.observations = model.observations;
 		self._repository.update(stored);
+		Logger.info(f"Modelo BIM '{stored.name}' (id {model_id}) modificado por '{session.nick}'.");
 		return self._wrap(stored);
 
 	async def set_content(
@@ -171,6 +175,7 @@ class BIMModelService(BIMModelServiceBase):
 		await self._file_storage.save(stored.stored_file_name, content);
 		stored.file_name = clean_file_name;
 		self._repository.update(stored);
+		Logger.info(f"Fichero '{clean_file_name}' subido al modelo BIM '{stored.name}' (id {model_id}) por '{session.nick}'.");
 		return self._wrap(stored);
 
 	def get_content_path(self, session: Session, model_id: int) -> Path:
@@ -217,8 +222,10 @@ class BIMModelService(BIMModelServiceBase):
 			stored = self._repository.get_by_id(model_id, include_inactive=True);
 			self._repository.delete(model_id);
 			self._file_storage.delete(stored.stored_file_name);
+			Logger.info(f"Modelo BIM '{stored.name}' (id {model_id}) borrado definitivamente por '{session.nick}'.");
 		else:
 			self._repository.deactivate(model_id);
+			Logger.info(f"Modelo BIM {model_id} desactivado por '{session.nick}'.");
 
 	# endregion PUBLIC METHODS
 

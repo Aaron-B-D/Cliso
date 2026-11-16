@@ -7,6 +7,7 @@ from app.config.database_provider import DatabaseProvider;
 from app.config.exceptions import StartupParametersFileError, StartupParametersValueError;
 from app.config.session_cookie_same_site import SessionCookieSameSite;
 from app.config.startup_parameters import StartupParameters;
+from app.logger import LogLevel;
 from app.utils import PathUtils;
 
 
@@ -44,7 +45,8 @@ class StartupParametersManager:
 
 		Raises:
 			StartupParametersFileError: Si el fichero no se puede leer, no es un JSON válido o no contiene un objeto.
-			StartupParametersValueError: Si algún parámetro tiene un valor de un tipo distinto al esperado, o una
+			StartupParametersValueError: Si algún parámetro tiene un valor de un tipo distinto al esperado, un valor
+				que no está entre los permitidos (`database_provider`, `log_level`, `session_cookie_same_site`) o una
 				combinación no permitida (`session_cookie_same_site` a `none` con `is_demo`).
 		"""
 		path = path or Path(os.environ.get(StartupParametersManager._ENV_VAR, StartupParametersManager._DEFAULT_PATH));
@@ -64,6 +66,7 @@ class StartupParametersManager:
 			parameters.database_provider = StartupParametersManager._read_provider(raw, parameters.database_provider);
 			parameters.sqlite_directory = StartupParametersManager._read(raw, "sqlite_directory", str, parameters.sqlite_directory);
 			parameters.log_file_path = StartupParametersManager._read(raw, "log_file_path", str, parameters.log_file_path);
+			parameters.log_level = StartupParametersManager._read_log_level(raw, parameters.log_level);
 			parameters.mysql_host = StartupParametersManager._read(raw, "mysql_host", str, parameters.mysql_host);
 			parameters.mysql_port = StartupParametersManager._read(raw, "mysql_port", int, parameters.mysql_port);
 			parameters.mysql_user = StartupParametersManager._read(raw, "mysql_user", str, parameters.mysql_user);
@@ -130,6 +133,30 @@ class StartupParametersManager:
 			valid = ", ".join(provider.value for provider in DatabaseProvider);
 			raise StartupParametersValueError(
 				f"El parámetro 'database_provider' debe ser uno de ({valid}), pero vale '{value}'."
+			) from error;
+
+	@staticmethod
+	def _read_log_level(raw: dict[str, Any], default: LogLevel) -> LogLevel:
+		"""Lee el parámetro `log_level` del JSON comprobando que es uno de los niveles conocidos.
+
+		Args:
+			raw: Contenido del fichero de configuración.
+			default: Nivel que se usa si la clave no está en el fichero.
+
+		Returns:
+			El nivel del fichero, o `default` si la clave no está.
+
+		Raises:
+			StartupParametersValueError: Si el valor no es un texto o no es un nivel conocido (`debug`, `info`,
+				`warning`, `error`).
+		"""
+		value = StartupParametersManager._read(raw, "log_level", str, default.value);
+		try:
+			return LogLevel(value);
+		except ValueError as error:
+			valid = ", ".join(level.value for level in LogLevel);
+			raise StartupParametersValueError(
+				f"El parámetro 'log_level' debe ser uno de ({valid}), pero vale '{value}'."
 			) from error;
 
 	@staticmethod

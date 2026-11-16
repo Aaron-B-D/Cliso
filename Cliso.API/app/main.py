@@ -75,7 +75,11 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None]:
 		PersistenceError: Si no se pueden leer los parámetros de la aplicación.
 	"""
 	startup = StartupParametersManager.load();
-	Logger.setup(startup.log_file);
+	Logger.setup(startup.log_file, startup.log_level);
+	Logger.debug(
+		f"Parámetros de arranque: proveedor {startup.database_provider}, base de datos '{startup.database_name}', "
+		f"modo {'demo' if startup.is_demo else 'real'}, log en '{startup.log_file}' con nivel {startup.log_level}."
+	);
 
 	database: DatabaseAdapterBase;
 	application_parameter_repository: ApplicationParameterRepositoryBase;
@@ -173,3 +177,4 @@ app = FastAPI(
 
 AppStartupConfigurator.register_exception_handlers(app);
 AppStartupConfigurator.register_cors(app);
+AppStartupConfigurator.register_request_logging(app);

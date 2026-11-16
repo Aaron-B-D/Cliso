@@ -1,3 +1,4 @@
+import os;
 import shutil;
 from pathlib import Path;
 from typing import ClassVar;
@@ -70,5 +71,24 @@ class FileUtils:
 			OSError: Si no se puede leer.
 		"""
 		return path.read_text(encoding=FileUtils._ENCODING);
+
+	@staticmethod
+	def append_text(path: Path, text: str) -> None:
+		"""Añade texto al final de un fichero (lo crea si no existe) y espera a que quede guardado en el disco.
+
+		No basta con cerrar el fichero: el sistema operativo puede guardar los datos un rato en memoria antes de
+		escribirlos. `os.fsync` obliga a escribirlos ya, para que no se pierdan si el equipo se apaga de golpe.
+
+		Args:
+			path: Fichero al que se añade el texto (la carpeta debe existir).
+			text: Texto a añadir, con sus saltos de línea.
+
+		Raises:
+			OSError: Si no se puede escribir.
+		"""
+		with path.open("a", encoding=FileUtils._ENCODING) as file:
+			file.write(text);
+			file.flush();
+			os.fsync(file.fileno());
 
 	# endregion PUBLIC STATIC METHODS

@@ -4,6 +4,7 @@ from typing import ClassVar;
 
 from app.config.database_provider import DatabaseProvider;
 from app.config.session_cookie_same_site import SessionCookieSameSite;
+from app.logger import LogLevel;
 from app.utils import PathUtils;
 
 
@@ -38,6 +39,9 @@ class StartupParameters:
 
 	log_file_path: str = "logs/cliso.log";
 	"""Fichero de log (relativo a Cliso.API si no es absoluto). Se crea su carpeta si no existe."""
+
+	log_level: LogLevel = LogLevel.INFO;
+	"""Nivel mínimo de los mensajes que se escriben en el log: los de un nivel menos grave se descartan."""
 
 	mysql_host: str = "localhost";
 	"""Servidor MySQL."""

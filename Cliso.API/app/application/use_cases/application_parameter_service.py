@@ -4,6 +4,7 @@ from app.application.exceptions import ApplicationParameterValidationError;
 from app.application.ports.inbound import ApplicationParameterServiceBase, PermissionServiceBase;
 from app.application.ports.outbound import ApplicationParameterRepositoryBase;
 from app.domain.models import ApplicationParameter, ApplicationParameterType, Permission, Session;
+from app.logger import Logger;
 from app.utils import ApplicationParameterUtils;
 
 
@@ -104,6 +105,9 @@ class ApplicationParameterService(ApplicationParameterServiceBase):
 		parameter = self._repository.get_by_type(parameter_type);
 		ApplicationParameterService._validate_value(parameter_type, value);
 		self._repository.update(parameter_type, value);
+		Logger.info(
+			f"Parámetro de la aplicación {parameter_type} cambiado de '{parameter.value}' a '{value}' por '{session.nick}'."
+		);
 		parameter.value = value;
 		return parameter;
 

@@ -97,12 +97,17 @@ class DatabaseInitializer:
 			Logger.info("La base de datos ya existe: se usa tal cual.");
 		else:
 			self._database.create();
+			Logger.debug("Base de datos creada con sus tablas.");
 			try:
 				self._database.load_basic_data();
+				Logger.debug("Datos básicos (parámetros de la aplicación) cargados.");
 				admin = self._load_default_users();
+				Logger.debug(f"Usuario administrador '{admin.nick}' creado.");
 				if self._is_demo:
 					self._load_demo_data(admin);
 			except DatabaseError:
+				# El error, con su traza, lo registra quien recoge la excepción; aquí solo se anota que se deshace la creación.
+				Logger.warning("Fallo al cargar los datos de la base de datos nueva: se borra para no dejarla a medias.");
 				self._database.delete();
 				raise;
 			Logger.info(f"Base de datos creada con datos básicos{' y datos demo' if self._is_demo else ''}.");
@@ -146,8 +151,10 @@ class DatabaseInitializer:
 			DatabaseOperationError: Si algún dato no se puede guardar o algún fichero no se puede copiar.
 		"""
 		try:
-			for user in DemoData.get_users():
+			demo_users = DemoData.get_users();
+			for user in demo_users:
 				self._user_repository.add(user);
+			Logger.debug(f"Usuarios demo cargados: {len(demo_users)}.");
 
 			bim_models_directory = PathUtils.resolve(
 				self._application_parameter_repository.get_by_type(ApplicationParameterType.BIM_MODELS_DIRECTORY).value
@@ -157,12 +164,15 @@ class DatabaseInitializer:
 			for model in DemoData.get_bim_models():
 				saved_models.append(self._bim_model_repository.add(model));
 				file_storage.import_file(model.stored_file_name, DemoData.get_bim_model_file_path(model));
+			Logger.debug(f"Modelos BIM demo cargados, con sus ficheros: {len(saved_models)}.");
 
 			first_model_id = saved_models[0].id;
 			if admin.id is None or first_model_id is None:
 				raise DatabaseOperationError("El administrador o el primer modelo demo no tienen identificador");
-			for visualization in DemoData.get_visualizations(admin.id, first_model_id):
+			demo_visualizations = DemoData.get_visualizations(admin.id, first_model_id);
+			for visualization in demo_visualizations:
 				self._visualization_repository.add(visualization);
+			Logger.debug(f"Visualizaciones demo cargadas: {len(demo_visualizations)}.");
 		except (ApplicationParameterError, FileStorageError, PersistenceError, UserError) as error:
 			raise DatabaseOperationError(f"No se pudieron cargar los datos demo: {error}") from error;
 

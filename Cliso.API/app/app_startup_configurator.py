@@ -1,7 +1,8 @@
 from fastapi import FastAPI;
 from fastapi.middleware.cors import CORSMiddleware;
+from starlette.middleware.base import BaseHTTPMiddleware;
 
-from app.adapters.inbound.rest import ExceptionHandlers;
+from app.adapters.inbound.rest import ExceptionHandlers, RequestLogger;
 from app.application.exceptions import (
 	ApplicationParameterNotFoundError,
 	ApplicationParameterValidationError,
@@ -27,7 +28,7 @@ from app.config import StartupParametersManager;
 
 
 class AppStartupConfigurator:
-	"""Configuración de la aplicación web que solo se puede hacer al crearla, antes de que arranque: CORS y respuestas a los errores.
+	"""Configuración de la aplicación web que solo se puede hacer al crearla, antes de que arranque: CORS, respuestas a los errores y log de las peticiones.
 
 	Clase estática: no se instancia. Se usa justo después de crear la aplicación y antes de su arranque (`lifespan`),
 	porque FastAPI no deja registrar middlewares ni manejadores de errores cuando ya está en marcha. No tiene relación
@@ -101,5 +102,18 @@ class AppStartupConfigurator:
 
 		# 500: cualquier otra excepción no prevista (se registra en el log y al cliente no se le da el detalle).
 		app.add_exception_handler(Exception, ExceptionHandlers.unexpected_error);
+
+	@staticmethod
+	def register_request_logging(app: FastAPI) -> None:
+		"""Registra el middleware que anota cada petición en el log (como depuración).
+
+		Los middlewares envuelven a los registrados antes: este se registra el último para que sea el más externo y
+		anote todas las peticiones, también las que responde el CORS por su cuenta (las de comprobación previa del
+		navegador, `OPTIONS`).
+
+		Args:
+			app: Aplicación FastAPI en la que se registra.
+		"""
+		app.add_middleware(BaseHTTPMiddleware, dispatch=RequestLogger.log_request);
 
 	# endregion PUBLIC STATIC METHODS

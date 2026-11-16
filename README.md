@@ -570,9 +570,9 @@ tecnología, y todo lo externo (HTTP, bases de datos) se conecta a él mediante 
 ```
 Cliso.API/app/
 ├── main.py                       # Raíz de composición: elige los adaptadores y los conecta
-├── app_startup_configurator.py   # AppStartupConfigurator (estático): CORS y respuestas HTTP a las excepciones, que solo se registran al crear la aplicación
+├── app_startup_configurator.py   # AppStartupConfigurator (estático): CORS, respuestas HTTP a las excepciones y log de las peticiones, que solo se registran al crear la aplicación
 ├── config/                       # StartupParameters (parámetros de arranque), StartupParametersManager (estático, lee el JSON) y los enumerados DatabaseProvider y SessionCookieSameSite
-├── logger.py                     # Logger estático: escribe en fichero (info, warning, error)
+├── logger/                       # Logger estático (debug, info, warning, error): cola de mensajes, hilo escritor y escritura segura en fichero; y el enumerado LogLevel
 ├── utils/                        # PathUtils (rutas), FileUtils (carpetas y ficheros), PasswordUtils (hash y requisitos de contraseña) y ApplicationParameterUtils (comprobaciones del valor de un parámetro), estáticas
 ├── initializer/                  # DatabaseInitializer (prepara la base de datos al arrancar) y DemoData (datos demo como objetos de dominio)
 │
@@ -588,7 +588,7 @@ Cliso.API/app/
 │   └── exceptions/               #   Excepciones del contrato de los puertos, agrupadas por tema: application_parameter/, auth/, bim_model/, user/ y visualization/ (más PermissionDeniedError, PersistenceError y FileStorageError)
 │
 └── adapters/                     # EXTERIOR: conectan el núcleo con el mundo
-    ├── inbound/rest/             #   Adaptador de entrada: routers FastAPI (BIMModelRouter.create(service, auth_service), UserRouter, AuthRouter, VisualizationRouter...), SessionDependency (exige la sesión), ExceptionHandlers, dtos/ y mappers/
+    ├── inbound/rest/             #   Adaptador de entrada: routers FastAPI (BIMModelRouter.create(service, auth_service), UserRouter, AuthRouter, VisualizationRouter...), SessionDependency (exige la sesión), ExceptionHandlers, RequestLogger (anota cada petición en el log), dtos/ y mappers/
     └── outbound/                 #   Adaptadores de salida
         ├── storage/              #     Ficheros: LocalBIMModelFileStorage (carpeta del disco)
         └── persistence/          #     Base de datos
@@ -708,7 +708,7 @@ cookie de la sesión); el resto de la
 configuración (idioma, carpeta de los modelos BIM...) vive en la tabla `application_parameter`. Como el CORS se
 configura al crear la aplicación, antes del `lifespan`, `AppStartupConfigurator.register_cors()` (en
 `app/app_startup_configurator.py`) lee estos parámetros por su cuenta y registra el middleware; el `lifespan` los
-vuelve a leer para elegir los adaptadores.
+vuelve a leer para elegir los adaptadores y configurar el log (ver «Log»).
 
 ```json
 {
@@ -716,6 +716,7 @@ vuelve a leer para elegir los adaptadores.
 	"database_provider": "sqlite",
 	"sqlite_directory": "data",
 	"log_file_path": "logs/cliso.log",
+	"log_level": "info",
 	"mysql_host": "localhost",
 	"mysql_port": 3306,
 	"mysql_user": "",
@@ -732,6 +733,7 @@ vuelve a leer para elegir los adaptadores.
 | `database_provider` | Proveedor de base de datos: `sqlite` (un fichero local, sin servidor) o `mysql` (en un servidor). | `sqlite` |
 | `sqlite_directory` | Carpeta de los ficheros SQLite (relativa a `Cliso.API` si no es absoluta). Se crea si no existe. | `data` |
 | `log_file_path` | Fichero de log (relativo a `Cliso.API` si no es absoluto). Se crea la carpeta si no existe. | `logs/cliso.log` |
+| `log_level` | Nivel mínimo de los mensajes que se escriben en el log: `debug`, `info`, `warning` o `error`. Los de un nivel menos grave se descartan. Otro valor detiene el arranque. | `info` |
 | `mysql_host`, `mysql_port`, `mysql_user`, `mysql_password`, `mysql_database` | Conexión a MySQL (solo con `database_provider` a `mysql`). | `localhost`, `3306`, vacío, vacío, `cliso` |
 | `allowed_origins` | Lista de orígenes completos (`http://host:puerto`) de las webs que pueden llamar a la API desde el navegador (CORS). Con `is_demo` a `true` se aceptan todos y se ignora. Con la lista vacía no se autoriza ninguno, que es lo correcto cuando la web se sirve desde el mismo origen (como detrás de nginx). Debe ser una lista de textos. El CORS se registra con credenciales, para que el navegador envíe y guarde la cookie de la sesión. | `[]` |
 | `session_cookie_same_site` | Política `SameSite` de la cookie de la sesión: `lax` (web y API en el mismo sitio), `strict` o `none` (web y API en dominios distintos; exige https y la cookie va siempre `Secure`). Otro valor detiene el arranque. | `lax` |
@@ -1075,17 +1077,51 @@ Notas de diseño:
 
 ### Log
 
-`Logger` (`app/logger.py`) escribe en el fichero de `log_file_path` con el formato `fecha [NIVEL] mensaje` y tres
-niveles: `Logger.info()`, `Logger.warning()` y `Logger.error()` (este último puede recibir la excepción y añade su
-traza). Se configura una vez al arrancar con `Logger.setup()`. La API registra:
+`Logger` (`app/logger/`) escribe en el fichero de `log_file_path` con el formato `fecha [NIVEL] mensaje` y cuatro
+niveles, de menos a más grave (enumerado `LogLevel`): `Logger.debug()`, `Logger.info()`, `Logger.warning()` y
+`Logger.error()` (este último puede recibir la excepción y añade su traza). Se configura una vez al arrancar con
+`Logger.setup()`, con el nivel mínimo del parámetro `log_level`: los mensajes de un nivel menos grave se descartan sin
+llegar a escribirse. Cada línea sale también por la consola, para verla, por ejemplo, en Docker. Los saltos de línea
+del mensaje se escriben como texto (`\n`), para que un dato que controla el cliente (un nick, una ruta) no pueda forjar
+líneas falsas en el log; solo la traza de una excepción ocupa varias líneas.
 
-- `INFO` cuando el arranque termina correctamente (proveedor, modo e idioma) y si la base de datos ya existía o se ha
-  creado.
-- `INFO` al cerrarse la aplicación (cierre ordenado, por ejemplo con Ctrl+C).
-- `ERROR`, con su traza, si falla la preparación de la base de datos o la lectura de sus parámetros; el arranque se
-  aborta.
+Cómo escribe, para que ni el volumen de mensajes ni las peticiones en paralelo lo estropeen:
 
-Los mensajes se añaden al final del fichero (no se borra lo anterior). La carpeta `logs/` no se versiona.
+- **Cola de mensajes:** quien escribe un mensaje no espera al disco. Le da formato y lo mete en una cola con tamaño
+  máximo (10 000 mensajes); si se llena, espera a que haya sitio, así no se pierde ninguno ni la memoria crece sin
+  límite.
+- **Hilo escritor:** un único hilo, en segundo plano, saca los mensajes de la cola y los escribe por lotes (hasta 500
+  mensajes o 200 ms de espera, lo que ocurra antes). Un error al escribir no lo detiene: el lote se avisa por consola
+  y el hilo sigue vaciando la cola.
+- **Escritura segura:** cada lote se escribe primero en `<fichero>.tmp` (copia del log más las líneas nuevas, guardado
+  en el disco con `fsync`) y después sustituye al log, así que un fallo a mitad no deja el log roto. Si el log supera
+  los 5 MB se guarda como `<fichero>.1` (sustituye a la copia anterior) y se empieza uno nuevo. Con el log abierto en
+  otro programa (en Windows, un editor) la sustitución puede fallar: ese lote solo queda en la consola.
+- **Bloqueo:** un `Lock` impide que se metan mensajes mientras el log se configura o se cierra. Al cerrar
+  (`Logger.close()`) se escriben todos los mensajes pendientes antes de parar el hilo. Escribir sin haber llamado antes
+  a `setup()`, o después de `close()`, lanza `RuntimeError`.
+
+La API registra:
+
+- `ERROR`, con su traza, si falla la preparación de la base de datos o la lectura de sus parámetros (el arranque se
+  aborta) y en las respuestas 500 (fallo de persistencia, del almacenamiento de ficheros o error no previsto).
+- `WARNING`: un login fallido (con el nick y la IP), un login bloqueado por demasiados intentos, una sesión usada desde
+  otra IP, una operación no permitida (403, con la ruta y la IP), una base de datos nueva que se borra porque falla su
+  carga inicial y un fichero temporal de modelo que no se puede borrar.
+- `INFO`: el arranque correcto (proveedor, modo e idioma), si la base de datos ya existía o se ha creado y el cierre
+  ordenado de la aplicación (por ejemplo, con Ctrl+C); las sesiones que se inician y se cierran (con el nick, el rol y
+  la IP); y, siempre con el usuario que lo hace, las altas, modificaciones, desactivaciones y borrados definitivos de
+  usuarios, modelos BIM y visualizaciones, la subida de un fichero IFC y el cambio de un parámetro de la aplicación
+  (con su valor anterior y el nuevo). Nunca se escribe una contraseña: un cambio de contraseña solo anota «contraseña
+  cambiada».
+- `DEBUG`: cada petición que recibe la API (`RequestLogger`, registrado por
+  `AppStartupConfigurator.register_request_logging()`), con su método, ruta, código de respuesta y duración
+  (`GET /users -> 403 (1 ms)`), sin cuerpo, cabeceras, cookies ni parámetros de la URL; las peticiones sin sesión
+  válida (401), las sesiones caducadas y los pasos del arranque y de la creación de la base de datos.
+
+Con el nivel por defecto (`info`) los mensajes de `DEBUG` se descartan antes de darles formato, así que registrar cada
+petición no cuesta nada. Los mensajes se añaden al final del fichero (no se borra lo anterior). La carpeta `logs/` no
+se versiona.
 
 ## Estado del proyecto y hoja de ruta
 

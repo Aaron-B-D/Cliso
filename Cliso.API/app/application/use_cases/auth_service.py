@@ -13,6 +13,7 @@ from app.application.exceptions import (
 from app.application.ports.inbound import AuthServiceBase;
 from app.application.ports.outbound import UserRepositoryBase;
 from app.domain.models import Session, User;
+from app.logger import Logger;
 from app.utils import PasswordUtils;
 
 
@@ -85,7 +86,7 @@ class AuthService(AuthServiceBase):
 		# 0. Si ya ha fallado demasiadas veces, ni se mira la contraseña (tampoco se gasta CPU en hashearla).
 		clean_nick = nick.strip().lower();
 		attempts_key = f"{ip_address}|{clean_nick}";
-		self._check_not_blocked(attempts_key);
+		self._check_not_blocked(attempts_key, clean_nick, ip_address);
 
 		# 1. Buscamos al usuario. Si no existe, se comprueba igualmente la contraseña contra un hash inventado.
 		user: User | None;
@@ -100,6 +101,7 @@ class AuthService(AuthServiceBase):
 		# 2. Si el usuario no existe o la contraseña no coincide, el mensaje es el mismo en ambos casos.
 		if user is None or not is_password_valid:
 			self._register_failure(attempts_key);
+			Logger.warning(f"Login fallido con el nick '{clean_nick}' desde {ip_address}.");
 			raise AuthInvalidCredentialsError("El nick o la contraseña no son correctos");
 		if user.id is None:
 			raise PersistenceError(f"El usuario '{user.nick}' guardado no tiene identificador");
@@ -115,6 +117,7 @@ class AuthService(AuthServiceBase):
 			self._sessions[session.token] = session;
 		finally:
 			self._sessions_lock.release();
+		Logger.info(f"Sesión iniciada por '{user.nick}' (rol {user.role}) desde {ip_address}.");
 		return session;
 
 	def get_session(self, token: str, ip_address: str, renew: bool = True) -> Session:
@@ -140,10 +143,14 @@ class AuthService(AuthServiceBase):
 				raise AuthSessionNotValidError("No hay una sesión iniciada");
 			# Un token robado no sirve desde otro sitio. La sesión no se cierra: sigue válida para su dueño.
 			if session.ip_address != ip_address:
+				Logger.warning(
+					f"Se ha usado la sesión de '{session.nick}' (iniciada desde {session.ip_address}) desde otra dirección: {ip_address}."
+				);
 				raise AuthSessionNotValidError("La sesión no es válida desde esta dirección");
 			now = datetime.now();
 			if self._is_expired(session, now):
 				del self._sessions[token];
+				Logger.debug(f"La sesión de '{session.nick}' ha caducado por inactividad.");
 				raise AuthSessionNotValidError("La sesión ha caducado por inactividad");
 			if renew:
 				session.last_access_date = now;
@@ -162,9 +169,13 @@ class AuthService(AuthServiceBase):
 		"""
 		self._sessions_lock.acquire();
 		try:
-			self._sessions.pop(token, None);
+			closed = self._sessions.pop(token, None);
 		finally:
 			self._sessions_lock.release();
+		if closed is not None:
+			Logger.info(f"Sesión cerrada por '{closed.nick}'.");
+		else:
+			pass;  # La sesión ya no existía (caducada o cerrada antes): no hay nada que anotar.
 
 	def close_user_sessions(self, user_id: int) -> None:
 		"""Cierra todas las sesiones abiertas de un usuario (en todos sus equipos). Si no tiene ninguna, no hace nada.
@@ -185,16 +196,24 @@ class AuthService(AuthServiceBase):
 				del self._sessions[token];
 		finally:
 			self._sessions_lock.release();
+		if len(user_tokens) == 1:
+			Logger.debug(f"Cerrada 1 sesión abierta del usuario {user_id}.");
+		elif len(user_tokens) > 1:
+			Logger.debug(f"Cerradas {len(user_tokens)} sesiones abiertas del usuario {user_id}.");
+		else:
+			pass;  # No tenía sesiones abiertas: no hay nada que anotar.
 
 	# endregion PUBLIC METHODS
 
 	# region PRIVATE METHODS
 
-	def _check_not_blocked(self, attempts_key: str) -> None:
+	def _check_not_blocked(self, attempts_key: str, nick: str, ip_address: str) -> None:
 		"""Comprueba que ese nick, desde esa IP, no ha agotado sus intentos fallidos de login.
 
 		Args:
 			attempts_key: Clave «IP|nick» de los intentos.
+			nick: Nick con el que se intenta entrar, para el log.
+			ip_address: Dirección IP desde la que se intenta entrar, para el log.
 
 		Raises:
 			AuthTooManyAttemptsError: Si ya ha fallado el máximo de veces dentro del plazo.
@@ -203,6 +222,7 @@ class AuthService(AuthServiceBase):
 		try:
 			recent_failures = self._get_recent_failures(attempts_key, datetime.now());
 			if len(recent_failures) >= self._MAX_FAILED_ATTEMPTS:
+				Logger.warning(f"Login bloqueado por demasiados intentos fallidos con el nick '{nick}' desde {ip_address}.");
 				raise AuthTooManyAttemptsError("Demasiados intentos fallidos. Inténtalo de nuevo más tarde");
 		finally:
 			self._sessions_lock.release();

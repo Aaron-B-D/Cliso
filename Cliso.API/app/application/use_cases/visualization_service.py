@@ -5,6 +5,7 @@ from app.application.exceptions import VisualizationNotFoundError, Visualization
 from app.application.ports.inbound import PermissionServiceBase, VisualizationServiceBase;
 from app.application.ports.outbound import BIMModelRepositoryBase, VisualizationRepositoryBase;
 from app.domain.models import BIMModelVisualizationMarkerPiece, Permission, Session, Visualization, VisualizationPiece;
+from app.logger import Logger;
 
 
 class VisualizationService(VisualizationServiceBase):
@@ -123,7 +124,11 @@ class VisualizationService(VisualizationServiceBase):
 		self._validate_pieces(visualization.pieces);
 		self._bim_model_repository.get_by_id(visualization.bim_model_id);
 		visualization.user_id = session.user_id;
-		return self._repository.add(visualization);
+		saved = self._repository.add(visualization);
+		Logger.info(
+			f"Visualización '{saved.name}' (id {saved.id}) creada sobre el modelo BIM {saved.bim_model_id} por '{session.nick}'."
+		);
+		return saved;
 
 	def update_visualization(
 		self, session: Session, visualization_id: int, visualization: Visualization
@@ -170,6 +175,7 @@ class VisualizationService(VisualizationServiceBase):
 		stored.is_public = visualization.is_public;
 		stored.pieces = visualization.pieces;
 		self._repository.update(stored);
+		Logger.info(f"Visualización '{stored.name}' (id {visualization_id}) modificada por '{session.nick}'.");
 		return stored;
 
 	def delete_visualization(self, session: Session, visualization_id: int, force: bool) -> None:
@@ -194,8 +200,12 @@ class VisualizationService(VisualizationServiceBase):
 		);
 		if force:
 			self._repository.delete(visualization_id);
+			Logger.info(
+				f"Visualización '{stored.name}' (id {visualization_id}) borrada definitivamente por '{session.nick}'."
+			);
 		else:
 			self._repository.deactivate(visualization_id);
+			Logger.info(f"Visualización '{stored.name}' (id {visualization_id}) desactivada por '{session.nick}'.");
 
 	# endregion PUBLIC METHODS
 
