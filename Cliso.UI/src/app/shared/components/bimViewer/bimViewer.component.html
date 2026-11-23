@@ -4,6 +4,28 @@
 		aria-label="{{ CANVAS_TEXT }}"
 		role="img"
 	></div>
+	@if (IsTooltipVisible) {
+		<aside class="bv_tooltip"
+			[style.bottom.px]="TooltipBottom"
+			[style.left.px]="TooltipLeft"
+			[style.max-width.px]="TooltipMaxWidth"
+			[style.right.px]="TooltipRight"
+			[style.top.px]="TooltipTop"
+			(pointerenter)="OnTooltipPointerEnter()"
+			(pointerleave)="OnTooltipPointerLeave()"
+		>
+			<h4 class="bv_tooltip_title">{{ TooltipTitle }}</h4>
+			@if (HasTooltipDescription) {
+				<p class="bv_tooltip_description">{{ TooltipDescription }}</p>
+			}
+			@if (HasTooltipLink) {
+				<a class="bv_tooltip_link" rel="noopener noreferrer"
+					[href]="TooltipLinkUrl"
+					[target]="TooltipLinkTarget"
+				>{{ TooltipLinkUrl }}</a>
+			}
+		</aside>
+	}
 	@if (ShowDownload) {
 		<section class="bv_overlay">
 			<p class="bv_overlay_text">{{ DownloadText }}</p>

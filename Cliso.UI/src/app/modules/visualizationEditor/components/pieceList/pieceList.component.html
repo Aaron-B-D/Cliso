@@ -1,0 +1,47 @@
+<section class="visualizationPieceListDir">
+	<header class="vpl_header">
+		<h3 class="vpl_title">{{ TitleText }}</h3>
+		@if (CanAdd) {
+			<button mat-stroked-button type="button"
+				cdkOverlayOrigin
+				#addOrigin="cdkOverlayOrigin"
+				[attr.aria-expanded]="IsAddPanelOpen"
+				(click)="OnAddClicked()"
+			>
+				<span class="vpl_button_content">
+					<img class="vpl_icon" alt="" [src]="AddIcon" />
+					<span>{{ ADD_TEXT }}</span>
+				</span>
+			</button>
+			<ng-template
+				cdkConnectedOverlay
+				cdkConnectedOverlayBackdropClass="cdk-overlay-transparent-backdrop"
+				[cdkConnectedOverlayHasBackdrop]="true"
+				[cdkConnectedOverlayOpen]="IsAddPanelOpen"
+				[cdkConnectedOverlayOrigin]="addOrigin"
+				[cdkConnectedOverlayPositions]="AddPanelPositions"
+				(backdropClick)="OnAddPanelBackdropClicked()"
+			>
+				<ng-content />
+			</ng-template>
+		}
+	</header>
+	@if (HasItems) {
+		<ul class="vpl_list">
+			@for (item of Items; track item.Id) {
+				<li>
+					<app-editor-card
+						[IconText]="item.IconText"
+						[IconUrl]="item.IconUrl"
+						[IsSelected]="item.IsSelected"
+						[Subtitle]="item.TypeName"
+						[Title]="item.Name"
+						(clicked)="OnPieceClicked(item.Id)"
+					/>
+				</li>
+			}
+		</ul>
+	} @else {
+		<p class="vpl_empty">{{ EMPTY_TEXT }}</p>
+	}
+</section>

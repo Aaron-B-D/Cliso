@@ -1,4 +1,5 @@
-import { Component, EventEmitter, Input, OnDestroy, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnDestroy, Output } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 
@@ -9,11 +10,11 @@ import { CheckUtils } from 'src/app/shared/utils/check.utils';
 /** Panel con el que se edita el valor de un parámetro numérico: un campo que solo admite números entre unos límites. */
 @Component({
 	selector: 'app-application-settings-editor-number-panel',
-	imports: [MatFormFieldModule, MatInputModule, ReadOnlyDirective],
+	imports: [FormsModule, MatFormFieldModule, MatInputModule, ReadOnlyDirective],
 	templateUrl: './numberPanel.component.html',
 	styleUrl: './numberPanel.component.scss'
 })
-export class ApplicationSettingsEditorNumberPanelComponent implements OnDestroy {
+export class ApplicationSettingsEditorNumberPanelComponent implements OnChanges, OnDestroy {
 	//#region DECORATORS
 
 	/** `true` si el valor solo se puede leer. */
@@ -36,6 +37,13 @@ export class ApplicationSettingsEditorNumberPanelComponent implements OnDestroy 
 
 	//#endregion DECORATORS
 
+	//#region PRIVATE PROPERTIES
+
+	/** Texto del campo, tal y como lo ha dejado la última edición. */
+	private _Text: string = STRING_UNDEFINED;
+
+	//#endregion PRIVATE PROPERTIES
+
 	//#region EMITTERS
 
 	private emitValueChanged(value: string): void {
@@ -46,6 +54,10 @@ export class ApplicationSettingsEditorNumberPanelComponent implements OnDestroy 
 
 	//#region ANGULAR LIFECYCLE
 
+	public ngOnChanges(): void {
+		this._Text = this.Value;
+	}
+
 	public ngOnDestroy(): void {
 		this.valueChanged.complete();
 	}
@@ -54,20 +66,16 @@ export class ApplicationSettingsEditorNumberPanelComponent implements OnDestroy 
 
 	//#region SUBSCRIBERS
 
-	/**
-	 * Al terminar de escribir (salir del campo o pulsar Intro), lleva al límite más cercano un número que se salga de ellos.
-	 * @param event Cambio del campo.
-	 */
-	public OnChange(event: Event): void {
-		const input: HTMLInputElement = event.target as HTMLInputElement;
-		const value: number = Number(input.value);
+	/** Al salir del campo, lleva al límite más cercano un número que se salga de ellos. */
+	public OnBlurred(): void {
+		const value: number = Number(this._Text);
 
-		if (input.value !== STRING_UNDEFINED && Number.isFinite(value)) {
+		if (this._Text !== STRING_UNDEFINED && Number.isFinite(value)) {
 			const limited: number = this.limitValue(value);
 
 			if (limited !== value) {
-				input.value = String(limited);
-				this.emitValueChanged(input.value);
+				this._Text = String(limited);
+				this.emitValueChanged(this._Text);
 			} else {
 				// Ya está dentro de los límites
 			}
@@ -76,8 +84,9 @@ export class ApplicationSettingsEditorNumberPanelComponent implements OnDestroy 
 		}
 	}
 
-	public OnInput(event: Event): void {
-		this.emitValueChanged((event.target as HTMLInputElement).value);
+	public OnValueChanged(value: number | null): void {
+		this._Text = CheckUtils.IsNull(value) ? STRING_UNDEFINED : String(value);
+		this.emitValueChanged(this._Text);
 	}
 
 	//#endregion SUBSCRIBERS

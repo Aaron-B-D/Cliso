@@ -34,6 +34,20 @@ export class SelectReadOnlyDirective implements OnDestroy {
 	/** Elemento del campo. */
 	private readonly _Element: HTMLElement;
 
+	/**
+	 * Para las teclas que abrirían la lista o cambiarían el valor mientras el selector solo se puede leer. Es una función
+	 * flecha para conservar `this` cuando la llama el navegador y para que sea la misma referencia al quitarla del elemento.
+	 * @param event Tecla pulsada.
+	 */
+	private readonly _OnKeyDown = (event: KeyboardEvent): void => {
+		if (this.IsFieldReadOnly && event.key !== SelectReadOnlyDirective._ALLOWED_KEY) {
+			event.preventDefault();
+			event.stopPropagation();
+		} else {
+			// Se puede editar, o es la tecla para salir del campo: sigue su curso
+		}
+	};
+
 	//#endregion PRIVATE PROPERTIES
 
 	//#region CONSTRUCTOR
@@ -44,7 +58,7 @@ export class SelectReadOnlyDirective implements OnDestroy {
 	constructor(elementRef: ElementRef<HTMLElement>) {
 		this._Element = elementRef.nativeElement;
 		// En fase de captura: el campo recibe la tecla antes que el selector que contiene, y así puede pararla
-		this._Element.addEventListener('keydown', this.onKeyDown, true);
+		this._Element.addEventListener('keydown', this._OnKeyDown, true);
 	}
 
 	//#endregion CONSTRUCTOR
@@ -52,26 +66,8 @@ export class SelectReadOnlyDirective implements OnDestroy {
 	//#region ANGULAR LIFECYCLE
 
 	public ngOnDestroy(): void {
-		this._Element.removeEventListener('keydown', this.onKeyDown, true);
+		this._Element.removeEventListener('keydown', this._OnKeyDown, true);
 	}
 
 	//#endregion ANGULAR LIFECYCLE
-
-	//#region PRIVATE METHODS
-
-	// Función flecha: conserva `this` al llamarla el navegador y es la misma referencia para quitarla después
-	/**
-	 * Para las teclas que abrirían la lista o cambiarían el valor mientras el selector solo se puede leer.
-	 * @param event Tecla pulsada.
-	 */
-	private readonly onKeyDown = (event: KeyboardEvent): void => {
-		if (this.IsFieldReadOnly && event.key !== SelectReadOnlyDirective._ALLOWED_KEY) {
-			event.preventDefault();
-			event.stopPropagation();
-		} else {
-			// Se puede editar, o es la tecla para salir del campo: sigue su curso
-		}
-	};
-
-	//#endregion PRIVATE METHODS
 }

@@ -1,21 +1,46 @@
 from pathlib import Path;
 from typing import ClassVar;
 
-from app.domain.models import BIMModel, BIMModelVisualizationMarkerPiece, User, UserRole, Visualization;
+from app.domain.models import BIMModel, User, UserRole;
 from app.utils import PasswordUtils;
 
 
 class DemoData:
-	"""Datos de demostración, escritos como objetos de dominio.
+	"""Datos de demostración (usuarios y modelos BIM), escritos como objetos de dominio.
 
 	Clase estática: no se instancia. Cada modelo lleva el nombre de su fichero IFC, que está en la carpeta `demo_models`
 	junto a este módulo.
 	"""
 
+	# region PUBLIC CONSTANTS
+
+	OPERATOR_NICK: ClassVar[str] = "operator";
+	"""Nick del primer operador demo."""
+
+	OPERATOR2_NICK: ClassVar[str] = "operator2";
+	"""Nick del segundo operador demo."""
+
+	HOUSE_FILE: ClassVar[str] = "Ifc4_SampleHouse.ifc";
+	"""Fichero del modelo «Casa de muestra»."""
+
+	DUPLEX_FILE: ClassVar[str] = "Ifc2x3_Duplex_Architecture.ifc";
+	"""Fichero del modelo «Edificio dúplex»."""
+
+	HUB_FILE: ClassVar[str] = "Ifc4_DigitalHub_Architecture.ifc";
+	"""Fichero del modelo «Digital Hub»."""
+
+	WELLNESS_FILE: ClassVar[str] = "Ifc2x3_WellnessCenter_Sama.ifc";
+	"""Fichero del modelo «Centro de bienestar Sama»."""
+
+	# endregion PUBLIC CONSTANTS
+
 	# region PRIVATE CONSTANTS
 
 	_FILES_DIRECTORY: ClassVar[Path] = Path(__file__).resolve().parent / "demo_models";
 	"""Carpeta con los ficheros IFC de los modelos demo."""
+
+	_VIEWER_NICK: ClassVar[str] = "viewer";
+	"""Nick del visor demo."""
 
 	# endregion PRIVATE CONSTANTS
 
@@ -23,27 +48,35 @@ class DemoData:
 
 	@staticmethod
 	def get_users() -> list[User]:
-		"""Devuelve los usuarios de demostración, sin guardar (sin `id`), uno por cada rol salvo el administrador.
+		"""Devuelve los usuarios de demostración, sin guardar (sin `id`): dos operadores y un visor.
 
-		La contraseña de cada uno es su propio nick, guardada hasheada. No pasan por las reglas de contraseña del
-		servicio de usuarios: son datos de demostración.
+		El administrador no está aquí: lo crea el inicializador con los datos básicos. La contraseña de cada usuario demo es
+		su propio nick, guardada hasheada. No pasan por las reglas de contraseña del servicio de usuarios: son datos de
+		demostración.
 
 		Returns:
 			Los usuarios demo.
 		"""
 		return [
 			User(
-				nick="operator",
+				nick=DemoData.OPERATOR_NICK,
 				name="Operador",
 				surname="Demo",
-				password=PasswordUtils.hash("operator"),
+				password=PasswordUtils.hash(DemoData.OPERATOR_NICK),
 				role=UserRole.OPERATOR,
 			),
 			User(
-				nick="viewer",
+				nick=DemoData.OPERATOR2_NICK,
+				name="Operador 2",
+				surname="Demo",
+				password=PasswordUtils.hash(DemoData.OPERATOR2_NICK),
+				role=UserRole.OPERATOR,
+			),
+			User(
+				nick=DemoData._VIEWER_NICK,
 				name="Visor",
 				surname="Demo",
-				password=PasswordUtils.hash("viewer"),
+				password=PasswordUtils.hash(DemoData._VIEWER_NICK),
 				role=UserRole.VIEWER,
 			),
 		];
@@ -62,42 +95,26 @@ class DemoData:
 			BIMModel(
 				name="Casa de muestra",
 				description="Vivienda unifamiliar de ejemplo (IFC 4).",
-				file_name="Ifc4_SampleHouse.ifc",
+				file_name=DemoData.HOUSE_FILE,
 				stored_file_name="demo_ifc4_sample_house.ifc",
 			),
 			BIMModel(
 				name="Edificio dúplex",
 				description="Edificio de dos viviendas, modelo de arquitectura (IFC 2x3).",
-				file_name="Ifc2x3_Duplex_Architecture.ifc",
+				file_name=DemoData.DUPLEX_FILE,
 				stored_file_name="demo_ifc2x3_duplex_architecture.ifc",
 			),
-		];
-
-	@staticmethod
-	def get_visualizations(user_id: int, bim_model_id: int) -> list[Visualization]:
-		"""Devuelve las visualizaciones de demostración de un modelo BIM, sin guardar (sin `id`).
-
-		Args:
-			user_id: Identificador del usuario propietario (el administrador).
-			bim_model_id: Identificador del modelo BIM, ya guardado, sobre el que trabajan.
-
-		Returns:
-			Las visualizaciones demo: una privada y una pública.
-		"""
-		return [
-			Visualization(
-				user_id=user_id,
-				bim_model_id=bim_model_id,
-				name="Revisión de plantas",
-				description="Visualización privada de ejemplo.",
+			BIMModel(
+				name="Digital Hub",
+				description="Edificio de oficinas con sótano y dos plantas, modelo de arquitectura para gestión de instalaciones (IFC 4).",
+				file_name=DemoData.HUB_FILE,
+				stored_file_name="demo_ifc4_digital_hub_architecture.ifc",
 			),
-			Visualization(
-				user_id=user_id,
-				bim_model_id=bim_model_id,
-				name="Recorrido público",
-				description="Visualización pública de ejemplo.",
-				is_public=True,
-				pieces=[BIMModelVisualizationMarkerPiece(x=0.0, y=0.0, z=0.0, color="#FF0000")],
+			BIMModel(
+				name="Centro de bienestar Sama",
+				description="Centro de bienestar de cinco niveles, modelo de arquitectura (IFC 2x3). Modelo grande, para ver la carga.",
+				file_name=DemoData.WELLNESS_FILE,
+				stored_file_name="demo_ifc2x3_wellness_center_sama.ifc",
 			),
 		];
 

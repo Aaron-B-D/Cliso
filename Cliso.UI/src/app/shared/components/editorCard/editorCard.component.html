@@ -1,0 +1,16 @@
+<button class="editorCardDir"
+	type="button"
+	[class.ec_card-selected]="IsSelected"
+	(click)="OnClicked()"
+>
+	<img class="ec_icon"
+		matTooltip="{{ IconText }}"
+		[alt]="IconText"
+		[src]="IconUrl"
+	/>
+	<span class="ec_text">
+		<span class="ec_title" matTooltip="{{ Title }}">{{ Title }}</span>
+		<span class="ec_subtitle" matTooltip="{{ Subtitle }}">{{ Subtitle }}</span>
+	</span>
+	<img class="ec_arrow d-md-none" alt="" [src]="ArrowIcon" />
+</button>

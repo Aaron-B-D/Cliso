@@ -50,9 +50,9 @@
 					<mat-label>{{ NICK_TEXT }}</mat-label>
 					<input matInput autocomplete="off"
 						[maxLength]="NICK_MAX_LENGTH"
-						[value]="Draft.Nick"
 						[appReadOnly]="IsNickReadOnly"
-						(input)="OnNickInput($event)"
+						[ngModel]="Draft.Nick"
+						(ngModelChange)="OnNickChanged($event)"
 					/>
 				</mat-form-field>
 				@if (NickError) {
@@ -62,9 +62,9 @@
 					<mat-label>{{ NAME_TEXT }}</mat-label>
 					<input matInput autocomplete="off"
 						[maxLength]="NAME_MAX_LENGTH"
-						[value]="Draft.Name"
 						[appReadOnly]="IsReadOnly"
-						(input)="OnNameInput($event)"
+						[ngModel]="Draft.Name"
+						(ngModelChange)="OnNameChanged($event)"
 					/>
 				</mat-form-field>
 				@if (NameError) {
@@ -74,9 +74,9 @@
 					<mat-label>{{ SURNAME_TEXT }}</mat-label>
 					<input matInput autocomplete="off"
 						[maxLength]="SURNAME_MAX_LENGTH"
-						[value]="Draft.Surname"
 						[appReadOnly]="IsReadOnly"
-						(input)="OnSurnameInput($event)"
+						[ngModel]="Draft.Surname"
+						(ngModelChange)="OnSurnameChanged($event)"
 					/>
 				</mat-form-field>
 				@if (SurnameError) {

@@ -1,0 +1,45 @@
+<section class="visualizationPieceDetailDir">
+	<header class="vpd_header">
+		<h3 class="vpd_title">{{ TitleText }}</h3>
+		<div class="vpd_actions">
+			@if (CanLocate) {
+				<button mat-icon-button type="button"
+					matTooltip="{{ LOCATE_TEXT }}"
+					[attr.aria-label]="LOCATE_TEXT"
+					(click)="OnLocateClicked()"
+				>
+					<img class="vpd_icon" alt="" [src]="LocateIcon" />
+				</button>
+			}
+			@if (CanDelete) {
+				<button mat-icon-button type="button"
+					matTooltip="{{ DELETE_TEXT }}"
+					[attr.aria-label]="DELETE_TEXT"
+					(click)="OnDeleteClicked()"
+				>
+					<img class="vpd_icon" alt="" [src]="DeleteIcon" />
+				</button>
+			}
+		</div>
+	</header>
+	<!-- Un panel por tipo de pieza: para soportar un tipo nuevo se añade aquí su caso -->
+	@switch (PieceType) {
+		@case (MARKER_TYPE) {
+			<app-visualization-marker-panel
+				[CanEdit]="CanEdit"
+				[Elements]="Elements"
+				[IsLoadingElements]="IsLoadingElements"
+				[Piece]="Piece"
+				(anchored)="OnAnchored($event)"
+				(changed)="OnChanged()"
+				(elementsRequested)="OnElementsRequested()"
+			/>
+		}
+		@case (NO_TYPE) {
+			<p class="vpd_empty">{{ EMPTY_TEXT }}</p>
+		}
+		@default {
+			<p class="vpd_empty">{{ UNSUPPORTED_TEXT }}</p>
+		}
+	}
+</section>

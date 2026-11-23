@@ -1,0 +1,37 @@
+.visualizationPieceDetailDir {
+	display: flex;
+	flex-direction: column;
+	gap: var(--space-3);
+}
+
+.vpd_actions {
+	align-items: center;
+	display: flex;
+	gap: var(--space-1);
+}
+
+.vpd_empty {
+	color: var(--color-muted);
+	margin: 0;
+	padding: var(--space-3);
+	text-align: center;
+}
+
+.vpd_header {
+	align-items: center;
+	display: flex;
+	justify-content: space-between;
+	min-height: var(--touch-target);
+}
+
+.vpd_icon {
+	height: 1.25rem;
+	width: 1.25rem;
+}
+
+.vpd_title {
+	color: var(--color-muted);
+	font-size: var(--font-size-small);
+	margin: 0;
+	text-transform: uppercase;
+}

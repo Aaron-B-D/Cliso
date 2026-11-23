@@ -1,0 +1,114 @@
+<app-editor-shell class="visualizationEditorDir"
+	[CanDelete]="CanDelete"
+	[CanEdit]="CanEdit"
+	[HasSelection]="HasSelection"
+	[IsBusy]="IsBusy"
+	[IsEditing]="IsEditing"
+	[SearchLabel]="SEARCH_TEXT"
+	[ShowDetail]="HasDetail"
+	[Title]="TITLE_TEXT"
+	(addClicked)="OnAddClicked()"
+	(backClicked)="OnBackClicked()"
+	(closeRequested)="OnCloseRequested()"
+	(deleteClicked)="OnDeleteClicked()"
+	(discardClicked)="OnDiscardClicked()"
+	(editClicked)="OnEditClicked()"
+	(saveClicked)="OnSaveClicked()"
+	(searchChanged)="OnSearchChanged($event)"
+>
+	<div editorList>
+		@if (IsLoadingList) {
+			<div class="ve_loading">
+				<p class="ve_empty">{{ LOADING_TEXT }}</p>
+				<mat-progress-bar mode="indeterminate"></mat-progress-bar>
+			</div>
+		} @else if (HasItems) {
+			<ul class="ve_list">
+				@for (item of ListItems; track item.Visualization.Id) {
+					<li>
+						<app-editor-card
+							[IconText]="item.IconText"
+							[IconUrl]="item.IconUrl"
+							[IsSelected]="item.IsSelected"
+							[Subtitle]="item.Visualization.Description"
+							[Title]="item.Visualization.Name"
+							(clicked)="OnVisualizationSelected(item.Visualization)"
+						/>
+					</li>
+				}
+			</ul>
+		} @else {
+			<p class="ve_empty">{{ NO_ITEMS_TEXT }}</p>
+		}
+	</div>
+	<div class="ve_detail" editorDetail>
+		@if (HasDetail) {
+			<mat-tab-group>
+				<mat-tab label="{{ GENERAL_TEXT }}">
+					<div class="ve_general">
+						<mat-form-field appearance="outline" subscriptSizing="dynamic"
+							[appSelectReadOnly]="IsModelDisabled"
+						>
+							<mat-label>{{ MODEL_TEXT }}</mat-label>
+							<mat-select
+								[value]="Draft.BimModelId"
+								(selectionChange)="OnModelChanged($event.value)"
+							>
+								@for (model of Models; track model.Id) {
+									<mat-option [value]="model.Id">{{ model.Name }}</mat-option>
+								}
+							</mat-select>
+						</mat-form-field>
+						@if (ModelError) {
+							<p class="ve_error" role="alert">{{ MODEL_REQUIRED_TEXT }}</p>
+						}
+						<mat-form-field appearance="outline" subscriptSizing="dynamic">
+							<mat-label>{{ NAME_TEXT }}</mat-label>
+							<input matInput
+								[appReadOnly]="IsReadOnly"
+								[ngModel]="Draft.Name"
+								(ngModelChange)="OnNameChanged($event)"
+							/>
+						</mat-form-field>
+						@if (NameError) {
+							<p class="ve_error" role="alert">{{ NAME_REQUIRED_TEXT }}</p>
+						}
+						<mat-form-field appearance="outline" subscriptSizing="dynamic">
+							<mat-label>{{ DESCRIPTION_TEXT }}</mat-label>
+							<textarea class="ve_description" matInput
+								[appReadOnly]="IsReadOnly"
+								[ngModel]="Draft.Description"
+								(ngModelChange)="OnDescriptionChanged($event)"
+							></textarea>
+						</mat-form-field>
+						<mat-form-field appearance="outline" subscriptSizing="dynamic">
+							<mat-label>{{ OBSERVATIONS_TEXT }}</mat-label>
+							<textarea class="ve_observations" matInput
+								[appReadOnly]="IsReadOnly"
+								[ngModel]="Draft.Observations"
+								(ngModelChange)="OnObservationsChanged($event)"
+							></textarea>
+						</mat-form-field>
+						<mat-checkbox
+							[appCheckboxReadOnly]="IsReadOnly"
+							[checked]="Draft.IsPublic"
+							(change)="OnPublicChanged($event.checked)"
+						>{{ PUBLIC_TEXT }}</mat-checkbox>
+					</div>
+				</mat-tab>
+				<mat-tab label="{{ PIECES_TEXT }}">
+					<ng-template matTabContent>
+						<app-visualization-piece-workspace
+							[CanEdit]="CanEditPieces"
+							[Model]="PreviewModel"
+							[Pieces]="Draft.Pieces"
+							(changed)="OnPiecesChanged()"
+						/>
+					</ng-template>
+				</mat-tab>
+			</mat-tab-group>
+		} @else {
+			<p class="ve_empty">{{ NO_SELECTION_TEXT }}</p>
+		}
+	</div>
+</app-editor-shell>

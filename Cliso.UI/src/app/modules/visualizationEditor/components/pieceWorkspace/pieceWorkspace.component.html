@@ -1,0 +1,57 @@
+<div class="visualizationPieceWorkspaceDir"
+	[class.visualizationPieceWorkspaceDir-open]="IsSidePanelOpen"
+>
+	<div class="vpw_viewer">
+		<app-bim-model-preview
+			[Markers]="Markers"
+			[MarkersDraggable]="CanEdit"
+			[Model]="Model"
+			[SelectedMarkerId]="SelectedPieceId"
+			(compiled)="OnPreviewCompiled($event)"
+			(markerMoved)="OnMarkerMoved($event)"
+			(markerSelected)="OnMarkerSelected($event)"
+			(pointClicked)="OnPointClicked($event)"
+		/>
+		@if (IsPlacing) {
+			<p class="vpw_hint vpw_hint-floating">{{ PLACING_TEXT }}</p>
+		}
+		<button class="vpw_side_toggle" mat-icon-button type="button"
+			matTooltip="{{ SidePanelToggleText }}"
+			[attr.aria-expanded]="IsSidePanelOpen"
+			[attr.aria-label]="SidePanelToggleText"
+			(click)="OnSidePanelToggled()"
+		>
+			<img class="vpw_side_toggle_icon" alt="" [src]="SidePanelToggleIcon" />
+		</button>
+	</div>
+	@if (IsSidePanelOpen) {
+		<aside class="vpw_side">
+			<app-visualization-piece-list
+				[CanAdd]="CanEdit"
+				[IsAddPanelOpen]="IsPickerOpen"
+				[Items]="Items"
+				(addClicked)="OnAddPieceClicked()"
+				(addPanelClosed)="OnPickerClosed()"
+				(pieceSelected)="OnPieceSelected($event)"
+			>
+				@if (IsPickerOpen) {
+					<app-visualization-piece-picker
+						(closed)="OnPickerClosed()"
+						(typeChosen)="OnPickerTypeChosen($event)"
+					/>
+				}
+			</app-visualization-piece-list>
+			<app-visualization-piece-detail
+				[CanEdit]="CanEdit"
+				[Elements]="ModelElements"
+				[IsLoadingElements]="IsLoadingModelElements"
+				[Piece]="SelectedPiece"
+				(anchored)="OnPieceAnchored($event)"
+				(changed)="OnPieceChanged()"
+				(deleted)="OnPieceDeleted()"
+				(elementsRequested)="OnElementsRequested()"
+				(locateRequested)="OnPieceLocateRequested()"
+			/>
+		</aside>
+	}
+</div>

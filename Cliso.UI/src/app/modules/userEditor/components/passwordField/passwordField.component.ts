@@ -1,4 +1,5 @@
 import { Component, EventEmitter, Input, OnDestroy, Output } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -12,7 +13,7 @@ import { LanguageManager } from 'src/app/shared/utils/language/languageManager.u
 /** Campo de contraseña con su propio botón para verla en claro u ocultarla. */
 @Component({
 	selector: 'app-user-editor-password-field',
-	imports: [MatButtonModule, MatFormFieldModule, MatInputModule, MatTooltipModule],
+	imports: [FormsModule, MatButtonModule, MatFormFieldModule, MatInputModule, MatTooltipModule],
 	templateUrl: './passwordField.component.html',
 	styleUrl: './passwordField.component.scss'
 })
@@ -90,8 +91,8 @@ export class UserEditorPasswordFieldComponent implements OnDestroy {
 
 	//#region SUBSCRIBERS
 
-	public OnInput(event: Event): void {
-		this.emitValueChanged((event.target as HTMLInputElement).value);
+	public OnValueChanged(value: string): void {
+		this.emitValueChanged(value);
 	}
 
 	public OnVisibilityClicked(): void {

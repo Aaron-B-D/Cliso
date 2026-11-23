@@ -29,25 +29,22 @@
 				<label class="bvp_field">
 					<span>{{ BACKGROUND_COLOR_TEXT }}</span>
 					<input class="bvp_color" type="color"
-						#backgroundColor
-						[value]="BackgroundColor"
-						(input)="OnBackgroundColorChanged(backgroundColor.value)"
+						[ngModel]="BackgroundColor"
+						(ngModelChange)="OnBackgroundColorChanged($event)"
 					/>
 				</label>
 				<label class="bvp_field">
 					<span>{{ HIGHLIGHT_COLOR_TEXT }}</span>
 					<input class="bvp_color" type="color"
-						#highlightColor
-						[value]="HighlightColor"
-						(input)="OnHighlightColorChanged(highlightColor.value)"
+						[ngModel]="HighlightColor"
+						(ngModelChange)="OnHighlightColorChanged($event)"
 					/>
 				</label>
 				<label class="bvp_field">
 					<span>{{ GRID_COLOR_TEXT }}</span>
 					<input class="bvp_color" type="color"
-						#gridColor
-						[value]="GridColor"
-						(input)="OnGridColorChanged(gridColor.value)"
+						[ngModel]="GridColor"
+						(ngModelChange)="OnGridColorChanged($event)"
 					/>
 				</label>
 				<div class="bvp_field">

@@ -39,9 +39,10 @@
 					<mat-form-field class="es_selector_search" appearance="outline" subscriptSizing="dynamic">
 						<img class="es_selector_search_icon" matPrefix alt="" [src]="SearchIcon" />
 						<input matInput type="search"
+							ngModel
 							[attr.aria-label]="SearchLabel"
 							[placeholder]="SearchLabel"
-							(input)="OnSearchInput($event)"
+							(ngModelChange)="OnSearchChanged($event)"
 						/>
 					</mat-form-field>
 					<button class="d-none d-md-inline-flex" mat-icon-button
@@ -115,14 +116,16 @@
 					<img class="es_icon" alt="" [src]="AddIcon" />
 				</button>
 			}
-			<button mat-icon-button
-				matTooltip="{{ EDIT_TEXT }}"
-				[attr.aria-label]="EDIT_TEXT"
-				[disabled]="IsOperationDisabled"
-				(click)="OnEditClicked()"
-			>
-				<img class="es_icon" alt="" [src]="EditIcon" />
-			</button>
+			@if (CanEdit) {
+				<button mat-icon-button
+					matTooltip="{{ EDIT_TEXT }}"
+					[attr.aria-label]="EDIT_TEXT"
+					[disabled]="IsOperationDisabled"
+					(click)="OnEditClicked()"
+				>
+					<img class="es_icon" alt="" [src]="EditIcon" />
+				</button>
+			}
 			@if (CanDelete) {
 				<button mat-icon-button
 					matTooltip="{{ DELETE_TEXT }}"

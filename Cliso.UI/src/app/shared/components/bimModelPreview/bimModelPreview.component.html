@@ -1,0 +1,20 @@
+<section class="bimModelPreviewDir">
+	<!-- El visor arrastra el motor 3D: se descarga aparte, solo cuando se pide la previsualización -->
+	@defer (on immediate) {
+		<app-bim-viewer
+			[Content]="Content"
+			[DownloadProgress]="Progress"
+			[Markers]="Markers"
+			[MarkersDraggable]="MarkersDraggable"
+			[SelectedMarkerId]="SelectedMarkerId"
+			(compiled)="OnCompiled($event)"
+			(markerMoved)="OnMarkerMoved($event)"
+			(markerSelected)="OnMarkerSelected($event)"
+			(pointClicked)="OnPointClicked($event)"
+		/>
+	} @placeholder {
+		<p class="bmp_empty">{{ LOADING_TEXT }}</p>
+	} @loading {
+		<p class="bmp_empty">{{ LOADING_TEXT }}</p>
+	}
+</section>

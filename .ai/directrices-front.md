@@ -155,6 +155,34 @@ regiones, una clase por fichero...) **no se aplican aquí**.
   en `ngOnDestroy`, para que ninguna llamada quede colgada. Pollings y refrescos continuos, no: solo los que el
   usuario pide. Varias llamadas a la vez: `forkJoin` dentro de una sola llamada a `AwaitRequest` (todo o nada).
   Si hay que tolerar fallos parciales, se consulta antes.
+- **Los editores y diálogos abren al instante:** pulsar su botón abre el modal sin esperar a ningún dato; el modal
+  muestra «Cargando…» (barra de progreso) mientras llegan sus listas y modelos, que se piden en `ngOnInit` sin bloquear
+  la apertura. Si el componente se carga bajo demanda (`import()`), el menú que lo abre lo precarga en segundo plano
+  al arrancar (ver `Sidebar.ngOnInit()`), para que el `import()` del clic ya esté resuelto. Los datos pesados (el IFC)
+  se piden aparte y con su propia barra de progreso.
+- **Campos de formulario con `ngModel`:** el valor de un campo se lee con `[ngModel]` y `(ngModelChange)="OnXChanged($event)"`
+  (el manejador recibe el valor ya tipado), nunca con `(event.target as HTMLInputElement).value` ni con referencias
+  de plantilla (`#campo`, `campo.value`). Con `[ngModel]` + `(ngModelChange)` (y no `[(ngModel)]`) el manejador puede marcar
+  los cambios pendientes. En una casilla numérica cuyo valor se corrige al escribir, `[ngModelOptions]` con `updateOn: 'blur'`.
+  Excepciones: el selector de ficheros (`type="file"`), que no admite `ngModel`, y los eventos de los componentes de
+  Material que ya traen su valor (`selectionChange`, `change` de un checkbox).
+- **Las piezas de una visualización son polimórficas:** quien trabaja con piezas no usa `instanceof`, ni `switch` por tipo,
+  ni propiedades que solo existan en algunos tipos. La base (`VisualizationPiece`) fija los métodos comunes (`Clone`, `GetFocusPoint`,
+  `GetLabel`, `Move`, `GetViewerMarkers`, `ToDto`) y cada tipo los implementa. Solo el panel de detalle conoce el tipo de la
+  pieza seleccionada para elegir el subpanel de ese tipo.
+- **Vocabulario: pieza y elemento (como en el back).** Una **pieza** (`Piece`) es lo que el usuario añade sobre el modelo
+  BIM y forma parte de una visualización; cada una es de un tipo (hoy, el marcador) y el catálogo de tipos es
+  `VisualizationPieceTypes`. Un **elemento** (`Element`, `BimViewerElement`) es una parte del propio modelo IFC (un muro, una
+  puerta...), a la que se puede anclar una pieza. En el código y en los textos al usuario no se mezclan: «pieza» nunca
+  nombra una parte del modelo ni «elemento» una pieza de la visualización. Los nombres de los componentes del editor
+  siguen esto (`pieceList`, `pieceDetail`, `piecePicker`, `pieceWorkspace`, con prefijo `vpl_`, `vpd_`, `vpp_`, `vpw_` y
+  claves `VPL_`, `VPD_`, `VPP_`, `VPW_`). «Elemento» a secas (en `EditorShell`, por ejemplo) puede seguir siendo un elemento de una lista genérica.
+- **Panel flotante anclado a un botón: `cdkConnectedOverlay`** (de `@angular/cdk/overlay`, ya incluido con Material), como el
+  menú de edición de la barra lateral y el panel de «Añadir pieza»: el botón lleva `cdkOverlayOrigin`, el panel va en un
+  `<ng-template cdkConnectedOverlay>` con una lista de `ConnectedPosition` (la preferida y sus alternativas si no cabe), fondo
+  transparente (`cdk-overlay-transparent-backdrop`) cuyo clic cierra el panel, y la clase `floating-panel` para el aspecto.
+  No se coloca con `position: absolute` a mano. Si el contenido del panel es de otro componente, el componente del botón lo
+  recibe con `<ng-content />` dentro de la plantilla del overlay y el que lo usa decide cuándo crearlo.
 - **Plantilla sin lógica:** ni funciones, ni getters, ni expresiones calculadas (`{{ f() }}`, `@if (a && b)`):
   se reevalúan en cada detección de cambios y devuelven referencias nuevas. La plantilla solo lee propiedades y
   constantes ya calculadas. Textos (del i18n), nombres de icono, URLs y medidas salen siempre de variables o
@@ -397,7 +425,8 @@ La guía de estilo (`Documentation/UI/[Diseño] Cliso.UI - Guía de estilo.md`) 
 - Anular el contorno de foco (blanco, 2 px, siempre visible) o dejar el estado deshabilitado sin opacidad 0,5.
 - **Solo lectura no es deshabilitado (decidido):** los campos del detalle de un editor fuera de la edición se ven
   normales, con el cursor `not-allowed`. Los de texto llevan `[appReadOnly]` (no `[readonly]`) y los selectores,
-  `[appSelectReadOnly]` en su `mat-form-field` (no `[disabled]` en el `mat-select`); las directivas están en
+  `[appSelectReadOnly]` en su `mat-form-field` (no `[disabled]` en el `mat-select`) y las casillas e interruptores,
+  `[appCheckboxReadOnly]` en el `mat-checkbox` o `mat-slide-toggle` (no `[disabled]`); las directivas están en
   `shared/directives`. `disabled`, con su opacidad 0,5, queda para lo que no se puede usar (un botón sin acción posible).
 
 **Pantallas:** su estructura (barra lateral, paneles, editores, Home) está en el apartado «Pantallas» de la guía de

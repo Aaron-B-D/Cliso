@@ -1,0 +1,27 @@
+<section class="visualizationPiecePickerDir floating-panel"
+	role="dialog"
+	[attr.aria-label]="TITLE_TEXT"
+>
+	<header class="vpp_header">
+		<h3 class="vpp_title">{{ TITLE_TEXT }}</h3>
+		<button mat-icon-button type="button"
+			matTooltip="{{ CLOSE_TEXT }}"
+			[attr.aria-label]="CLOSE_TEXT"
+			(click)="OnCloseClicked()"
+		>
+			<img class="vpp_icon" alt="" [src]="CloseIcon" />
+		</button>
+	</header>
+	<ul class="vpp_list">
+		@for (type of Types; track type.Type) {
+			<li>
+				<app-editor-card
+					[IconUrl]="type.IconUrl"
+					[Subtitle]="type.Description"
+					[Title]="type.Name"
+					(clicked)="OnTypeClicked(type.Type)"
+				/>
+			</li>
+		}
+	</ul>
+</section>

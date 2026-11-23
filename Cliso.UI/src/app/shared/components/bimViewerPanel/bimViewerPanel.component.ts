@@ -1,4 +1,5 @@
 import { Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatSliderModule } from '@angular/material/slider';
@@ -37,6 +38,7 @@ import { RequestUtils } from 'src/app/shared/utils/request.utils';
 		BimViewerComponent,
 		BimViewerLoadingPanelComponent,
 		BimViewerToolbarComponent,
+		FormsModule,
 		MatButtonModule,
 		MatMenuModule,
 		MatSliderModule,
@@ -100,7 +102,7 @@ export class BimViewerPanelComponent implements OnChanges, OnDestroy, OnInit {
 	/** Tamaño de las cuadrículas de la rejilla secundaria. */
 	public readonly GRID_SECONDARY_SIZE_TEXT: string = LanguageManager.GetText('BVP_GRID_SECONDARY_SIZE');
 
-	/** Color con el que se resalta una pieza. */
+	/** Color con el que se resalta un elemento. */
 	public readonly HIGHLIGHT_COLOR_TEXT: string = LanguageManager.GetText('BVP_HIGHLIGHT_COLOR');
 
 	/** Abrir el menú de estilos. */
@@ -118,7 +120,7 @@ export class BimViewerPanelComponent implements OnChanges, OnDestroy, OnInit {
 	/** Mostrar u ocultar la rejilla. */
 	private readonly _GRID_TEXT: string = LanguageManager.GetText('BVP_GRID');
 
-	/** Activar o desactivar el resaltado de piezas al hacer clic. */
+	/** Activar o desactivar el resaltado de elementos al hacer clic. */
 	private readonly _HIGHLIGHT_TEXT: string = LanguageManager.GetText('BVP_HIGHLIGHT');
 
 	/** Volver con la cámara a la vista inicial. */
@@ -146,7 +148,7 @@ export class BimViewerPanelComponent implements OnChanges, OnDestroy, OnInit {
 	/** Tamaño de las cuadrículas de la rejilla secundaria. */
 	public GridSecondarySize: number = 0;
 
-	/** Color con el que se resalta una pieza en hexadecimal, tal y como lo pinta el selector de color. */
+	/** Color con el que se resalta un elemento en hexadecimal, tal y como lo pinta el selector de color. */
 	public HighlightColor: string = STRING_UNDEFINED;
 
 	/** Estado del panel de carga. */

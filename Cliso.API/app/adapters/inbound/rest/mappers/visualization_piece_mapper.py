@@ -32,6 +32,19 @@ class VisualizationPieceMapper:
 			y=piece.y,
 			z=piece.z,
 			color=piece.color,
+			anchor_id=piece.anchor_id,
+			description=piece.description,
+			dim_when_idle=piece.dim_when_idle,
+			highlight_on_select=piece.highlight_on_select,
+			icon=piece.icon,
+			link=piece.link,
+			link_target=piece.link_target,
+			opacity=piece.opacity,
+			size=piece.size,
+			text_color=piece.text_color,
+			title=piece.title,
+			title_position=piece.title_position,
+			visible_through_model=piece.visible_through_model,
 		);
 
 	@staticmethod
@@ -51,6 +64,19 @@ class VisualizationPieceMapper:
 			y=dto.y,
 			z=dto.z,
 			color=dto.color,
+			anchor_id=dto.anchor_id,
+			description=dto.description,
+			dim_when_idle=dto.dim_when_idle,
+			highlight_on_select=dto.highlight_on_select,
+			icon=dto.icon,
+			link=dto.link,
+			link_target=dto.link_target,
+			opacity=dto.opacity,
+			size=dto.size,
+			text_color=dto.text_color,
+			title=dto.title,
+			title_position=dto.title_position,
+			visible_through_model=dto.visible_through_model,
 		);
 
 	# endregion PUBLIC STATIC METHODS

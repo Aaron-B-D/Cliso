@@ -33,6 +33,42 @@
 	position: absolute;
 }
 
+// Información emergente de un marcador, junto al puntero
+.bv_tooltip {
+	background-color: var(--color-surface);
+	border: var(--border);
+	border-radius: var(--radius-field);
+	display: flex;
+	flex-direction: column;
+	gap: var(--space-2);
+	padding: var(--space-3);
+	position: absolute;
+	z-index: 1;
+}
+
+.bv_tooltip_description {
+	color: var(--color-text);
+	font-size: var(--font-size-small);
+	margin: 0;
+	overflow-wrap: anywhere;
+	white-space: pre-line;
+}
+
+.bv_tooltip_link {
+	color: var(--color-text);
+	font-size: var(--font-size-small);
+	overflow: hidden; // Una dirección larga se recorta con puntos suspensivos
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.bv_tooltip_title {
+	color: var(--color-text);
+	font-size: var(--font-size-base);
+	margin: 0;
+	overflow-wrap: anywhere;
+}
+
 .bv_overlay_progress {
 	max-width: 20rem;
 	width: 100%;

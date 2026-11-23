@@ -1,4 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -34,6 +35,7 @@ import { StringUtils } from 'src/app/shared/utils/string.utils';
 	selector: 'app-home',
 	imports: [
 		BimViewerPanelComponent,
+		FormsModule,
 		HomeCardComponent,
 		MatButtonModule,
 		MatFormFieldModule,
@@ -211,7 +213,7 @@ export class HomeComponent implements OnDestroy, OnInit {
 		if (model.FileName === STRING_UNDEFINED) {
 			this._Notification.Send(this._NO_FILE_TEXT, NotificationLevel.WARNING);
 		} else if (await this._Confirm.Show(StringUtils.Format(this._OPEN_CONFIRM_TEXT, [model.Name]), ConfirmDialogType.QUESTION)) {
-			// Un modelo abierto desde la lista arranca con el resaltado de piezas activado, a diferencia del aspecto por defecto
+			// Un modelo abierto desde la lista arranca con el resaltado de elementos activado, a diferencia del aspecto por defecto
 			const style: BimViewerStyle = new BimViewerStyle();
 
 			style.HighlightEnabled = true;

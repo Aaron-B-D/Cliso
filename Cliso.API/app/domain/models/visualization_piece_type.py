@@ -7,6 +7,6 @@ class VisualizationPieceType(StrEnum):
 	# region PUBLIC CONSTANTS
 
 	MARKER = "MARKER";
-	"""Marcador: un círculo de un color en una coordenada del modelo BIM."""
+	"""Marcador: un icono de un color, con título, en una coordenada del modelo BIM."""
 
 	# endregion PUBLIC CONSTANTS

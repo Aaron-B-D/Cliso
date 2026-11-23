@@ -8,10 +8,10 @@
 				<mat-form-field class="hom_search" appearance="outline" subscriptSizing="dynamic">
 					<img matPrefix class="hom_search_icon" [src]="SearchIcon" alt="" />
 					<input matInput type="search"
-						#search
+						ngModel
 						[attr.aria-label]="SEARCH_PLACEHOLDER"
 						[placeholder]="SEARCH_PLACEHOLDER"
-						(input)="OnSearchChanged(search.value)"
+						(ngModelChange)="OnSearchChanged($event)"
 					/>
 				</mat-form-field>
 			</search>

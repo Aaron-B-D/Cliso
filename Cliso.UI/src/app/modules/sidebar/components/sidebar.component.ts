@@ -10,6 +10,7 @@ import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { ApplicationSettingsEditorComponent } from 'src/app/modules/applicationSettingsEditor/components/applicationSettingsEditor.component';
 import { BimModelEditorComponent } from 'src/app/modules/bimModelEditor/components/bimModelEditor.component';
 import { UserEditorComponent } from 'src/app/modules/userEditor/components/userEditor.component';
+import { VisualizationEditorComponent } from 'src/app/modules/visualizationEditor/components/visualizationEditor.component';
 import { IconName } from 'src/app/shared/definitions/icons.definitions';
 import { NotificationLevel } from 'src/app/shared/definitions/notifications.definitions';
 import { AppRoute } from 'src/app/shared/definitions/routes.definitions';
@@ -48,7 +49,7 @@ export class SidebarComponent implements OnDestroy, OnInit {
 	/** Separación, en píxeles, entre el botón de edición y su panel. */
 	public readonly EDITION_PANEL_GAP: number = 0;
 
-	/** Milisegundos que se espera, tras mostrar la barra, para descargar el editor en segundo plano. */
+	/** Milisegundos que se espera, tras mostrar la barra, para descargar los editores en segundo plano. */
 	public readonly PRELOAD_DELAY: number = 1000;
 
 	/** Ancho máximo del editor: ocupa toda la pantalla en móvil. */
@@ -86,6 +87,9 @@ export class SidebarComponent implements OnDestroy, OnInit {
 	/** Texto de la entrada de usuarios. */
 	public readonly USERS_TEXT: string = LanguageManager.GetText('WEB_USERS');
 
+	/** Texto de la entrada de visualizaciones. */
+	public readonly VISUALIZATIONS_TEXT: string = LanguageManager.GetText('WEB_VISUALIZATIONS');
+
 	//#endregion LANGUAGE TEXTS
 
 	//#endregion PUBLIC CONSTANTS
@@ -101,9 +105,13 @@ export class SidebarComponent implements OnDestroy, OnInit {
 	/** `true` si el usuario puede abrir el editor de los usuarios. */
 	public CanEditUsers: boolean = LoggedUserManager.HasPermission(Permission.USERS_MANAGE);
 
-	// Se calcula con las tres anteriores, por eso va después de ellas
+	/** `true` si el usuario puede abrir el editor de las visualizaciones. */
+	public CanEditVisualizations: boolean = LoggedUserManager.HasPermission(Permission.VISUALIZATIONS_CREATE);
+
+	// Se calcula con las anteriores, por eso va después de ellas
 	/** `true` si el usuario puede abrir alguno de los editores: si no, el panel de edición no se muestra. */
-	public CanEdit: boolean = this.CanEditBimModels || this.CanEditSettings || this.CanEditUsers;
+	public CanEdit: boolean =
+		this.CanEditBimModels || this.CanEditSettings || this.CanEditUsers || this.CanEditVisualizations;
 
 	/** Icono del botón del panel de edición. */
 	public EditionIcon: string = IconsUtils.GetUrl(IconName.EDIT);
@@ -198,10 +206,13 @@ export class SidebarComponent implements OnDestroy, OnInit {
 	}
 
 	public ngOnInit(): void {
-		// Con la barra ya en pantalla, se descarga el editor (ligero: el visor 3D va aparte) para que abra sin espera al pulsarlo
+		// Con la barra ya en pantalla, se descargan los editores (ligeros: el visor 3D va aparte) para que abran sin espera al pulsarlos
 		this._PreloadTimeout = window.setTimeout((): void => {
 			import('src/app/modules/bimModelEditor/components/bimModelEditor.component').catch((error: unknown): void => {
-				console.warn(`Sidebar.ngOnInit() => no se ha podido precargar el editor: ${ErrorUtils.GetMessage(error)}`);
+				console.warn(`Sidebar.ngOnInit() => no se ha podido precargar el editor de modelos: ${ErrorUtils.GetMessage(error)}`);
+			});
+			import('src/app/modules/visualizationEditor/components/visualizationEditor.component').catch((error: unknown): void => {
+				console.warn(`Sidebar.ngOnInit() => no se ha podido precargar el editor de visualizaciones: ${ErrorUtils.GetMessage(error)}`);
 			});
 		}, this.PRELOAD_DELAY);
 	}
@@ -327,6 +338,31 @@ export class SidebarComponent implements OnDestroy, OnInit {
 		} catch (error) {
 			this._Notification.Send(this.EDITOR_ERROR_TEXT, NotificationLevel.DANGER);
 			console.warn(`Sidebar.OnUsersClicked() => ${ErrorUtils.GetMessage(error)}`);
+		}
+	}
+
+	public async OnVisualizationsClicked(): Promise<void> {
+		this.IsEditionPanelOpen = false;
+
+		try {
+			// El editor ya se precargó al arrancar la barra: el import se resuelve al momento
+			const editorClass: Type<VisualizationEditorComponent> =
+				await import('src/app/modules/visualizationEditor/components/visualizationEditor.component').then(
+					(editorModule: { VisualizationEditorComponent: Type<VisualizationEditorComponent> }): Type<VisualizationEditorComponent> =>
+						editorModule.VisualizationEditorComponent
+				);
+
+			// El botón del menú conserva el foco mientras el diálogo oculta la página a los lectores de pantalla: se le quita para que el foco pase al diálogo
+			(document.activeElement as HTMLElement).blur();
+
+			this._Dialog.open(editorClass, {
+				ariaLabel: this.VISUALIZATIONS_TEXT,
+				maxHeight: this.EDITOR_MAX_HEIGHT,
+				maxWidth: this.EDITOR_MAX_WIDTH
+			});
+		} catch (error) {
+			this._Notification.Send(this.EDITOR_ERROR_TEXT, NotificationLevel.DANGER);
+			console.warn(`Sidebar.OnVisualizationsClicked() => ${ErrorUtils.GetMessage(error)}`);
 		}
 	}
 

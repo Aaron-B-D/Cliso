@@ -3,7 +3,7 @@ import { CheckUtils } from 'src/app/shared/utils/check.utils';
 
 /**
  * Aspecto del visor 3D: colores, rejilla (tamaño de las cuadrículas primaria y secundaria, color y si se pinta) y si se
- * resaltan las piezas al hacer clic en ellas.
+ * resaltan los elementos al hacer clic en ellos.
  */
 export class BimViewerStyle {
 	//#region PRIVATE CONSTANTS
@@ -42,10 +42,10 @@ export class BimViewerStyle {
 	/** `true` si se pinta la rejilla. */
 	public GridVisible: boolean;
 
-	/** Color con el que se resalta una pieza. */
+	/** Color con el que se resalta un elemento. */
 	public HighlightColor: Color;
 
-	/** `true` si se resaltan las piezas al hacer clic en ellas. */
+	/** `true` si se resaltan los elementos al hacer clic en ellos. */
 	public HighlightEnabled: boolean;
 
 	//#endregion PUBLIC PROPERTIES
@@ -59,8 +59,8 @@ export class BimViewerStyle {
 	 * @param gridPrimarySize Tamaño de las cuadrículas de la rejilla primaria.
 	 * @param gridSecondarySize Tamaño de las cuadrículas de la rejilla secundaria.
 	 * @param gridVisible `true` si se pinta la rejilla.
-	 * @param highlightColor Color con el que se resalta una pieza.
-	 * @param highlightEnabled `true` si se resaltan las piezas al hacer clic en ellas.
+	 * @param highlightColor Color con el que se resalta un elemento.
+	 * @param highlightEnabled `true` si se resaltan los elementos al hacer clic en ellos.
 	 */
 	constructor(
 		backgroundColor: Color = new Color(BimViewerStyle._DEFAULT_BACKGROUND_COLOR),

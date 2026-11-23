@@ -1,4 +1,5 @@
 import { Component, EventEmitter, Input, OnDestroy, Output } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 
@@ -8,7 +9,7 @@ import { ReadOnlyDirective } from 'src/app/shared/directives/readOnly.directive'
 /** Panel con el que se edita el valor de un parámetro de texto libre, sin ninguna comprobación. */
 @Component({
 	selector: 'app-application-settings-editor-text-panel',
-	imports: [MatFormFieldModule, MatInputModule, ReadOnlyDirective],
+	imports: [FormsModule, MatFormFieldModule, MatInputModule, ReadOnlyDirective],
 	templateUrl: './textPanel.component.html',
 	styleUrl: './textPanel.component.scss'
 })
@@ -47,8 +48,8 @@ export class ApplicationSettingsEditorTextPanelComponent implements OnDestroy {
 
 	//#region SUBSCRIBERS
 
-	public OnInput(event: Event): void {
-		this.emitValueChanged((event.target as HTMLInputElement).value);
+	public OnValueChanged(value: string): void {
+		this.emitValueChanged(value);
 	}
 
 	//#endregion SUBSCRIBERS

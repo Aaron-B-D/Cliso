@@ -753,7 +753,7 @@
         <mxCell id="v-tab-general-ink" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=none;" value="" vertex="1">
           <mxGeometry x="424" y="170" width="120" height="3" as="geometry" />
         </mxCell>
-        <mxCell id="v-tab-preview" parent="1" style="text;html=1;align=center;verticalAlign=middle;fontSize=14;fontColor=#71767B;" value="Previsualización" vertex="1">
+        <mxCell id="v-tab-preview" parent="1" style="text;html=1;align=center;verticalAlign=middle;fontSize=14;fontColor=#71767B;" value="Piezas" vertex="1">
           <mxGeometry x="544" y="125" width="140" height="45" as="geometry" />
         </mxCell>
         <mxCell id="v-tabs-line" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#2F3336;strokeColor=none;" value="" vertex="1">
@@ -813,7 +813,7 @@
       </root>
     </mxGraphModel>
   </diagram>
-  <diagram name="Visualizaciones - Previsualización" id="editor-visualizaciones-preview">
+  <diagram name="Visualizaciones - Piezas" id="editor-visualizaciones-preview">
     <mxGraphModel background="#000000" dx="1178" dy="654" grid="1" gridSize="4" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1500" pageHeight="827" math="0" shadow="0">
       <root>
         <mxCell id="0" />
@@ -916,7 +916,7 @@
         <mxCell id="vp-tab-general" parent="1" style="text;html=1;align=center;verticalAlign=middle;fontSize=14;fontColor=#71767B;" value="General" vertex="1">
           <mxGeometry x="424" y="125" width="120" height="45" as="geometry" />
         </mxCell>
-        <mxCell id="vp-tab-preview" parent="1" style="text;html=1;align=center;verticalAlign=middle;fontSize=14;fontStyle=1;fontColor=#FFFFFF;" value="Previsualización" vertex="1">
+        <mxCell id="vp-tab-preview" parent="1" style="text;html=1;align=center;verticalAlign=middle;fontSize=14;fontStyle=1;fontColor=#FFFFFF;" value="Piezas" vertex="1">
           <mxGeometry x="544" y="125" width="140" height="45" as="geometry" />
         </mxCell>
         <mxCell id="vp-tab-preview-ink" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=none;" value="" vertex="1">
@@ -926,12 +926,12 @@
           <mxGeometry x="408" y="173" width="632" height="1" as="geometry" />
         </mxCell>
 
-        <!-- Detalle, pestaña Previsualización: barra de herramientas -->
+        <!-- Detalle, pestaña Piezas: barra de herramientas -->
         <mxCell id="vp-btn-add-marker" parent="1" style="rounded=1;arcSize=50;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#2F3336;fontSize=13;fontStyle=1;fontColor=#FFFFFF;" value="+ Marcador" vertex="1">
           <mxGeometry x="424" y="189" width="108" height="32" as="geometry" />
         </mxCell>
 
-        <!-- Detalle, pestaña Previsualización: visor con marcadores -->
+        <!-- Detalle, pestaña Piezas: visor con marcadores -->
         <mxCell id="vp-viewer" parent="1" style="rounded=1;arcSize=8;absoluteArcSize=1;whiteSpace=wrap;html=1;fillColor=#000000;strokeColor=#2F3336;" value="" vertex="1">
           <mxGeometry x="424" y="229" width="600" height="303" as="geometry" />
         </mxCell>
@@ -954,7 +954,7 @@
           <mxGeometry x="574" y="492" width="300" height="32" as="geometry" />
         </mxCell>
 
-        <!-- Detalle, pestaña Previsualización: lista de marcadores -->
+        <!-- Detalle, pestaña Piezas: lista de piezas -->
         <mxCell id="vp-markers-title" parent="1" style="text;html=1;align=left;verticalAlign=middle;fontSize=13;fontStyle=1;fontColor=#E7E9EA;" value="Marcadores (3)" vertex="1">
           <mxGeometry x="424" y="540" width="200" height="20" as="geometry" />
         </mxCell>

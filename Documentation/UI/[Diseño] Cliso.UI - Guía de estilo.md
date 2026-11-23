@@ -123,7 +123,10 @@ Estructura funcional de la aplicación. Los diagramas `.drawio` de esta carpeta 
 ### Editores (diagrama «Editor», mismo esquema para los tres)
 
 - Modal (`MatDialog`) redimensionable, con maximizar/restaurar y cerrar; el título y las fichas dependen del tipo.
-- Izquierda, **selector**: buscador que filtra las fichas y fichas; la seleccionada va resaltada. Un **splitter**
+- Izquierda, **selector**: buscador que filtra las fichas y fichas; la seleccionada va resaltada. Todas las fichas son
+  el mismo componente (`EditorCardComponent`): icono a la izquierda, título, subtítulo y, en móvil, la flecha `›` a la
+  derecha. En *Modelos* el icono es el del modelo; en *Visualizaciones* distingue las propias (icono de usuario) de las
+  de otro usuario (globo). Un **splitter**
   arrastrable (con ancho mínimo y máximo, también con las flechas del teclado) cambia su ancho y un botón
   `«` lo pliega a una franja con el nombre del tipo; `»` lo restaura con el ancho anterior.
 - Derecha, **detalle** en pestañas (`mat-tab-group`) si tiene más de una, de solo lectura mientras no se edita.
@@ -134,8 +137,33 @@ Estructura funcional de la aplicación. Los diagramas `.drawio` de esta carpeta 
 - **Cambios sin guardar:** cada editor lleva la marca de «sucio». Si la hay, cerrar el modal, cambiar de ficha,
   añadir, volver a la lista o descartar piden confirmación antes de perder los cambios.
 - Pestañas: *Usuarios* → General y Permisos (hoy solo General, sin pestañas: los permisos están pendientes); *Modelos* → General (nombre, descripción, observaciones y carga del fichero IFC
-  (`.ifc`) arrastrando o con clic, que se sube al guardar) y Previsualización (visor 3D del IFC); *Visualizaciones* → General (modelo,
-  nombre, descripción, observaciones) y Previsualización (visor con marcadores numerados, *+ Marcador* y su lista).
+  (`.ifc`) arrastrando o con clic, que se sube al guardar) y Previsualización (visor 3D del IFC); *Visualizaciones* → General (modelo
+  BIM, que solo se elige al añadir; nombre, descripción, observaciones y casilla «Visible para otros usuarios») y
+  Piezas (diseño «Editor de visualizaciones v2»: el visor 3D ocupa todo el espacio y, a su derecha, hay un panel lateral
+  con la lista de piezas y, debajo, el detalle de la pieza seleccionada; el panel arranca plegado y se pliega y despliega
+  con un botón sobre la esquina del visor; en móvil, el visor arriba y el panel debajo).
+  - **Pieza y elemento:** una *pieza* es lo que se añade sobre el modelo y forma parte de la visualización (hoy solo
+    marcadores); un *elemento* es una parte del propio modelo IFC (un muro, una puerta...) a la que se ancla una pieza.
+  - **Las piezas son de cualquier tipo.** Cada tipo se declara en `VisualizationPieceTypes` (nombre, descripción e icono) y
+    tiene su propio panel de detalle: `VisualizationPieceDetailComponent` pone como título el nombre del tipo de la pieza
+    seleccionada (nunca un texto fijo) y delega en el panel del tipo (`VisualizationMarkerPanelComponent` para el
+    marcador). Un tipo nuevo se añade con su declaración, su panel y una rama en el detalle.
+  - *Añadir pieza* abre un panel flotante anclado al botón (a su izquierda, sobre el visor) con una ficha común (icono,
+    tipo, qué es y para qué sirve) por tipo; elegir uno cierra el panel y, si la pieza se coloca en el modelo, el
+    siguiente clic la crea.
+  - La cabecera común del detalle lleva el botón *Ir a la pieza* (una diana) que centra la vista en la pieza
+    seleccionada, y *Quitar pieza*.
+  - **Marcador:** su panel tiene cuatro secciones: *Contenido* (título, descripción, enlace y dónde se abre: pestaña
+    actual o ventana nueva), *Aspecto* (icono, tamaño en número, color, opacidad, color y posición del título,
+    visible a través del modelo), *Comportamiento* (atenuar si el ratón no está encima y resaltar el elemento anclado al
+    pulsar) y *Posición y anclaje* (coordenadas X/Y/Z y anclaje). En el visor, al pasar el ratón aparece una
+    información emergente con el título, la descripción y el enlace, y los marcadores muy cercanos en pantalla se
+    agrupan en un círculo con su número (pulsarlo acerca la cámara). Se selecciona
+    en el visor o en la lista y, en edición, se arrastra sobre el modelo (uno anclado se reancla al elemento donde se
+    suelta; uno libre sigue libre). El anclaje es un desplegable con buscador de los elementos del modelo (nombre · id);
+    elegir uno ancla el marcador y *Liberar* quita el ancla. Un marcador nuevo nace anclado al elemento donde se coloca.
+- **Tamaño de los editores:** el modal se abre con un ancho de `min(80rem, 95vw)` desde `md` y se puede
+  redimensionar o maximizar. El de visualizaciones se abre más alto (`--es-height`).
 
 ### Parámetros (diagrama «Parámetros»)
 

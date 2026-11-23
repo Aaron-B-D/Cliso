@@ -1,8 +1,8 @@
 <mat-form-field class="textPanelDir" appearance="outline" subscriptSizing="dynamic">
 	<mat-label>{{ Label }}</mat-label>
 	<input matInput
-		[value]="Value"
 		[appReadOnly]="IsReadOnly"
-		(input)="OnInput($event)"
+		[ngModel]="Value"
+		(ngModelChange)="OnValueChanged($event)"
 	/>
 </mat-form-field>

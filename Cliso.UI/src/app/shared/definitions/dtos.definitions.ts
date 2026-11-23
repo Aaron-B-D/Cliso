@@ -28,6 +28,29 @@ type BimModelDto = {
 	file_size: number | null;
 };
 
+/** Pieza de marcador de una visualización (un icono de un color, con título, en una coordenada del modelo BIM) tal y como la envía y la recibe el API. */
+type BimModelVisualizationMarkerPieceDto = {
+	anchor_id: number | null;
+	color: string;
+	description: string;
+	dim_when_idle: boolean;
+	highlight_on_select: boolean;
+	icon: string;
+	id: number | null;
+	link: string;
+	link_target: string;
+	opacity: number;
+	size: number;
+	text_color: string;
+	title: string;
+	title_position: string;
+	type: string;
+	visible_through_model: boolean;
+	x: number;
+	y: number;
+	z: number;
+};
+
 /** Datos que se envían al API para iniciar sesión. */
 type LoginDto = {
 	nick: string;
@@ -70,6 +93,18 @@ type UserModificationDto = {
 	password: string | null;
 };
 
+/** Visualización tal y como la envía y la recibe el API. `pieces` es `null` si no se han pedido sus piezas. */
+type VisualizationDto = {
+	id: number | null;
+	user_id: number | null;
+	bim_model_id: number;
+	name: string;
+	description: string;
+	observations: string;
+	is_public: boolean;
+	pieces: BimModelVisualizationMarkerPieceDto[] | null;
+};
+
 //#endregion TYPES
 
 export {
@@ -77,9 +112,11 @@ export {
 	type ApplicationParameterModificationDto,
 	type ApplicationParametersDto,
 	type BimModelDto,
+	type BimModelVisualizationMarkerPieceDto,
 	type LoginDto,
 	type SessionDto,
 	type UserCreationDto,
 	type UserDto,
-	type UserModificationDto
+	type UserModificationDto,
+	type VisualizationDto
 };

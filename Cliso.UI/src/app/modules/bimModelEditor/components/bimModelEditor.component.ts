@@ -1,4 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatDialogRef } from '@angular/material/dialog';
@@ -6,6 +7,7 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatTabsModule } from '@angular/material/tabs';
 
 import { BimViewerComponent } from 'src/app/shared/components/bimViewer/bimViewer.component';
+import { EditorCardComponent } from 'src/app/shared/components/editorCard/editorCard.component';
 import { EditorShellComponent } from 'src/app/shared/components/editorShell/editorShell.component';
 import { ID_NUMERIC_UNDEFINED, STRING_UNDEFINED } from 'src/app/shared/definitions/constants.definitions';
 import { BimModelDto } from 'src/app/shared/definitions/dtos.definitions';
@@ -41,7 +43,9 @@ type BimModelListItem = {
 	selector: 'app-bim-model-editor',
 	imports: [
 		BimViewerComponent,
+		EditorCardComponent,
 		EditorShellComponent,
+		FormsModule,
 		MatFormFieldModule,
 		MatInputModule,
 		MatProgressBarModule,
@@ -66,13 +70,13 @@ export class BimModelEditorComponent implements OnDestroy, OnInit {
 	public readonly DROP_FILE_TEXT: string = LanguageManager.GetText('BME_DROP_FILE');
 
 	/** Título de la pestaña de datos generales. */
-	public readonly GENERAL_TEXT: string = LanguageManager.GetText('BME_GENERAL');
+	public readonly GENERAL_TEXT: string = LanguageManager.GetText('WEB_GENERAL');
 
 	/** Etiqueta del nombre. */
 	public readonly NAME_TEXT: string = LanguageManager.GetText('WEB_NAME');
 
 	/** Aviso de que el nombre es obligatorio. */
-	public readonly NAME_REQUIRED_TEXT: string = LanguageManager.GetText('BME_NAME_REQUIRED');
+	public readonly NAME_REQUIRED_TEXT: string = LanguageManager.GetText('WEB_NAME_REQUIRED');
 
 	/** Texto mientras se carga la lista o el visor. */
 	public readonly LOADING_TEXT: string = LanguageManager.GetText('WEB_LOADING');
@@ -87,7 +91,7 @@ export class BimModelEditorComponent implements OnDestroy, OnInit {
 	public readonly OBSERVATIONS_TEXT: string = LanguageManager.GetText('WEB_OBSERVATIONS');
 
 	/** Título de la pestaña de previsualización. */
-	public readonly PREVIEW_TEXT: string = LanguageManager.GetText('BME_PREVIEW');
+	public readonly PREVIEW_TEXT: string = LanguageManager.GetText('WEB_PREVIEW');
 
 	/** Texto de ayuda del buscador. */
 	public readonly SEARCH_TEXT: string = LanguageManager.GetText('BME_SEARCH');
@@ -208,8 +212,8 @@ export class BimModelEditorComponent implements OnDestroy, OnInit {
 	/** Mensaje de la subida con su porcentaje. */
 	public UploadText: string = STRING_UNDEFINED;
 
-	/** Flecha de las fichas, que indica en móvil que se abren. */
-	public ArrowIcon: string = IconsUtils.GetUrl(IconName.CHEVRON_RIGHT);
+	/** Icono de las fichas de la lista. */
+	public ModelIcon: string = IconsUtils.GetUrl(IconName.DEPLOYED_CODE);
 
 	//#endregion PUBLIC PROPERTIES
 
@@ -326,8 +330,8 @@ export class BimModelEditorComponent implements OnDestroy, OnInit {
 		}
 	}
 
-	public OnDescriptionInput(event: Event): void {
-		this.Draft.Description = (event.target as HTMLTextAreaElement).value;
+	public OnDescriptionChanged(description: string): void {
+		this.Draft.Description = description;
 		this._IsDirty = true;
 	}
 
@@ -388,14 +392,14 @@ export class BimModelEditorComponent implements OnDestroy, OnInit {
 		input.value = STRING_UNDEFINED;
 	}
 
-	public OnNameInput(event: Event): void {
-		this.Draft.Name = (event.target as HTMLInputElement).value;
+	public OnNameChanged(name: string): void {
+		this.Draft.Name = name;
 		this.NameError = false;
 		this._IsDirty = true;
 	}
 
-	public OnObservationsInput(event: Event): void {
-		this.Draft.Observations = (event.target as HTMLTextAreaElement).value;
+	public OnObservationsChanged(observations: string): void {
+		this.Draft.Observations = observations;
 		this._IsDirty = true;
 	}
 

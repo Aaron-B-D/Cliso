@@ -1,5 +1,6 @@
 import { HttpErrorResponse, HttpStatusCode } from '@angular/common/http';
 import { Component, OnDestroy, OnInit } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -51,6 +52,7 @@ type UserRoleOption = {
 	selector: 'app-user-editor',
 	imports: [
 		EditorShellComponent,
+		FormsModule,
 		MatButtonModule,
 		MatFormFieldModule,
 		MatInputModule,
@@ -407,14 +409,14 @@ export class UserEditorComponent implements OnDestroy, OnInit {
 		this.setEditing(true);
 	}
 
-	public OnNameInput(event: Event): void {
-		this.Draft.Name = (event.target as HTMLInputElement).value;
+	public OnNameChanged(name: string): void {
+		this.Draft.Name = name;
 		this.NameError = false;
 		this._IsDirty = true;
 	}
 
-	public OnNickInput(event: Event): void {
-		this.Draft.Nick = (event.target as HTMLInputElement).value;
+	public OnNickChanged(nick: string): void {
+		this.Draft.Nick = nick;
 		this.NickError = false;
 		this._IsDirty = true;
 	}
@@ -464,8 +466,8 @@ export class UserEditorComponent implements OnDestroy, OnInit {
 		this.refreshList();
 	}
 
-	public OnSurnameInput(event: Event): void {
-		this.Draft.Surname = (event.target as HTMLInputElement).value;
+	public OnSurnameChanged(surname: string): void {
+		this.Draft.Surname = surname;
 		this.SurnameError = false;
 		this._IsDirty = true;
 	}

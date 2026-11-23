@@ -25,17 +25,13 @@
 			<ul class="bme_list">
 				@for (item of ListItems; track item.Model.Id) {
 					<li>
-						<button class="bme_item"
-							type="button"
-							[class.bme_item-selected]="item.IsSelected"
-							(click)="OnModelSelected(item.Model)"
-						>
-							<span class="bme_item_text">
-								<span class="bme_item_name">{{ item.Model.Name }}</span>
-								<span class="bme_item_file">{{ item.FileText }}</span>
-							</span>
-							<img class="bme_item_arrow d-md-none" alt="" [src]="ArrowIcon" />
-						</button>
+						<app-editor-card
+							[IconUrl]="ModelIcon"
+							[IsSelected]="item.IsSelected"
+							[Subtitle]="item.FileText"
+							[Title]="item.Model.Name"
+							(clicked)="OnModelSelected(item.Model)"
+						/>
 					</li>
 				}
 			</ul>
@@ -54,9 +50,9 @@
 						<mat-form-field appearance="outline" subscriptSizing="dynamic">
 							<mat-label>{{ NAME_TEXT }}</mat-label>
 							<input matInput
-								[value]="Draft.Name"
 								[appReadOnly]="IsReadOnly"
-								(input)="OnNameInput($event)"
+								[ngModel]="Draft.Name"
+								(ngModelChange)="OnNameChanged($event)"
 							/>
 						</mat-form-field>
 						@if (NameError) {
@@ -65,17 +61,17 @@
 						<mat-form-field appearance="outline" subscriptSizing="dynamic">
 							<mat-label>{{ DESCRIPTION_TEXT }}</mat-label>
 							<textarea class="bme_description" matInput
-								[value]="Draft.Description"
 								[appReadOnly]="IsReadOnly"
-								(input)="OnDescriptionInput($event)"
+								[ngModel]="Draft.Description"
+								(ngModelChange)="OnDescriptionChanged($event)"
 							></textarea>
 						</mat-form-field>
 						<mat-form-field appearance="outline" subscriptSizing="dynamic">
 							<mat-label>{{ OBSERVATIONS_TEXT }}</mat-label>
 							<textarea class="bme_observations" matInput
-								[value]="Draft.Observations"
 								[appReadOnly]="IsReadOnly"
-								(input)="OnObservationsInput($event)"
+								[ngModel]="Draft.Observations"
+								(ngModelChange)="OnObservationsChanged($event)"
 							></textarea>
 						</mat-form-field>
 						@if (IsEditing) {

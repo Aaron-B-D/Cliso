@@ -164,7 +164,7 @@
 		min-height: 20rem; // Por debajo no caben el pie y el detalle
 		min-width: 30rem; // Por debajo no caben la lista y el detalle
 		resize: both; // El usuario cambia el tamaño de la ventana arrastrando la esquina
-		width: min(60rem, 92vw);
+		width: min(80rem, 95vw);
 	}
 
 	// Al arrastrar la esquina el navegador escribe el tamaño en el atributo `style`, que gana a cualquier regla: sin `!important`

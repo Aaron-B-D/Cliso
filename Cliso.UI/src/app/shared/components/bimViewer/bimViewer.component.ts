@@ -13,11 +13,15 @@ import {
 } from '@angular/core';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 
-import { BIM_VIEWER_MAX_PROGRESS, IBimViewerAccess } from 'src/app/shared/definitions/bimViewer.definitions';
+import { BIM_VIEWER_MAX_PROGRESS, BimViewerMarkerLinkTarget, IBimViewerAccess } from 'src/app/shared/definitions/bimViewer.definitions';
+import { BimViewerElement } from 'src/app/shared/models/bimViewer/bimViewerElement.models';
+import { BimViewerHit } from 'src/app/shared/models/bimViewer/bimViewerHit.models';
 import { BimViewerPoint } from 'src/app/shared/models/bimViewer/bimViewerPoint.models';
+import { BimViewerMarker } from 'src/app/shared/models/bimViewer/bimViewerMarker.models';
 import { BimViewerStyle } from 'src/app/shared/models/bimViewer/bimViewerStyle.models';
 import { BimViewerView } from 'src/app/shared/models/bimViewer/bimViewerView.models';
 import { BimViewerManager } from 'src/app/shared/utils/bimViewer/bimViewerManager.utils';
+import { STRING_UNDEFINED } from 'src/app/shared/definitions/constants.definitions';
 import { CheckUtils } from 'src/app/shared/utils/check.utils';
 import { ErrorUtils } from 'src/app/shared/utils/error.utils';
 import { LanguageManager } from 'src/app/shared/utils/language/languageManager.utils';
@@ -39,6 +43,32 @@ export class BimViewerCompiledEvent {
 	 */
 	constructor(access: IBimViewerAccess) {
 		this.Access = access;
+	}
+
+	//#endregion CONSTRUCTOR
+}
+
+/** Se ha soltado un marcador tras arrastrarlo: trae su identificador y lo alcanzado en el modelo bajo el puntero. */
+export class BimViewerMarkerMovedEvent {
+	//#region PUBLIC PROPERTIES
+
+	/** Punto del modelo y elemento donde se ha soltado el marcador. */
+	public readonly Hit: BimViewerHit;
+
+	/** Identificador del marcador movido. */
+	public readonly MarkerId: number;
+
+	//#endregion PUBLIC PROPERTIES
+
+	//#region CONSTRUCTOR
+
+	/**
+	 * @param markerId Identificador del marcador movido.
+	 * @param hit Punto del modelo y elemento donde se ha soltado.
+	 */
+	constructor(markerId: number, hit: BimViewerHit) {
+		this.Hit = hit;
+		this.MarkerId = markerId;
 	}
 
 	//#endregion CONSTRUCTOR
@@ -72,8 +102,23 @@ export class BimViewerComponent implements AfterViewInit, OnChanges, OnDestroy {
 	/** Porcentaje de la descarga del modelo, de 0 a 100. Con `null` no hay ninguna descarga en curso. */
 	@Input() public DownloadProgress: number | null = null;
 
-	/** Se emite con el punto del modelo (en coordenadas del mundo) sobre el que se hace clic. */
-	@Output() public pointClicked: EventEmitter<BimViewerPoint> = new EventEmitter<BimViewerPoint>();
+	/** Se emite al soltar un marcador tras arrastrarlo. */
+	@Output() public markerMoved: EventEmitter<BimViewerMarkerMovedEvent> = new EventEmitter<BimViewerMarkerMovedEvent>();
+
+	/** Se emite con el identificador de un marcador al pulsar sobre él. */
+	@Output() public markerSelected: EventEmitter<number> = new EventEmitter<number>();
+
+	/** Marcadores que se pintan sobre el modelo. */
+	@Input() public Markers: BimViewerMarker[] = [];
+
+	/** `true` si los marcadores se pueden arrastrar. */
+	@Input() public MarkersDraggable: boolean = false;
+
+	/** Se emite con lo alcanzado en el modelo (punto del mundo y elemento) al hacer clic sobre él. */
+	@Output() public pointClicked: EventEmitter<BimViewerHit> = new EventEmitter<BimViewerHit>();
+
+	/** Identificador del marcador seleccionado, que se pinta destacado. Con `null` no hay ninguno. */
+	@Input() public SelectedMarkerId: number | null = null;
 
 	/** Se emite con la vista de la cámara un momento después de que deje de moverse. */
 	@Output() public viewChanged: EventEmitter<BimViewerView> = new EventEmitter<BimViewerView>();
@@ -102,6 +147,27 @@ export class BimViewerComponent implements AfterViewInit, OnChanges, OnDestroy {
 
 	//#region PRIVATE CONSTANTS
 
+	/** Milisegundos que la información emergente sigue visible tras dejar el puntero el marcador, para poder llegar hasta ella. */
+	private readonly _TOOLTIP_HIDE_DELAY_MS: number = 300;
+
+	/** Ancho máximo, en píxeles, de la información emergente cuando hay sitio de sobra. */
+	private readonly _TOOLTIP_MAX_WIDTH_PX: number = 288;
+
+	/** Separación, en píxeles, entre el puntero y la información emergente. */
+	private readonly _TOOLTIP_OFFSET_PX: number = 14;
+
+	/** Protocolo `http` tal y como lo devuelve `URL.protocol`. */
+	private readonly _PROTOCOL_HTTP: string = 'http:';
+
+	/** Protocolo `https` tal y como lo devuelve `URL.protocol`. */
+	private readonly _PROTOCOL_HTTPS: string = 'https:';
+
+	/** Destino con el que un enlace se abre en la pestaña actual. */
+	private readonly _TARGET_CURRENT_TAB: string = '_self';
+
+	/** Destino con el que un enlace se abre en una ventana nueva. */
+	private readonly _TARGET_NEW_WINDOW: string = '_blank';
+
 	/** Milisegundos sin que se mueva la cámara tras los que se avisa de su vista. */
 	private readonly _VIEW_DEBOUNCE_MS: number = 500;
 
@@ -124,6 +190,42 @@ export class BimViewerComponent implements AfterViewInit, OnChanges, OnDestroy {
 	/** `true` si el modelo no se ha podido mostrar. */
 	public ShowError: boolean = false;
 
+	/** `true` si la información emergente del marcador tiene una descripción que mostrar. */
+	public HasTooltipDescription: boolean = false;
+
+	/** `true` si la información emergente del marcador tiene un enlace válido que mostrar. */
+	public HasTooltipLink: boolean = false;
+
+	/** `true` si la información emergente de un marcador está visible. */
+	public IsTooltipVisible: boolean = false;
+
+	/** Distancia de la información emergente al borde inferior del visor, en píxeles. Es `null` si se coloca desde el borde superior. */
+	public TooltipBottom: number | null = null;
+
+	/** Descripción de la información emergente. */
+	public TooltipDescription: string = '';
+
+	/** Distancia de la información emergente al borde izquierdo del visor, en píxeles. Es `null` si se coloca desde el borde derecho. */
+	public TooltipLeft: number | null = null;
+
+	/** Ancho máximo de la información emergente, en píxeles. */
+	public TooltipMaxWidth: number = 0;
+
+	/** Distancia de la información emergente al borde derecho del visor, en píxeles. Es `null` si se coloca desde el borde izquierdo. */
+	public TooltipRight: number | null = null;
+
+	/** Dirección del enlace de la información emergente. */
+	public TooltipLinkUrl: string = '';
+
+	/** Destino con el que se abre el enlace de la información emergente. */
+	public TooltipLinkTarget: string = '_blank';
+
+	/** Título de la información emergente. */
+	public TooltipTitle: string = '';
+
+	/** Distancia de la información emergente al borde superior del visor, en píxeles. Es `null` si se coloca desde el borde inferior. */
+	public TooltipTop: number | null = null;
+
 	/** `true` mientras se descarga el modelo. */
 	public ShowDownload: boolean = false;
 
@@ -136,13 +238,40 @@ export class BimViewerComponent implements AfterViewInit, OnChanges, OnDestroy {
 
 	/** Acciones con las que se opera el visor desde fuera. */
 	private readonly _Access: IBimViewerAccess = {
-		ResetView: (): Promise<void> => this._Manager.ResetView(),
-		SetCurrentViewAsDefault: (): BimViewerView | null => this._Manager.SetCurrentViewAsDefault(),
-		SetStyle: (style: BimViewerStyle): void => this._Manager.SetStyle(style)
+		FocusPoint: async (point: BimViewerPoint): Promise<void> => {
+			this.checkAlive('FocusPoint');
+			await this._Manager.FocusPoint(point);
+		},
+		GetElementCenter: async (elementId: number): Promise<BimViewerPoint | null> => {
+			this.checkAlive('GetElementCenter');
+
+			return this._Manager.GetElementCenter(elementId);
+		},
+		GetElements: async (): Promise<BimViewerElement[]> => {
+			this.checkAlive('GetElements');
+
+			return this._Manager.GetElements();
+		},
+		ResetView: async (): Promise<void> => {
+			this.checkAlive('ResetView');
+			await this._Manager.ResetView();
+		},
+		SetCurrentViewAsDefault: (): BimViewerView | null => {
+			this.checkAlive('SetCurrentViewAsDefault');
+
+			return this._Manager.SetCurrentViewAsDefault();
+		},
+		SetStyle: (style: BimViewerStyle): void => {
+			this.checkAlive('SetStyle');
+			this._Manager.SetStyle(style);
+		}
 	};
 
 	/** `true` si el modelo no se ha podido cargar. */
 	private _HasError: boolean = false;
+
+	/** `true` una vez destruido el visor: el motor ya está liberado y no se puede operar. */
+	private _IsDestroyed: boolean = false;
 
 	/** `true` mientras se procesa el modelo ya descargado. */
 	private _IsProcessing: boolean = false;
@@ -159,6 +288,9 @@ export class BimViewerComponent implements AfterViewInit, OnChanges, OnDestroy {
 	/** Zona de Angular, para dejar fuera el motor y volver a entrar al avisar de un clic. */
 	private readonly _NgZone: NgZone;
 
+	/** Temporizador que oculta la información emergente. Es `null` si no hay ninguno pendiente. */
+	private _TooltipTimer: number | null = null;
+
 	/** Temporizador del aviso de la vista de la cámara. Es `null` si no hay ninguno pendiente. */
 	private _ViewTimer: number | null = null;
 
@@ -170,8 +302,16 @@ export class BimViewerComponent implements AfterViewInit, OnChanges, OnDestroy {
 		this.compiled.emit(new BimViewerCompiledEvent(this._Access));
 	}
 
-	private emitPointClicked(point: BimViewerPoint): void {
-		this.pointClicked.emit(point);
+	private emitMarkerMoved(markerId: number, hit: BimViewerHit): void {
+		this.markerMoved.emit(new BimViewerMarkerMovedEvent(markerId, hit));
+	}
+
+	private emitMarkerSelected(markerId: number): void {
+		this.markerSelected.emit(markerId);
+	}
+
+	private emitPointClicked(hit: BimViewerHit): void {
+		this.pointClicked.emit(hit);
 	}
 
 	private emitViewChanged(view: BimViewerView): void {
@@ -201,6 +341,24 @@ export class BimViewerComponent implements AfterViewInit, OnChanges, OnDestroy {
 			} else {
 				// El modelo no ha cambiado
 			}
+
+			if (!CheckUtils.IsUndefined(changes['Markers'])) {
+				this._Manager.SetMarkers(this.Markers);
+			} else {
+				// Los marcadores no han cambiado
+			}
+
+			if (!CheckUtils.IsUndefined(changes['MarkersDraggable'])) {
+				this._Manager.SetMarkersDraggable(this.MarkersDraggable);
+			} else {
+				// No ha cambiado si se pueden arrastrar
+			}
+
+			if (!CheckUtils.IsUndefined(changes['SelectedMarkerId'])) {
+				this._Manager.SetSelectedMarker(this.SelectedMarkerId);
+			} else {
+				// No ha cambiado el marcador seleccionado
+			}
 		} else {
 			// El motor aún no está listo: el modelo y el aspecto se aplicarán al terminar de inicializarlo
 		}
@@ -209,18 +367,48 @@ export class BimViewerComponent implements AfterViewInit, OnChanges, OnDestroy {
 	}
 
 	public ngOnDestroy(): void {
+		this._IsDestroyed = true;
+		this.cancelTooltipTimer();
 		this.cancelViewTimer();
+		this._Manager.OnMarkerHovered = null;
+		this._Manager.OnMarkerMoved = null;
+		this._Manager.OnMarkerSelected = null;
 		this._Manager.OnPointClicked = null;
 		this._Manager.OnViewChanged = null;
 		this._Manager.Dispose();
 		this.compiled.complete();
+		this.markerMoved.complete();
+		this.markerSelected.complete();
 		this.pointClicked.complete();
 		this.viewChanged.complete();
 	}
 
 	//#endregion ANGULAR LIFECYCLE
 
+	//#region SUBSCRIBERS
+
+	public OnTooltipPointerEnter(): void {
+		// El puntero ha llegado a la información emergente: no se oculta
+		this.cancelTooltipTimer();
+	}
+
+	public OnTooltipPointerLeave(): void {
+		this.scheduleTooltipHide();
+	}
+
+	//#endregion SUBSCRIBERS
+
 	//#region PRIVATE METHODS
+
+	/** Cancela la ocultación pendiente de la información emergente. */
+	private cancelTooltipTimer(): void {
+		if (CheckUtils.IsNull(this._TooltipTimer)) {
+			// No hay ninguna ocultación pendiente
+		} else {
+			window.clearTimeout(this._TooltipTimer);
+			this._TooltipTimer = null;
+		}
+	}
 
 	/** Cancela el aviso de la vista de la cámara que esté pendiente. */
 	private cancelViewTimer(): void {
@@ -229,6 +417,19 @@ export class BimViewerComponent implements AfterViewInit, OnChanges, OnDestroy {
 		} else {
 			window.clearTimeout(this._ViewTimer);
 			this._ViewTimer = null;
+		}
+	}
+
+	/**
+	 * Comprueba que el visor sigue existiendo antes de operarlo desde fuera.
+	 * @param action Nombre de la acción que se pide, para el mensaje de error.
+	 * @throws Error si el visor ya se ha destruido (quien guardó su acceso lo ha usado tarde).
+	 */
+	private checkAlive(action: string): void {
+		if (this._IsDestroyed) {
+			throw new Error(`BimViewer.${action}() => el visor ya se ha destruido`);
+		} else {
+			// El visor existe: se puede operar
 		}
 	}
 
@@ -242,13 +443,25 @@ export class BimViewerComponent implements AfterViewInit, OnChanges, OnDestroy {
 			);
 
 			// El motor avisa desde fuera de la zona: se vuelve a entrar para que la pantalla se refresque
-			this._Manager.OnPointClicked = (point: BimViewerPoint): void => {
-				this._NgZone.run((): void => this.emitPointClicked(point));
+			this._Manager.OnMarkerHovered = (markerId: number | null, clientX: number, clientY: number): void => {
+				this._NgZone.run((): void => this.showTooltip(markerId, clientX, clientY));
+			};
+			this._Manager.OnMarkerMoved = (markerId: number, hit: BimViewerHit): void => {
+				this._NgZone.run((): void => this.emitMarkerMoved(markerId, hit));
+			};
+			this._Manager.OnMarkerSelected = (markerId: number): void => {
+				this._NgZone.run((): void => this.emitMarkerSelected(markerId));
+			};
+			this._Manager.OnPointClicked = (hit: BimViewerHit): void => {
+				this._NgZone.run((): void => this.emitPointClicked(hit));
 			};
 			this._Manager.OnViewChanged = (view: BimViewerView): void => {
 				this.scheduleViewChanged(view);
 			};
 			this._IsReady = true;
+			this._Manager.SetMarkersDraggable(this.MarkersDraggable);
+			this._Manager.SetSelectedMarker(this.SelectedMarkerId);
+			this._Manager.SetMarkers(this.Markers);
 			this.emitCompiled();
 
 			await this.loadContent();
@@ -289,6 +502,87 @@ export class BimViewerComponent implements AfterViewInit, OnChanges, OnDestroy {
 		}
 
 		this.refreshState();
+	}
+
+	/**
+	 * Devuelve la dirección de un enlace si es una dirección web (http o https) válida; si no, una cadena vacía.
+	 * @param link Enlace escrito por el usuario.
+	 */
+	private getSafeUrl(link: string): string {
+		let result: string = STRING_UNDEFINED;
+
+		if (!CheckUtils.IsEmptyString(link)) {
+			try {
+				const url: URL = new URL(link);
+
+				if (url.protocol === this._PROTOCOL_HTTP || url.protocol === this._PROTOCOL_HTTPS) {
+					result = url.href;
+				} else {
+					// Otro tipo de enlace (por ejemplo, de script): no se ofrece
+				}
+			} catch {
+				// No es una dirección válida: no se ofrece enlace
+			}
+		} else {
+			// El marcador no tiene enlace
+		}
+
+		return result;
+	}
+
+	/** Oculta la información emergente pasado un momento, para que dé tiempo a llevar el puntero hasta ella. */
+	private scheduleTooltipHide(): void {
+		this.cancelTooltipTimer();
+		this._TooltipTimer = window.setTimeout((): void => {
+			this._TooltipTimer = null;
+			this._NgZone.run((): void => {
+				this.IsTooltipVisible = false;
+			});
+		}, this._TOOLTIP_HIDE_DELAY_MS);
+	}
+
+	/**
+	 * Muestra la información emergente del marcador bajo el puntero, o la oculta cuando ya no hay ninguno.
+	 * @param markerId Identificador del marcador bajo el puntero. Con `null`, no hay ninguno.
+	 * @param clientX Posición horizontal del puntero en la ventana.
+	 * @param clientY Posición vertical del puntero en la ventana.
+	 */
+	private showTooltip(markerId: number | null, clientX: number, clientY: number): void {
+		const marker: BimViewerMarker | undefined = CheckUtils.IsNull(markerId)
+			? undefined
+			: this.Markers.find((item: BimViewerMarker): boolean => item.Id === markerId);
+
+		if (CheckUtils.IsUndefined(marker)) {
+			this.scheduleTooltipHide();
+		} else {
+			const rect: DOMRect = this._Container.nativeElement.getBoundingClientRect();
+			const linkUrl: string = this.getSafeUrl(marker.Link);
+
+			this.cancelTooltipTimer();
+			this.TooltipTitle = marker.Text;
+			this.TooltipDescription = marker.Description;
+			this.TooltipLinkUrl = linkUrl;
+			this.TooltipLinkTarget =
+				marker.LinkTarget === BimViewerMarkerLinkTarget.CURRENT_TAB ? this._TARGET_CURRENT_TAB : this._TARGET_NEW_WINDOW;
+			this.HasTooltipDescription = !CheckUtils.IsEmptyString(marker.Description);
+			this.HasTooltipLink = !CheckUtils.IsEmptyString(linkUrl);
+			// Se coloca desde el borde más cercano al puntero hacia dentro, para que no se salga del visor
+			const x: number = clientX - rect.left;
+			const y: number = clientY - rect.top;
+			const isRightHalf: boolean = x > rect.width / 2;
+			const isBottomHalf: boolean = y > rect.height / 2;
+
+			// El ancho se limita al espacio que queda entre el puntero y el borde hacia el que se extiende
+			const availableWidth: number = isRightHalf ? x - this._TOOLTIP_OFFSET_PX : rect.width - x - this._TOOLTIP_OFFSET_PX;
+
+			this.TooltipMaxWidth = Math.max(0, Math.min(this._TOOLTIP_MAX_WIDTH_PX, availableWidth));
+			this.TooltipLeft = isRightHalf ? null : x + this._TOOLTIP_OFFSET_PX;
+			this.TooltipRight = isRightHalf ? rect.width - x + this._TOOLTIP_OFFSET_PX : null;
+			this.TooltipTop = isBottomHalf ? null : y + this._TOOLTIP_OFFSET_PX;
+			this.TooltipBottom = isBottomHalf ? rect.height - y + this._TOOLTIP_OFFSET_PX : null;
+			// Un marcador sin nada que contar (título, descripción ni enlace) no abre información emergente
+			this.IsTooltipVisible = marker.Text !== '' || this.HasTooltipDescription || this.HasTooltipLink;
+		}
 	}
 
 	/**

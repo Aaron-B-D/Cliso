@@ -28,6 +28,9 @@ enum IconName {
 	GRID_ON = 'grid-on',
 	TOUCH_APP = 'touch-app',
 	PALETTE = 'palette',
+	LOCATION_ON = 'location-on',
+	MY_LOCATION = 'my-location',
+	PUBLIC = 'public',
 	VISIBILITY = 'visibility',
 	VISIBILITY_OFF = 'visibility-off'
 }

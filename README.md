@@ -148,7 +148,7 @@ La guía completa está en [`Documentation/UI/[Diseño] Cliso.UI - Guía de esti
   formato lo fija Prettier (tabuladores, 130 columnas) y `npm run lint` pasa ESLint sobre `src`.
 - **Tokens de diseño** (colores, espaciado, formas) como propiedades CSS en `Cliso.UI/src/styles/_variables.scss`;
   los componentes los leen con `var(--color-...)` y no llevan valores sueltos.
-- **Editores** (modelos, parámetros y usuarios, y después visualizaciones): modal redimensionable con lista y buscador a la
+- **Editores** (modelos, parámetros, usuarios y visualizaciones): modal redimensionable con lista y buscador a la
   izquierda (con un splitter siempre visible, plegable), detalle a la derecha (en pestañas si tiene más de una) y un pie solo con iconos
   pequeños: añadir, editar y borrar y, mientras se edita, guardar y descartar. El detalle es de solo lectura hasta
   pulsar editar, y con cambios sin guardar se pide confirmación antes de cerrar, cambiar de ficha o descartar.
@@ -158,7 +158,8 @@ La guía completa está en [`Documentation/UI/[Diseño] Cliso.UI - Guía de esti
   (`CanDeleteSelection`) y fijar su alto inicial (`Height`).
 - **Campos en solo lectura:** se ven como el resto, sin atenuar, y con el cursor de acción no permitida. Los de texto
   usan la directiva `appReadOnly` (en vez de `[readonly]`) y los selectores, `appSelectReadOnly` sobre su
-  `mat-form-field` (en vez de `[disabled]`): ni el ratón ni el teclado abren la lista. Las directivas están en
+  `mat-form-field` (en vez de `[disabled]`): ni el ratón ni el teclado abren la lista; las casillas y los interruptores,
+  `appCheckboxReadOnly` (ni el ratón ni el teclado cambian su valor). Las directivas están en
   `shared/directives` y sus estilos globales, en `styles/_directives.scss`.
 - **Avisos y confirmaciones:** `NotificationService` muestra un toast arriba al centro (3 s) con el color de su nivel
   (peligro en rojo, éxito en verde, aviso con borde blanco, informativo con el borde normal) y
@@ -172,8 +173,8 @@ La guía completa está en [`Documentation/UI/[Diseño] Cliso.UI - Guía de esti
   lo convierte en un `Temporal.ZonedDateTime`. El texto sin zona (como lo manda hoy el back) se entiende como hora local
   del navegador. Hoy ningún model del front las usa (`BimModel` ignora la fecha de creación, que la UI no muestra),
   pero la utilidad queda lista.
-- El diseño de pantallas está en los diagramas `.drawio` de `Documentation/UI/` (barra de herramientas, editor, home,
-  inicio de sesión, parámetros y usuarios). Cada uno incluye páginas «(móvil)» de ≈ 360 px que sirven de referencia de responsividad: la
+- El diseño de pantallas está en los diagramas `.drawio` de `Documentation/UI/` (barra de herramientas, editor, editor de
+  visualizaciones, home, inicio de sesión, parámetros y usuarios). Cada uno incluye páginas «(móvil)» de ≈ 360 px que sirven de referencia de responsividad: la
   barra lateral pasa a barra superior con menú desplegable, el Home muestra las fichas en una columna con los paneles
   apilados, los editores ocupan la pantalla completa con lista y detalle en dos pasos y el inicio de sesión es una
   tarjeta centrada a ancho completo menos el margen.
@@ -186,8 +187,8 @@ Implementado hasta ahora (`Cliso.UI/src/app`):
   *Edición* y, abajo, el usuario actual, que abre un panel con *Cerrar sesión*; en móvil, barra superior con menú
   desplegable en el que *Edición* se despliega como un acordeón y *Cerrar sesión* va al final) y el Home a la
   derecha (ver más abajo). *Edición* abre un panel a la derecha de su botón con
-  *Modelos*, *Parámetros* y *Usuarios*; una entrada que el usuario no puede usar, o que aún no existe
-  (*Visualizaciones*), no se muestra. Rutas en `app.routes.ts`
+  *Modelos*, *Parámetros*, *Usuarios* y *Visualizaciones*; una entrada que el usuario no puede usar
+  no se muestra. Rutas en `app.routes.ts`
   (`AppRoute`): `/login` va aparte, sin barra lateral, y el resto cuelgan de `MainLayoutComponent` (la barra lateral
   y el contenido) con `AuthGuard`, que sin sesión lleva a `/login`.
 - **Arranque** (`AppBootstrapUtils`): fija el idioma del inicio de sesión (ver más abajo) y pregunta al API
@@ -230,9 +231,10 @@ Implementado hasta ahora (`Cliso.UI/src/app`):
   (`GetNick`, `GetUserId`) y a qué puede hacer (`HasPermission`, con el enumerado `Permission`, que replica el de la API; los
   permisos salen de la lista `permissions` de la sesión). Solo decide qué se muestra, porque la API exige los permisos
   igualmente: el botón *Edición* de la barra lateral solo aparece si el usuario puede abrir alguno de los editores, y
-  cada opción (*Modelos*, *Parámetros*, *Usuarios*) solo si tiene su permiso (`BIM_MODELS_EDIT`,
-  `APPLICATION_PARAMETERS_EDIT`, `USERS_MANAGE`); el editor de modelos solo muestra el botón de borrar con
-  `BIM_MODELS_DELETE`.
+  cada opción (*Modelos*, *Parámetros*, *Usuarios*, *Visualizaciones*) solo si tiene su permiso (`BIM_MODELS_EDIT`,
+  `APPLICATION_PARAMETERS_EDIT`, `USERS_MANAGE`, `VISUALIZATIONS_CREATE`); el editor de modelos solo muestra el botón de
+  borrar con `BIM_MODELS_DELETE` y el de visualizaciones deja editar o borrar la seleccionada según sea propia o de otro
+  usuario (`VISUALIZATIONS_EDIT_OWN` o `_ANY`, `VISUALIZATIONS_DELETE_OWN` o `_ANY`).
 - **Home** (`modules/home`): catálogo de modelos BIM en fichas verticales (`HomeCardComponent`, de `mat-card`: portada
   con un icono genérico mientras los modelos no tengan una propia, y debajo nombre y descripción; al pasar el ratón se
   marca el borde), en una columna en móvil y hasta tres desde `lg`. Pide los modelos al API al abrirse (con barra de carga) y el buscador filtra por nombre y descripción, con
@@ -268,16 +270,47 @@ Implementado hasta ahora (`Cliso.UI/src/app`):
   - **Avisos:** un nick repetido (409) se avisa aparte.
   - **Borrar:** es un borrado lógico, con confirmación, y está desactivado para el usuario de la sesión y para `admin`.
   - **Rol:** no se puede cambiar el de `admin` ni el propio.
-- **Directivas** (`shared/directives`): `ReadOnlyDirective` (`appReadOnly`) y `SelectReadOnlyDirective`
-  (`appSelectReadOnly`), ver «Campos en solo lectura».
+- **Editor de visualizaciones** (`modules/visualizationEditor`, se abre desde *Edición → Visualizaciones* y se descarga
+  aparte, con precarga al mostrarse la barra lateral): lista de visualizaciones con buscador por nombre y descripción, con
+  un icono que distingue las propias de las de otros usuarios, y un detalle con dos pestañas.
+  - **General:** modelo BIM (solo se elige al añadir; después no se puede cambiar, porque las piezas guardan
+    coordenadas y elementos de ese modelo), nombre, descripción, observaciones y si es pública.
+  - **Piezas:** el visor 3D del modelo (`BimModelPreview`) con las piezas pintadas encima y un panel lateral plegable (por
+    defecto plegado, para dar todo el sitio al visor) con la lista de piezas, el botón de añadir y el detalle de la
+    seleccionada. Todo esto vive en `pieceWorkspace`, que es dueño del visor y de su `Access`.
+  - **Colocación:** al editar, *Añadir pieza* abre un panel flotante (`cdkConnectedOverlay`) con un tipo por ficha (hoy,
+    *Marcador*); al elegirlo, el siguiente clic en el modelo coloca la pieza, anclada al elemento del modelo que haya bajo
+    el clic. Se pueden arrastrar con el ratón, llevar la vista a una pieza (botón de diana) y quitarlas. El detalle
+    (`pieceDetail`) no conoce los datos de ningún tipo: pone la cabecera común y, según el tipo, el subpanel de ese tipo
+    (`markerPanel`, para el marcador).
+  - **Marcador:** título (y dónde se escribe: encima, debajo, a la derecha u oculto), descripción, enlace (solo `http` o
+    `https`, y si se abre en la pestaña actual o en una ventana nueva), icono (chincheta, información, aviso, comprobación
+    o bandera), tamaño, color, opacidad, color del título, si se ve a través del modelo, si se atenúa cuando el ratón
+    no está encima, si al pulsarlo se resalta su elemento, sus coordenadas X, Y y Z y el elemento al que está anclado
+    (desplegable con búsqueda; los elementos se piden al visor solo cuando hacen falta). Un marcador anclado se mueve al
+    centro de su elemento. Los marcadores muy cercanos en pantalla se agrupan en un círculo con su número y, al pulsarlo,
+    la cámara se acerca a ellos; al pasar el ratón por un marcador sale una información emergente con su título, su
+    descripción y su enlace.
+  - **Edición:** se trabaja sobre una copia de la visualización y solo se guarda al pulsar guardar; con cambios sin
+    guardar se pide confirmación antes de cerrar, volver o cambiar de ficha. Las piezas se piden al abrir la
+    visualización (`depth=1`), en una petición aparte que se cancela al abrir otra; mientras no están cargadas, o si la
+    carga falla, no se pueden editar (y guardar no las toca). El diálogo no se cierra mientras se guarda o se borra.
+    Editar y borrar dependen de los permisos (`VISUALIZATIONS_*_OWN` o `_ANY`). Se abre más alto que los demás editores.
+- **Directivas** (`shared/directives`): `ReadOnlyDirective` (`appReadOnly`), `SelectReadOnlyDirective`
+  (`appSelectReadOnly`) y `CheckboxReadOnlyDirective` (`appCheckboxReadOnly`, para casillas e interruptores), ver
+  «Campos en solo lectura».
 - **Visor 3D reutilizable** (`shared/components/bimViewer`, motor en `BimViewerManager`): carga un IFC (`Blob`) con
-  ThatOpen, lo encuadra, permite orbitar y acercar y emite el punto del modelo (en coordenadas del mundo) sobre el
-  que se hace clic, que servirá para los marcadores de las visualizaciones. Muestra la descarga con su porcentaje, el
+  ThatOpen, lo encuadra, permite orbitar y acercar y emite lo que se alcanza al hacer clic sobre el modelo (`BimViewerHit`:
+  el punto en coordenadas del mundo y el elemento que hay bajo él). Pinta los marcadores de las visualizaciones
+  (`BimViewerMarker`, con icono, título, tamaño, opacidad, color y más): cada uno es una figura que mira siempre a la
+  cámara, dibujada en un lienzo (`BimViewerMarkerPainter`, clase estática sin Angular), se puede arrastrar, se agrupa
+  con los cercanos y muestra una información emergente. Muestra la descarga con su porcentaje, el
   procesado, el estado vacío y el error. Arranca con el aspecto por defecto (`BimViewerStyle`: el motor 3D no lee
   variables CSS, así que el fondo y el color de la rejilla copian los tokens `--color-bg` y `--color-border`, y el
   resaltado es gris plata), que se cambia con el `Access`: colores de fondo, rejilla y resaltado, tamaño de las
-  cuadrículas primaria y secundaria, visibilidad de la rejilla y resaltado de piezas. Las acciones (volver a la vista
-  inicial, fijar la vista actual como inicial y cambiar el aspecto) no se piden con entradas: el visor emite
+  cuadrículas primaria y secundaria, visibilidad de la rejilla y resaltado de elementos. Las acciones (volver a la vista
+  inicial, fijar la vista actual como inicial, cambiar el aspecto, llevar la vista a un punto, listar los elementos del
+  modelo y calcular el centro de uno) no se piden con entradas: el visor emite
   `compiled` (`BimViewerCompiledEvent`) cuando está listo, con un `Access` (`IBimViewerAccess`) para operarlo. Admite
   como entradas la vista por defecto y la última posición de la cámara con las que arrancar (`BimViewerView`, de dos
   `BimViewerPoint`) y emite `viewChanged` con la posición 500 ms después de que la cámara deje de moverse. Los colores
@@ -289,20 +322,22 @@ Implementado hasta ahora (`Cliso.UI/src/app`):
   *Cancelar* y *Reintentar*, con los estados descargando, cancelada y error) hasta que llega; entonces muestra el
   visor, cargado aparte (`@defer`), con la barra de herramientas (`bimViewerToolbar`, que pinta los botones que
   recibe y avisa de cuál se pulsa; los botones de vista esperan a que el visor esté listo): volver a la vista inicial,
-  fijar la vista actual como inicial (con un aviso), activar o desactivar el resaltado de piezas al hacer clic (el botón
+  fijar la vista actual como inicial (con un aviso), activar o desactivar el resaltado de elementos al hacer clic (el botón
   pulsado se ve con fondo claro), mostrar u ocultar la rejilla y un menú de estilos con el color de fondo, el del
   resaltado y el de la rejilla, y el tamaño de las cuadrículas primaria y secundaria. El panel trabaja con una
   `BimViewerConfiguration` (`shared/models/bimViewer`: id del modelo, aspecto, vista inicial y última posición de la
   cámara) y la emite cada vez que cambia. El Home la guarda en el almacenamiento local del navegador con
   `LocalStorageManager` (clave `LAST_BIM_MODEL_CONFIGURATION`, sin cifrar): el JSON es la propia clase
   (`JSON.stringify`) y `Convert` hace el camino inverso, dejando el valor por defecto en lo que falte o no sea válido.
-- **Componentes compartidos** (`shared/components`): `EditorShell` (esqueleto de los editores), `ConfirmDialog`, el
-  visor 3D (`BimViewer`) y el visor con barra de herramientas y panel de carga (`BimViewerPanel`,
-  `BimViewerToolbar` y `BimViewerLoadingPanel`).
+- **Componentes compartidos** (`shared/components`): `EditorShell` (esqueleto de los editores), `EditorCard` (la ficha de
+  las listas de los editores), `ConfirmDialog`, el visor 3D (`BimViewer`), la previsualización de un modelo
+  (`BimModelPreview`: descarga su IFC con barra de progreso y lo muestra en el visor, con marcadores opcionales) y el
+  visor con barra de herramientas y panel de carga (`BimViewerPanel`, `BimViewerToolbar` y `BimViewerLoadingPanel`).
 - **Acceso al API:** `DataAccessService` agrupa las llamadas por concepto; hoy `Auth` (iniciar y cerrar sesión, y
   consultar la actual), `BimModels` (listar, obtener, crear, modificar, borrar, y subir y descargar el IFC, con
-  progreso), `ApplicationSettings` (listar los parámetros y modificar el valor de uno) y `Users` (listar, crear,
-  modificar y borrar). La URL base, `Environment.API_URL`, es
+  progreso), `ApplicationSettings` (listar los parámetros y modificar el valor de uno), `Users` (listar, crear,
+  modificar y borrar) y `Visualizations` (listar y obtener, con la profundidad `depth` que decide si traen las piezas,
+  crear, modificar y borrar). La URL base, `Environment.API_URL`, es
   `http://localhost:8000` en desarrollo y la ruta relativa `/api` en el build de producción, que el servidor web
   reenvía a la API. Cada concepto tiene su DTO (`dtos.definitions.ts`, campos como los manda el API), su model
   (`shared/models`) y su mapper (`shared/utils/mappers`). También `RequestUtils` (`AwaitRequest` y
@@ -312,8 +347,8 @@ Implementado hasta ahora (`Cliso.UI/src/app`):
 - **Textos multidioma:** gallego, castellano e inglés (`LanguageGl`, `LanguageEs`, `LanguageEn`), con `LanguageManager`,
   que además da los idiomas que se pueden elegir (`GetOptions`, cada uno con su nombre en su idioma) y el preferido
   del navegador (`GetBrowserLanguage`).
-- **Pendiente** (según los diagramas): editor de visualizaciones (con los marcadores), los permisos de los usuarios
-  en su editor, Configuración, las portadas de los modelos y las visualizaciones en el Home. Con `ng serve` (front en `localhost:4200`, API en
+- **Pendiente** (según los diagramas): más tipos de pieza además del marcador, los permisos de los usuarios en su
+  editor, Configuración, las portadas de los modelos y las visualizaciones en el Home. Con `ng serve` (front en `localhost:4200`, API en
   `localhost:8000`) el navegador solo deja pasar las llamadas, y guarda la cookie de la sesión, si el API autoriza ese
   origen (CORS, con credenciales): en modo demo acepta todos y, si no, solo los de `allowed_origins` (ver
   «Configuración y modo demo»). Con Docker no hace falta, porque nginx sirve la UI y reenvía `/api`.
@@ -353,7 +388,22 @@ Implementado hasta ahora (`Cliso.UI/src/app`):
 - **Solo lectura con directivas en vez de `disabled`:** un campo desactivado se ve atenuado (opacidad 0,5) y parece
   que no tiene valor o que falla; en solo lectura se lee igual que al editar y solo cambia el cursor. Para el
   selector no basta con `[readonly]` (Material no lo admite), así que su directiva bloquea el ratón con estilos y las
-  teclas que lo abrirían.
+  teclas que lo abrirían; las casillas y los interruptores siguen el mismo patrón.
+- **Piezas polimórficas, con un catálogo de tipos:** una visualización lleva piezas de distintos tipos (hoy, el marcador).
+  La clase base (`VisualizationPiece`) fija lo común (`Clone`, `GetFocusPoint`, `GetLabel`, `Move`, `GetViewerMarkers` y
+  `ToDto`) y cada tipo lo implementa, así que ni la lista, ni el visor, ni el editor usan `instanceof` ni un `switch`
+  por tipo: solo el panel de detalle conoce el tipo para elegir su subpanel. El catálogo (`VisualizationPieceTypes`)
+  declara cada tipo con su nombre, descripción, icono y cómo se crea. Añadir un tipo está explicado, paso a paso, en el
+  `CLAUDE.md` de la carpeta del editor.
+- **Pieza y elemento:** una *pieza* es lo que el usuario añade sobre el modelo; un *elemento* es una parte del propio
+  modelo IFC (un muro, una puerta...), a la que se puede anclar una pieza. No se mezclan en el código ni en los textos.
+  El anclaje guarda el identificador local del elemento dentro del modelo (`anchor_id`).
+- **El visor y su `Access` viven en el mismo componente:** `pieceWorkspace` es dueño del visor 3D y guarda su `Access`, así
+  que nunca apunta a un visor ya destruido; además, el propio `Access` falla con un error claro si se usa después de
+  destruirlo.
+- **Los marcadores se pintan en un lienzo:** el motor 3D (three.js) no lee las variables CSS,
+  así que cada marcador es una figura (`Sprite`) con una imagen que se dibuja en un lienzo (`BimViewerMarkerPainter`) y
+  siempre mira a la cámara; los colores y medidas del lienzo van como constantes de esa clase.
 - **Submodal de contraseña con un servicio que devuelve una promesa:** como `ConfirmDialogService`, convierte el
   cierre del diálogo (un `Observable` de Material) en una promesa, para que el editor siga usando `await`. Al
   modificar un usuario la contraseña es un botón aparte porque casi siempre se cambian solo sus datos.
@@ -440,13 +490,26 @@ clase base: cada tipo de pieza la especializa con los datos que necesita para mo
 | `id` | `int` | Identificador único. Lo asigna la base de datos al guardar; cada guardado de la lista de piezas lo regenera. |
 | `type` | `VisualizationPieceType` | Tipo de la pieza. |
 
-Por ahora solo existe un tipo, `BIMModelVisualizationMarkerPiece` (`type = MARKER`), que pinta un marcador sencillo (un
-círculo) de un color en una coordenada del modelo BIM:
+Por ahora solo existe un tipo, `BIMModelVisualizationMarkerPiece` (`type = MARKER`), que pinta un marcador (un icono de
+un color, con título) en una coordenada del modelo BIM, libre o anclado a un elemento del modelo:
 
 | Campo | Tipo | Descripción |
 |---|---|---|
 | `x`, `y`, `z` | `float` | Coordenada del marcador en el modelo BIM. |
-| `color` | `str` | Color del círculo, en hexadecimal (`#RRGGBB`). Por defecto `#FF0000`. |
+| `color` | `str` | Color del icono (el front lo espera en hexadecimal, `#RRGGBB`; el servidor lo admite como texto libre). Por defecto `#FF0000`. |
+| `anchor_id` | `int \| None` | Identificador local, dentro del modelo BIM, del elemento al que está anclado (≥ 0); `None` si está libre. |
+| `title` | `str` | Título (hasta 100 caracteres). |
+| `title_position` | `str` | Dónde se escribe el título: `ABOVE`, `BELOW` (por defecto), `RIGHT` o `HIDDEN` (sin título). |
+| `text_color` | `str` | Color del título, `#RRGGBB`. Por defecto `#FFFFFF`. |
+| `description` | `str` | Descripción (hasta 1000 caracteres), que se muestra en la información emergente. |
+| `link` | `str` | Enlace (hasta 2000 caracteres; solo `http://` o `https://`, o vacío). |
+| `link_target` | `str` | Dónde se abre el enlace: `CURRENT_TAB` o `NEW_WINDOW` (por defecto). |
+| `icon` | `str` | Icono: `PIN` (por defecto), `INFO`, `WARNING`, `CHECK` o `FLAG`. |
+| `size` | `float` | Tamaño como factor del normal (mayor que 0 y hasta 10). Por defecto `1`. |
+| `opacity` | `float` | Opacidad, de 0 a 1. Por defecto `1`. |
+| `dim_when_idle` | `bool` | Si se atenúa mientras el ratón no está encima. Por defecto `False`. |
+| `highlight_on_select` | `bool` | Si al pulsarlo se resalta el elemento anclado. Por defecto `False`. |
+| `visible_through_model` | `bool` | Si se ve a través del modelo cuando hay elementos delante. Por defecto `True`. |
 
 ### `ApplicationParameter` (implementado: `Cliso.API/app/domain/models/application_parameter.py`)
 
@@ -511,7 +574,7 @@ marca en cursiva gris las columnas que admiten `NULL`.
 | `user` | Usuarios, con su rol (`role`: `ADMIN`, `OPERATOR` o `VIEWER`). |
 | `bim_model` | Modelos BIM y el fichero asociado. |
 | `visualization` | Visualización de un usuario (`user_id`) sobre un modelo (`bim_model_id`). |
-| `visualization_piece` | Piezas de una visualización (marcadores, colores, cámaras...), en JSON. |
+| `visualization_piece` | Piezas de una visualización (hoy, marcadores; después colores, cámaras...), en JSON. |
 | `application_parameter` | Parámetros propios de la aplicación, editables en caliente. |
 
 Decisiones de diseño (para la memoria):
@@ -535,8 +598,11 @@ Decisiones de diseño (para la memoria):
   aleatorio único (`<uuid>.ifc`) con el que se guarda en disco, para evitar colisiones y rutas adivinables. Se genera
   al crear el modelo, aunque todavía no tenga fichero.
 - `visualization_piece.content` es un JSON con la estructura de la pieza (por ejemplo, un marcador:
-  `{"type": "MARKER", "x": 0.0, "y": 0.0, "z": 0.0, "color": "#FF0000"}`); el tipo va dentro del JSON y no es una
-  columna. Al leer, el JSON se deserializa en la clase de dominio que indica su tipo antes de llegar al front; el
+  `{"type": "MARKER", "x": 0.0, "y": 0.0, "z": 0.0, "color": "#FF0000", "title": "Entrada", "icon": "PIN", ...}`, con
+  los campos de la tabla de `BIMModelVisualizationMarkerPiece`); el tipo va dentro del JSON y no es una columna. Como los
+  campos viven en el JSON, añadir uno nuevo no cambia el esquema: al leer, lo que falta en una pieza guardada antes toma su
+  valor por defecto (solo `x`, `y`, `z` y `color` son obligatorios) y lo que sí está se valida (listas permitidas,
+  rangos y color), con un error claro si no es válido. Al leer, el JSON se deserializa en la clase de dominio que indica su tipo antes de llegar al front; el
   `id` de la pieza es el de su fila. El orden de las piezas es el de su `id`, sin columna de posición: reordenar es
   guardar la lista en el orden nuevo.
 - `application_parameter` guarda `type` (único), `default_value` y `current_value` como texto, sin tipo: la
@@ -560,7 +626,7 @@ Parámetros iniciales de `application_parameter` (los que carga la autoinstalaci
 
 Una base de datos creada antes de añadir un parámetro no lo tiene, y la API no arranca (error «no existe el parámetro de
 la aplicación»): como el arranque no toca una base de datos existente, hay que insertar la fila a mano o recrear la
-base de datos. En modo demo no hace falta, porque cada día se crea una nueva.
+base de datos. En modo demo no hace falta, porque se rehace en cada arranque.
 
 ## Arquitectura hexagonal del back
 
@@ -574,7 +640,7 @@ Cliso.API/app/
 ├── config/                       # StartupParameters (parámetros de arranque), StartupParametersManager (estático, lee el JSON) y los enumerados DatabaseProvider y SessionCookieSameSite
 ├── logger/                       # Logger estático (debug, info, warning, error): cola de mensajes, hilo escritor y escritura segura en fichero; y el enumerado LogLevel
 ├── utils/                        # PathUtils (rutas), FileUtils (carpetas y ficheros), PasswordUtils (hash y requisitos de contraseña) y ApplicationParameterUtils (comprobaciones del valor de un parámetro), estáticas
-├── initializer/                  # DatabaseInitializer (prepara la base de datos al arrancar) y DemoData (datos demo como objetos de dominio)
+├── initializer/                  # DatabaseInitializer (prepara la base de datos al arrancar), DemoData (usuarios y modelos demo) y DemoVisualizationData (visualizaciones demo), como objetos de dominio
 │
 ├── domain/                       # NÚCLEO: conceptos del negocio, sin dependencias externas
 │   ├── models/                   #   BIMModel, User, Visualization, VisualizationPiece, BIMModelVisualizationMarkerPiece, ApplicationParameter, Session (dataclasses) y los enumerados ApplicationParameterType, UserRole, Permission, PasswordRequirement y VisualizationPieceType
@@ -637,7 +703,7 @@ Documentación interactiva de la API: <http://127.0.0.1:8000/docs>
 
 > `requirements-dev.txt` instala lo mismo que `requirements.txt` y además `pyright`, para comprobar el tipado estricto.
 
-> Al crear la base de datos se crea el usuario `admin` (contraseña inicial `admin`); en modo demo, además, `operator` y
+> Al crear la base de datos se crea el usuario `admin` (contraseña inicial `admin`); en modo demo, además, `operator`, `operator2` y
 > `viewer`; la base de datos demo se rehace en cada arranque. Una base de datos **real** creada con una versión anterior
 > del esquema no se migra: se borra y se vuelve a crear.
 
@@ -653,7 +719,7 @@ ng serve
 ```
 
 La aplicación queda disponible en <http://localhost:4200/>, empieza por el inicio de sesión (`admin` / `admin`; en
-modo demo, también `operator` / `operator` y `viewer` / `viewer`) y llama al API en la URL de
+modo demo, también `operator` / `operator`, `operator2` / `operator2` y `viewer` / `viewer`) y llama al API en la URL de
 `Cliso.UI/src/environments/` (`http://localhost:8000`). El API debe autorizar el origen de `ng serve` (CORS): en modo demo, que es el de
 `settings.json` por defecto, acepta todos; con `is_demo` a `false` hay que añadir `http://localhost:4200` a
 `allowed_origins`. Para probar la aplicación completa en local también se puede usar Docker (abajo). Con la caché vacía, la primera vez el servidor de desarrollo recarga la página unas veces
@@ -785,12 +851,16 @@ los parámetros de arranque, y se llama a `DatabaseInitializer` (`app/initialize
   cada arranque, para que empiece siempre limpia.
 - Si **no existe** (o es la demo), la crea con sus tablas y carga siempre los datos básicos: los parámetros de la aplicación (desde
   los `.sql`) y el usuario `admin` (con rol `ADMIN` y contraseña inicial `admin`, cámbiala), que se guarda desde
-  Python con el repositorio porque su contraseña va hasheada. En modo demo carga además los datos de `DemoData`, que
-  son objetos de dominio (`BIMModel`, `User` y `Visualization`) guardados con los repositorios de la API, sin ficheros
-  ni sentencias SQL aparte: dos modelos (con su fichero IFC, que se copia desde `app/initializer/demo_models/` a la carpeta de modelos
-del parámetro `BIM_MODELS_DIRECTORY`, con nombre fijo), dos usuarios, `operator` (rol `OPERATOR`) y `viewer` (rol `VIEWER`), cuya contraseña es
-  su propio nick, y dos visualizaciones de `admin` sobre el primer modelo (una privada y una pública, esta con un
-  marcador). Estos usuarios iniciales no pasan por las reglas de contraseña del servicio.
+  Python con el repositorio porque su contraseña va hasheada. En modo demo carga además los datos de `DemoData` y
+  `DemoVisualizationData`, que son objetos de dominio (`BIMModel`, `User` y `Visualization`) guardados con los
+  repositorios de la API, sin ficheros ni sentencias SQL aparte: cuatro modelos (con su fichero IFC, que se copia desde
+  `app/initializer/demo_models/` a la carpeta de modelos del parámetro `BIM_MODELS_DIRECTORY`, con nombre fijo: casa de
+  muestra, edificio dúplex, Digital Hub y centro de bienestar Sama), tres usuarios, `operator` y `operator2` (rol
+  `OPERATOR`) y `viewer` (rol `VIEWER`), cuya contraseña es su propio nick, y trece visualizaciones repartidas entre
+  `admin` y los dos operadores (cada modelo tiene al menos tres; unas públicas y otras privadas, con marcadores libres y
+  anclados y con las distintas opciones de aspecto y comportamiento, para probar el editor y el visor). Los anclajes y
+  las coordenadas de los marcadores demo dependen de los identificadores de los elementos de esos IFC: si se cambia
+  un fichero, hay que revisarlos. Estos usuarios iniciales no pasan por las reglas de contraseña del servicio.
 - Si algo falla después de crearla, **la borra**, para no dejar una base de datos a medias que el siguiente arranque
   daría por buena. Aparte de la demo, que se rehace a propósito, el arranque solo borra una base de datos que acaba de
   crear él mismo.
@@ -1052,12 +1122,16 @@ Notas de diseño:
   visualización no las borra); si es una lista, **sustituye a todas** las guardadas, en ese orden (`[]` las borra).
   Las piezas se guardan en una sola transacción junto con la visualización, así que un fallo a medias no deja la
   visualización sin piezas. Como se reinsertan, sus `id` cambian en cada guardado de la lista.
-- **Tipo de pieza:** de momento solo `MARKER` (`BIMModelVisualizationMarkerPieceDto`: `x`, `y`, `z` y `color`). Un tipo
-  desconocido en la entrada responde 422. Las coordenadas deben ser números finitos: un `NaN` o un infinito responde
-  400, y se comprueba en el servicio y no en el DTO porque el error de validación de Pydantic repetiría el valor
-  recibido y un `NaN` no se puede escribir en la respuesta JSON (daría un 500). El `color` es un texto libre, a
-  propósito: admite cualquier forma de expresar un color. Cuando haya más tipos, `pieces` pasará a ser una unión
-  discriminada por `type`.
+- **Tipo de pieza:** de momento solo `MARKER` (`BIMModelVisualizationMarkerPieceDto`, con los campos de la tabla de
+  `BIMModelVisualizationMarkerPiece`). Un tipo desconocido en la entrada responde 422. El DTO valida cada campo de
+  entrada: listas cerradas (`icon`, `link_target` y `title_position`), rangos (`opacity` de 0 a 1, `size` mayor que 0
+  y hasta 10, `anchor_id` mayor o igual que 0), longitudes máximas, el color del título (`#RRGGBB`) y el enlace (solo
+  `http://` o `https://` con algo detrás, o vacío); lo que no cumple responde 422. Las coordenadas deben ser números
+  finitos: un `NaN` o un infinito responde 400, y se comprueba en el servicio y no en el DTO porque el error de
+  validación de Pydantic repetiría el valor recibido y un `NaN` no se puede escribir en la respuesta JSON (daría un
+  500). El `color` del marcador es un texto libre, a propósito: admite cualquier forma de expresar un color. El
+  servidor no abre el IFC, así que no comprueba que `anchor_id` sea un elemento que exista en el modelo. Cuando haya
+  más tipos, `pieces` pasará a ser una unión discriminada por `type`.
 - **Permisos según la sesión y el rol** (los aplica `VisualizationService` con los permisos `VISUALIZATIONS_*`; el
   servicio solo decide si la visualización es propia o ajena, y qué roles tienen cada permiso lo dice la matriz de
   «Servicio de permisos»):

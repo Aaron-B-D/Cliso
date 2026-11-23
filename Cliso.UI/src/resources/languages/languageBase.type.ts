@@ -108,12 +108,6 @@ export type LanguageBase = {
 	/** Aviso de que el fichero elegido no es un IFC (BimModelEditor). */
 	BME_FILE_INVALID: string;
 
-	/** Pestaña con los datos generales del modelo (BimModelEditor). */
-	BME_GENERAL: string;
-
-	/** Aviso de que el nombre del modelo es obligatorio (BimModelEditor). */
-	BME_NAME_REQUIRED: string;
-
 	/** Nombre provisional de un modelo que aún no se ha guardado (BimModelEditor). */
 	BME_NEW_MODEL: string;
 
@@ -125,9 +119,6 @@ export type LanguageBase = {
 
 	/** Fichero elegido que se subirá al guardar, con su nombre en `{0}` (BimModelEditor). */
 	BME_PENDING_FILE: string;
-
-	/** Pestaña de previsualización 3D de un modelo (BimModelEditor). */
-	BME_PREVIEW: string;
 
 	/** Aviso de que no se ha podido guardar un modelo (BimModelEditor). */
 	BME_SAVE_ERROR: string;
@@ -143,6 +134,9 @@ export type LanguageBase = {
 
 	/** Mensaje mientras se sube el fichero IFC, con el porcentaje en `{0}` (BimModelEditor). */
 	BME_UPLOADING: string;
+
+	/** Aviso de que no se ha podido descargar el modelo para previsualizarlo (BimModelPreview). */
+	BMP_DOWNLOAD_ERROR: string;
 
 	/** Aviso de que la descarga del modelo se ha cancelado (BimViewerLoadingPanel). */
 	BVLP_CANCELED: string;
@@ -177,10 +171,10 @@ export type LanguageBase = {
 	/** Botón de mostrar u ocultar la rejilla (BimViewerPanel). */
 	BVP_GRID: string;
 
-	/** Color del resaltado de piezas en el menú de estilos (BimViewerPanel). */
+	/** Color del resaltado de elementos en el menú de estilos (BimViewerPanel). */
 	BVP_HIGHLIGHT_COLOR: string;
 
-	/** Botón de activar o desactivar el resaltado de piezas al hacer clic (BimViewerPanel). */
+	/** Botón de activar o desactivar el resaltado de elementos al hacer clic (BimViewerPanel). */
 	BVP_HIGHLIGHT: string;
 
 	/** Botón de volver con la cámara a la vista inicial (BimViewerPanel). */
@@ -375,6 +369,204 @@ export type LanguageBase = {
 	/** Aviso de que el usuario se ha modificado correctamente (UserEditor). */
 	UE_UPDATED: string;
 
+	/** Aviso de que la visualización se ha añadido correctamente (VisualizationEditor). */
+	VE_ADDED: string;
+
+	/** Aviso de que la visualización se ha eliminado correctamente (VisualizationEditor). */
+	VE_DELETED: string;
+
+	/** Pregunta de confirmación del borrado de una visualización, con su nombre en `{0}` (VisualizationEditor). */
+	VE_DELETE_CONFIRM: string;
+
+	/** Aviso de que no se ha podido borrar una visualización (VisualizationEditor). */
+	VE_DELETE_ERROR: string;
+
+	/** Aviso de que no se han podido cargar las visualizaciones (VisualizationEditor). */
+	VE_LOAD_ERROR: string;
+
+	/** Etiqueta del modelo BIM sobre el que trabaja una visualización (VisualizationEditor). */
+	VE_MODEL: string;
+
+	/** Aviso de que hay que elegir el modelo BIM de la visualización (VisualizationEditor). */
+	VE_MODEL_REQUIRED: string;
+
+	/** Texto cuando no hay ninguna visualización (VisualizationEditor). */
+	VE_NO_ITEMS: string;
+
+	/** Texto cuando no hay ninguna visualización seleccionada (VisualizationEditor). */
+	VE_NO_SELECTION: string;
+
+	/** Nombre accesible del icono de una visualización de otro usuario (VisualizationEditor). */
+	VE_OTHER_USER: string;
+
+	/** Nombre accesible del icono de una visualización del propio usuario (VisualizationEditor). */
+	VE_OWN: string;
+
+	/** Título de la pestaña con las piezas de la visualización (VisualizationEditor). */
+	VE_PIECES: string;
+
+	/** Aviso de que no se han podido cargar las piezas de una visualización (VisualizationEditor). */
+	VE_PIECES_LOAD_ERROR: string;
+
+	/** Casilla para que otros usuarios puedan ver la visualización (VisualizationEditor). */
+	VE_PUBLIC: string;
+
+	/** Aviso de que no se ha podido guardar una visualización (VisualizationEditor). */
+	VE_SAVE_ERROR: string;
+
+	/** Texto de ayuda del buscador de visualizaciones (VisualizationEditor). */
+	VE_SEARCH: string;
+
+	/** Aviso de que la visualización se ha modificado correctamente (VisualizationEditor). */
+	VE_UPDATED: string;
+
+	/** Etiqueta del elemento del modelo al que está anclado un marcador (VisualizationMarkerPanel). */
+	VMP_ANCHOR: string;
+
+	/** Etiqueta del color de un marcador (VisualizationMarkerPanel). */
+	VMP_COLOR: string;
+
+	/** Etiqueta del icono de un marcador (VisualizationMarkerPanel). */
+	VMP_ICON: string;
+
+	/** Nombre del icono de comprobación (VisualizationMarkerPanel). */
+	VMP_ICON_CHECK: string;
+
+	/** Nombre del icono de bandera (VisualizationMarkerPanel). */
+	VMP_ICON_FLAG: string;
+
+	/** Nombre del icono de información (VisualizationMarkerPanel). */
+	VMP_ICON_INFO: string;
+
+	/** Nombre del icono de chincheta (VisualizationMarkerPanel). */
+	VMP_ICON_PIN: string;
+
+	/** Nombre del icono de aviso (VisualizationMarkerPanel). */
+	VMP_ICON_WARNING: string;
+
+	/** Texto del desplegable de anclaje cuando ningún elemento coincide con lo escrito (VisualizationMarkerPanel). */
+	VMP_NO_RESULTS: string;
+
+	/** Botón que quita el anclaje de un marcador (VisualizationMarkerPanel). */
+	VMP_RELEASE: string;
+
+	/** Etiqueta del tamaño de un marcador (VisualizationMarkerPanel). */
+	VMP_SIZE: string;
+
+	/** Etiqueta del título de un marcador (VisualizationMarkerPanel). */
+	VMP_TITLE: string;
+
+	/** Etiqueta de la descripción de un marcador (VisualizationMarkerPanel). */
+	VMP_DESCRIPTION: string;
+
+	/** Interruptor que atenúa un marcador mientras el ratón no está encima (VisualizationMarkerPanel). */
+	VMP_DIM_WHEN_IDLE: string;
+
+	/** Interruptor que resalta el elemento anclado al pulsar un marcador (VisualizationMarkerPanel). */
+	VMP_HIGHLIGHT_ON_SELECT: string;
+
+	/** Etiqueta del enlace de un marcador (VisualizationMarkerPanel). */
+	VMP_LINK: string;
+
+	/** Etiqueta de dónde se abre el enlace de un marcador (VisualizationMarkerPanel). */
+	VMP_LINK_TARGET: string;
+
+	/** Opción de abrir el enlace en la pestaña actual (VisualizationMarkerPanel). */
+	VMP_LINK_TARGET_CURRENT_TAB: string;
+
+	/** Opción de abrir el enlace en una ventana nueva (VisualizationMarkerPanel). */
+	VMP_LINK_TARGET_NEW_WINDOW: string;
+
+	/** Etiqueta de la opacidad de un marcador, en porcentaje (VisualizationMarkerPanel). */
+	VMP_OPACITY: string;
+
+	/** Título de la sección de aspecto del marcador (VisualizationMarkerPanel). */
+	VMP_SECTION_APPEARANCE: string;
+
+	/** Título de la sección de comportamiento del marcador (VisualizationMarkerPanel). */
+	VMP_SECTION_BEHAVIOR: string;
+
+	/** Título de la sección de contenido del marcador (VisualizationMarkerPanel). */
+	VMP_SECTION_CONTENT: string;
+
+	/** Título de la sección de posición y anclaje del marcador (VisualizationMarkerPanel). */
+	VMP_SECTION_POSITION: string;
+
+	/** Etiqueta del color del título de un marcador (VisualizationMarkerPanel). */
+	VMP_TEXT_COLOR: string;
+
+	/** Etiqueta de la posición del título de un marcador (VisualizationMarkerPanel). */
+	VMP_TITLE_POSITION: string;
+
+	/** Opción de escribir el título encima del icono (VisualizationMarkerPanel). */
+	VMP_TITLE_POSITION_ABOVE: string;
+
+	/** Opción de escribir el título debajo del icono (VisualizationMarkerPanel). */
+	VMP_TITLE_POSITION_BELOW: string;
+
+	/** Opción de no escribir el título (VisualizationMarkerPanel). */
+	VMP_TITLE_POSITION_HIDDEN: string;
+
+	/** Opción de escribir el título a la derecha del icono (VisualizationMarkerPanel). */
+	VMP_TITLE_POSITION_RIGHT: string;
+
+	/** Interruptor que deja ver un marcador a través del modelo (VisualizationMarkerPanel). */
+	VMP_VISIBLE_THROUGH_MODEL: string;
+
+	/** Botón que quita la pieza seleccionada (VisualizationPieceDetail). */
+	VPD_DELETE: string;
+
+	/** Texto cuando no hay ninguna pieza seleccionada (VisualizationPieceDetail). */
+	VPD_EMPTY: string;
+
+	/** Botón que lleva la vista a la pieza seleccionada (VisualizationPieceDetail). */
+	VPD_LOCATE: string;
+
+	/** Título del panel de detalle cuando no hay ninguna pieza seleccionada (VisualizationPieceDetail). */
+	VPD_TITLE: string;
+
+	/** Texto cuando la pieza seleccionada es de un tipo que el panel aún no sabe mostrar (VisualizationPieceDetail). */
+	VPD_UNSUPPORTED: string;
+
+	/** Botón que abre el selector del tipo de pieza a añadir (VisualizationPieceList). */
+	VPL_ADD: string;
+
+	/** Texto cuando la visualización no tiene piezas (VisualizationPieceList). */
+	VPL_EMPTY: string;
+
+	/** Título de la lista de piezas, con el número de piezas en `{0}` (VisualizationPieceList). */
+	VPL_TITLE: string;
+
+	/** Botón que cierra el selector del tipo de pieza (VisualizationPiecePicker). */
+	VPP_CLOSE: string;
+
+	/** Título del selector del tipo de pieza (VisualizationPiecePicker). */
+	VPP_TITLE: string;
+
+	/** Aviso de que no se ha podido anclar la pieza al elemento elegido (VisualizationPieceWorkspace). */
+	VPW_ANCHOR_ERROR: string;
+
+	/** Nombre por defecto de una pieza, con el nombre de su tipo en `{0}` y su número en `{1}` (VisualizationPieceWorkspace). */
+	VPW_DEFAULT_NAME: string;
+
+	/** Aviso de que no se han podido cargar los elementos del modelo para anclar piezas (VisualizationPieceWorkspace). */
+	VPW_ELEMENTS_LOAD_ERROR: string;
+
+	/** Botón que pliega el panel de piezas junto al visor (VisualizationPieceWorkspace). */
+	VPW_HIDE_PANEL: string;
+
+	/** Aviso de que no se ha podido llevar la vista a la pieza (VisualizationPieceWorkspace). */
+	VPW_LOCATE_ERROR: string;
+
+	/** Aviso de que no se ha podido crear la pieza del tipo elegido (VisualizationPieceWorkspace). */
+	VPW_PIECE_CREATE_ERROR: string;
+
+	/** Indicación de que el siguiente clic en el modelo coloca la pieza elegida (VisualizationPieceWorkspace). */
+	VPW_PLACING: string;
+
+	/** Botón que despliega el panel de piezas junto al visor (VisualizationPieceWorkspace). */
+	VPW_SHOW_PANEL: string;
+
 	/** Botón de aceptar (se usa en más de un sitio). */
 	WEB_ACCEPT: string;
 
@@ -396,8 +588,17 @@ export type LanguageBase = {
 	/** Pregunta de confirmación para descartar cambios sin guardar (se usa en más de un sitio). */
 	WEB_DISCARD_CONFIRM: string;
 
+	/** Descripción del tipo de pieza marcador: qué es y para qué sirve (se usa en más de un sitio). */
+	WEB_PIECE_MARKER_DESCRIPTION: string;
+
+	/** Nombre del tipo de pieza marcador (se usa en más de un sitio). */
+	WEB_PIECE_MARKER_NAME: string;
+
 	/** Aviso de que un campo obligatorio está vacío (se usa en más de un sitio). */
 	WEB_FIELD_REQUIRED: string;
+
+	/** Pestaña con los datos generales de un elemento (se usa en más de un sitio). */
+	WEB_GENERAL: string;
 
 	/** Inicio: botón de la barra lateral y título de la pantalla principal (se usa en más de un sitio). */
 	WEB_HOME: string;
@@ -420,6 +621,9 @@ export type LanguageBase = {
 	/** Nombre de un modelo o de un usuario (se usa en más de un sitio). */
 	WEB_NAME: string;
 
+	/** Aviso de que el nombre es obligatorio (se usa en más de un sitio). */
+	WEB_NAME_REQUIRED: string;
+
 	/** Etiqueta del nombre de usuario (nick) con el que se inicia sesión (se usa en más de un sitio). */
 	WEB_NICK: string;
 
@@ -438,12 +642,15 @@ export type LanguageBase = {
 	/** Etiqueta del campo que repite la contraseña (se usa en más de un sitio). */
 	WEB_PASSWORD_REPEAT: string;
 
+	/** Pestaña de previsualización 3D (se usa en más de un sitio). */
+	WEB_PREVIEW: string;
+
 	/** Parámetros: entrada del panel de edición y título de su editor (se usa en más de un sitio). */
 	WEB_SETTINGS: string;
 
 	/** Usuarios: entrada del panel de edición y título de su editor (se usa en más de un sitio). */
 	WEB_USERS: string;
 
-	/** Visualizaciones: entrada del panel de edición (se usará también en su editor). */
+	/** Visualizaciones: entrada del panel de edición y título de su editor (se usa en más de un sitio). */
 	WEB_VISUALIZATIONS: string;
 };

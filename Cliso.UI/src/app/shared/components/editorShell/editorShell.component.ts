@@ -1,5 +1,6 @@
 import { Component, EventEmitter, Input, OnChanges, OnDestroy, Output } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
+import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -16,7 +17,7 @@ import { LanguageManager } from 'src/app/shared/utils/language/languageManager.u
  */
 @Component({
 	selector: 'app-editor-shell',
-	imports: [MatButtonModule, MatFormFieldModule, MatInputModule, MatTooltipModule],
+	imports: [FormsModule, MatButtonModule, MatFormFieldModule, MatInputModule, MatTooltipModule],
 	templateUrl: './editorShell.component.html',
 	styleUrl: './editorShell.component.scss'
 })
@@ -37,6 +38,9 @@ export class EditorShellComponent implements OnChanges, OnDestroy {
 
 	/** `true` si el elemento seleccionado se puede borrar: si no, el botón de borrar se muestra desactivado. */
 	@Input() public CanDeleteSelection: boolean = true;
+
+	/** `true` si el usuario puede editar: si no, el pie no muestra el botón de editar. */
+	@Input() public CanEdit: boolean = true;
 
 	/** Se emite al pedir cerrar el editor: quien lo contiene decide si se cierra. */
 	@Output() public closeRequested: EventEmitter<void> = new EventEmitter<void>();
@@ -306,8 +310,8 @@ export class EditorShellComponent implements OnChanges, OnDestroy {
 		this.emitSaveClicked();
 	}
 
-	public OnSearchInput(event: Event): void {
-		this.emitSearchChanged((event.target as HTMLInputElement).value);
+	public OnSearchChanged(text: string): void {
+		this.emitSearchChanged(text);
 	}
 
 	public OnSplitterKeyDown(event: KeyboardEvent): void {

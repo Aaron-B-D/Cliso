@@ -5,6 +5,7 @@ import { ApplicationSettingsDataAccessService } from 'src/app/shared/services/ap
 import { AuthDataAccessService } from 'src/app/shared/services/authDataAccess.service';
 import { BimModelDataAccessService } from 'src/app/shared/services/bimModelDataAccess.service';
 import { UserDataAccessService } from 'src/app/shared/services/userDataAccess.service';
+import { VisualizationDataAccessService } from 'src/app/shared/services/visualizationDataAccess.service';
 import { Environment } from 'src/environments/environment';
 
 /**
@@ -28,6 +29,9 @@ export class DataAccessService {
 	/** Llamadas de los usuarios. */
 	public readonly Users: UserDataAccessService;
 
+	/** Llamadas de las visualizaciones. */
+	public readonly Visualizations: VisualizationDataAccessService;
+
 	//#endregion PUBLIC PROPERTIES
 
 	//#region CONSTRUCTOR
@@ -40,6 +44,7 @@ export class DataAccessService {
 		this.Auth = new AuthDataAccessService(http, Environment.API_URL);
 		this.BimModels = new BimModelDataAccessService(http, Environment.API_URL);
 		this.Users = new UserDataAccessService(http, Environment.API_URL);
+		this.Visualizations = new VisualizationDataAccessService(http, Environment.API_URL);
 	}
 
 	//#endregion CONSTRUCTOR

@@ -10,8 +10,9 @@ from app.application.ports.outbound import (
 	VisualizationRepositoryBase,
 );
 from app.application.use_cases import UserService;
-from app.domain.models import ApplicationParameterType, BIMModel, User, UserRole;
+from app.domain.models import ApplicationParameterType, User, UserRole;
 from app.initializer.demo_data import DemoData;
+from app.initializer.demo_visualization_data import DemoVisualizationData;
 from app.logger import Logger;
 from app.utils import PasswordUtils, PathUtils;
 
@@ -142,7 +143,7 @@ class DatabaseInitializer:
 		"""Guarda los datos de demostración con los repositorios y copia los ficheros IFC de los modelos a su carpeta.
 
 		La carpeta de los ficheros es la de los parámetros de la aplicación, que ya están cargados con los datos básicos.
-		Las visualizaciones demo son del administrador y se hacen sobre el primer modelo.
+		Las visualizaciones demo son del administrador y de los dos operadores, repartidas entre todos los modelos.
 
 		Args:
 			admin: Administrador ya guardado, propietario de las visualizaciones demo.
@@ -151,25 +152,33 @@ class DatabaseInitializer:
 			DatabaseOperationError: Si algún dato no se puede guardar o algún fichero no se puede copiar.
 		"""
 		try:
+			# Los identificadores de los usuarios y de los modelos, para que las visualizaciones demo los usen
+			user_ids: dict[str, int] = {};
+			if admin.id is None:
+				raise DatabaseOperationError("El administrador no tiene identificador");
+			user_ids[admin.nick] = admin.id;
 			demo_users = DemoData.get_users();
 			for user in demo_users:
-				self._user_repository.add(user);
+				saved_user = self._user_repository.add(user);
+				if saved_user.id is None:
+					raise DatabaseOperationError(f"El usuario demo '{saved_user.nick}' no tiene identificador");
+				user_ids[saved_user.nick] = saved_user.id;
 			Logger.debug(f"Usuarios demo cargados: {len(demo_users)}.");
 
 			bim_models_directory = PathUtils.resolve(
 				self._application_parameter_repository.get_by_type(ApplicationParameterType.BIM_MODELS_DIRECTORY).value
 			);
 			file_storage = LocalBIMModelFileStorage(bim_models_directory);
-			saved_models: list[BIMModel] = [];
+			model_ids: dict[str, int] = {};
 			for model in DemoData.get_bim_models():
-				saved_models.append(self._bim_model_repository.add(model));
+				saved_model = self._bim_model_repository.add(model);
+				if saved_model.id is None:
+					raise DatabaseOperationError(f"El modelo demo '{saved_model.name}' no tiene identificador");
+				model_ids[saved_model.file_name] = saved_model.id;
 				file_storage.import_file(model.stored_file_name, DemoData.get_bim_model_file_path(model));
-			Logger.debug(f"Modelos BIM demo cargados, con sus ficheros: {len(saved_models)}.");
+			Logger.debug(f"Modelos BIM demo cargados, con sus ficheros: {len(model_ids)}.");
 
-			first_model_id = saved_models[0].id;
-			if admin.id is None or first_model_id is None:
-				raise DatabaseOperationError("El administrador o el primer modelo demo no tienen identificador");
-			demo_visualizations = DemoData.get_visualizations(admin.id, first_model_id);
+			demo_visualizations = DemoVisualizationData.get_visualizations(user_ids, model_ids);
 			for visualization in demo_visualizations:
 				self._visualization_repository.add(visualization);
 			Logger.debug(f"Visualizaciones demo cargadas: {len(demo_visualizations)}.");

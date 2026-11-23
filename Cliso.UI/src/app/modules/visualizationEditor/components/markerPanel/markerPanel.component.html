@@ -1,0 +1,204 @@
+<div class="visualizationMarkerPanelDir">
+	<h4 class="vmp_section">{{ SECTION_CONTENT_TEXT }}</h4>
+	<mat-form-field appearance="outline" subscriptSizing="dynamic">
+		<mat-label>{{ TITLE_TEXT }}</mat-label>
+		<input matInput
+			[appReadOnly]="IsReadOnly"
+			[maxlength]="MAX_TITLE_LENGTH"
+			[ngModel]="Marker.Title"
+			[ngModelOptions]="BLUR_OPTIONS"
+			(ngModelChange)="OnTitleChanged($event)"
+		/>
+	</mat-form-field>
+	<mat-form-field appearance="outline" subscriptSizing="dynamic">
+		<mat-label>{{ DESCRIPTION_TEXT }}</mat-label>
+		<textarea matInput rows="3"
+			[appReadOnly]="IsReadOnly"
+			[maxlength]="MAX_DESCRIPTION_LENGTH"
+			[ngModel]="Marker.Description"
+			[ngModelOptions]="BLUR_OPTIONS"
+			(ngModelChange)="OnDescriptionChanged($event)"
+		></textarea>
+	</mat-form-field>
+	<mat-form-field appearance="outline" subscriptSizing="dynamic">
+		<mat-label>{{ LINK_TEXT }}</mat-label>
+		<input matInput type="url"
+			[appReadOnly]="IsReadOnly"
+			[maxlength]="MAX_LINK_LENGTH"
+			[ngModel]="Marker.Link"
+			[ngModelOptions]="BLUR_OPTIONS"
+			(ngModelChange)="OnLinkChanged($event)"
+		/>
+	</mat-form-field>
+	<mat-form-field appearance="outline" subscriptSizing="dynamic"
+		[appSelectReadOnly]="IsLinkTargetDisabled"
+	>
+		<mat-label>{{ LINK_TARGET_TEXT }}</mat-label>
+		<mat-select
+			[value]="Marker.LinkTarget"
+			(selectionChange)="OnLinkTargetChanged($event.value)"
+		>
+			@for (option of LinkTargetOptions; track option.Value) {
+				<mat-option [value]="option.Value">{{ option.Text }}</mat-option>
+			}
+		</mat-select>
+	</mat-form-field>
+
+	<h4 class="vmp_section">{{ SECTION_APPEARANCE_TEXT }}</h4>
+	<div class="vmp_row">
+		<mat-form-field appearance="outline" subscriptSizing="dynamic"
+			[appSelectReadOnly]="IsReadOnly"
+		>
+			<mat-label>{{ ICON_TEXT }}</mat-label>
+			<mat-select
+				[value]="Marker.Icon"
+				(selectionChange)="OnIconChanged($event.value)"
+			>
+				@for (option of IconOptions; track option.Value) {
+					<mat-option [value]="option.Value">{{ option.Text }}</mat-option>
+				}
+			</mat-select>
+		</mat-form-field>
+		<mat-form-field appearance="outline" subscriptSizing="dynamic">
+			<mat-label>{{ SIZE_TEXT }}</mat-label>
+			<input matInput type="number"
+				[appReadOnly]="IsReadOnly"
+				[max]="MAX_SIZE"
+				[min]="MIN_SIZE"
+				[ngModel]="Marker.Size"
+				[ngModelOptions]="BLUR_OPTIONS"
+				[step]="SIZE_STEP"
+				(ngModelChange)="OnSizeChanged($event)"
+			/>
+		</mat-form-field>
+		<label class="vmp_color">
+			<span>{{ COLOR_TEXT }}</span>
+			<input class="vmp_color_input" type="color"
+				matTooltip="{{ COLOR_TEXT }}"
+				[disabled]="IsReadOnly"
+				[ngModel]="Marker.Color.HexColor"
+				(ngModelChange)="OnColorChanged($event)"
+			/>
+		</label>
+	</div>
+	<div class="vmp_row">
+		<mat-form-field appearance="outline" subscriptSizing="dynamic">
+			<mat-label>{{ OPACITY_TEXT }}</mat-label>
+			<input matInput type="number"
+				[appReadOnly]="IsReadOnly"
+				[max]="MAX_OPACITY_PERCENT"
+				[min]="MIN_OPACITY_PERCENT"
+				[ngModel]="OpacityPercent"
+				[ngModelOptions]="BLUR_OPTIONS"
+				[step]="OPACITY_STEP"
+				(ngModelChange)="OnOpacityChanged($event)"
+			/>
+		</mat-form-field>
+		<label class="vmp_color">
+			<span>{{ TEXT_COLOR_TEXT }}</span>
+			<input class="vmp_color_input" type="color"
+				matTooltip="{{ TEXT_COLOR_TEXT }}"
+				[disabled]="IsReadOnly"
+				[ngModel]="Marker.TextColor.HexColor"
+				(ngModelChange)="OnTextColorChanged($event)"
+			/>
+		</label>
+	</div>
+	<mat-form-field appearance="outline" subscriptSizing="dynamic"
+		[appSelectReadOnly]="IsReadOnly"
+	>
+		<mat-label>{{ TITLE_POSITION_TEXT }}</mat-label>
+		<mat-select
+			[value]="Marker.TitlePosition"
+			(selectionChange)="OnTitlePositionChanged($event.value)"
+		>
+			@for (option of TitlePositionOptions; track option.Value) {
+				<mat-option [value]="option.Value">{{ option.Text }}</mat-option>
+			}
+		</mat-select>
+	</mat-form-field>
+	<mat-slide-toggle
+		[appCheckboxReadOnly]="IsReadOnly"
+		[checked]="Marker.VisibleThroughModel"
+		(change)="OnVisibleThroughModelChanged($event.checked)"
+	>{{ VISIBLE_THROUGH_MODEL_TEXT }}</mat-slide-toggle>
+
+	<h4 class="vmp_section">{{ SECTION_BEHAVIOR_TEXT }}</h4>
+	<mat-slide-toggle
+		[appCheckboxReadOnly]="IsReadOnly"
+		[checked]="Marker.DimWhenIdle"
+		(change)="OnDimWhenIdleChanged($event.checked)"
+	>{{ DIM_WHEN_IDLE_TEXT }}</mat-slide-toggle>
+	<mat-slide-toggle
+		[appCheckboxReadOnly]="IsReadOnly"
+		[checked]="Marker.HighlightOnSelect"
+		[disabled]="IsHighlightDisabled"
+		(change)="OnHighlightOnSelectChanged($event.checked)"
+	>{{ HIGHLIGHT_ON_SELECT_TEXT }}</mat-slide-toggle>
+
+	<h4 class="vmp_section">{{ SECTION_POSITION_TEXT }}</h4>
+	<div class="vmp_row">
+		<mat-form-field appearance="outline" subscriptSizing="dynamic">
+			<mat-label>{{ AXIS_X }}</mat-label>
+			<input matInput type="number"
+				[appReadOnly]="IsReadOnly"
+				[ngModel]="Marker.Position.X"
+				[ngModelOptions]="BLUR_OPTIONS"
+				[step]="POSITION_STEP"
+				(ngModelChange)="OnXChanged($event)"
+			/>
+		</mat-form-field>
+		<mat-form-field appearance="outline" subscriptSizing="dynamic">
+			<mat-label>{{ AXIS_Y }}</mat-label>
+			<input matInput type="number"
+				[appReadOnly]="IsReadOnly"
+				[ngModel]="Marker.Position.Y"
+				[ngModelOptions]="BLUR_OPTIONS"
+				[step]="POSITION_STEP"
+				(ngModelChange)="OnYChanged($event)"
+			/>
+		</mat-form-field>
+		<mat-form-field appearance="outline" subscriptSizing="dynamic">
+			<mat-label>{{ AXIS_Z }}</mat-label>
+			<input matInput type="number"
+				[appReadOnly]="IsReadOnly"
+				[ngModel]="Marker.Position.Z"
+				[ngModelOptions]="BLUR_OPTIONS"
+				[step]="POSITION_STEP"
+				(ngModelChange)="OnZChanged($event)"
+			/>
+		</mat-form-field>
+	</div>
+	<div class="vmp_row">
+		<mat-form-field class="vmp_anchor" appearance="outline" subscriptSizing="dynamic">
+			<mat-label>{{ ANCHOR_TEXT }}</mat-label>
+			<input matInput
+				matTooltip="{{ AnchorText }}"
+				[appReadOnly]="IsReadOnly"
+				[matAutocomplete]="anchorAuto"
+				[matAutocompleteDisabled]="IsReadOnly"
+				[ngModel]="AnchorText"
+				(focus)="OnAnchorFocused()"
+				(ngModelChange)="OnAnchorTextChanged($event)"
+			/>
+			<mat-autocomplete #anchorAuto="matAutocomplete"
+				(optionSelected)="OnAnchorSelected($event.option.value)"
+			>
+				@if (IsLoadingElements) {
+					<mat-option disabled>{{ LOADING_TEXT }}</mat-option>
+				} @else {
+					@for (option of AnchorOptions; track option.Id) {
+						<mat-option [value]="option.Text">{{ option.Text }}</mat-option>
+					} @empty {
+						<mat-option disabled>{{ NO_RESULTS_TEXT }}</mat-option>
+					}
+				}
+			</mat-autocomplete>
+		</mat-form-field>
+		@if (CanRelease) {
+			<button mat-stroked-button type="button"
+				(click)="OnReleaseClicked()"
+			>{{ RELEASE_TEXT }}</button>
+		}
+	</div>
+</div>
