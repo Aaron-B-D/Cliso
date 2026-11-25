@@ -100,7 +100,7 @@ Proyecto/
 │   └── settings.json  # Parámetros de arranque (ver "Configuración y modo demo")
 ├── Cliso.UI/      # Front web (Angular)
 │   └── src/
-│       ├── app/          # core/ (arranque, guard e interceptor de sesión), modules/ (una carpeta por pantalla) y shared/ (lo común)
+│       ├── app/          # core/ (arranque, guard e interceptor de sesión), modules/ (una carpeta por pantalla), shared/ (lo común) y validators/ (validación de formularios)
 │       ├── resources/    # img/icons (iconos SVG) y languages (textos multidioma)
 │       ├── styles.scss   # Estilos globales (importa src/styles/)
 │       └── styles/       # Tokens de diseño, breakpoints, rejilla, tema de Material, base, clases provisionales y estilos de las directivas
@@ -118,7 +118,7 @@ Proyecto/
 ```
 
 El back todavía no tiene tests. El front tiene los suyos como ficheros `*.spec.ts` junto al código (conversión de
-fechas y modelo BIM, además del test que genera Angular); por defecto no se escriben, solo para comportamientos delicados.
+fechas, modelo BIM y validadores de formularios, además del test que genera Angular); por defecto no se escriben, solo para comportamientos delicados.
 
 La memoria del proyecto (formato `.odt`) se encuentra en la carpeta `Documentation`.
 
@@ -140,7 +140,8 @@ La guía completa está en [`Documentation/UI/[Diseño] Cliso.UI - Guía de esti
   Los iconos son SVG propios (trazo, 24×24) en `Cliso.UI/src/resources/img/icons/`, sin librería de iconos. Los textos multidioma (gallego, castellano e inglés)
   viven en `Cliso.UI/src/resources/languages/` y los gestiona `LanguageManager`.
 - **Estructura del código del front** (`Cliso.UI/src`): `app/core` (arranque, guard de rutas e interceptor de sesión), `app/modules` (una
-  carpeta por pantalla), `app/shared` (lo común: definiciones, directivas, interfaces generales, modelos, servicios, utilidades), `resources` (imágenes
+  carpeta por pantalla), `app/shared` (lo común: definiciones, directivas, interfaces generales, modelos, servicios, utilidades),
+  `app/validators` (validadores de formularios), `resources` (imágenes
   y textos multidioma) y `styles`. Las llamadas al API pasan por `DataAccessService`, agrupadas por concepto
   (`Auth`, `BimModels`, `Users`...), y se esperan con `RequestUtils.AwaitRequest` (o `AwaitRequestWithProgress`, para subir y descargar
   ficheros con su porcentaje). Las normas
@@ -161,6 +162,17 @@ La guía completa está en [`Documentation/UI/[Diseño] Cliso.UI - Guía de esti
   `mat-form-field` (en vez de `[disabled]`): ni el ratón ni el teclado abren la lista; las casillas y los interruptores,
   `appCheckboxReadOnly` (ni el ratón ni el teclado cambian su valor). Las directivas están en
   `shared/directives` y sus estilos globales, en `styles/_directives.scss`.
+- **Validación de formularios:** cada editor valida al guardar con un validador propio (`NombreClaseValidator`, en
+  `app/validators`, uno por clase o formulario) que hereda de `ValidatorBase`, donde están las comprobaciones comunes
+  (obligatorio, coincidencia, número, rango y extensión de fichero). Cada regla incumplida es una `BrokenRule` (clase
+  abstracta, con su `BrokenRuleType` y un mensaje multidioma con parámetros, por ejemplo el rango esperado y el valor
+  introducido) y el validador devuelve un `ValidationResult` con todas. El editor no guarda si hay reglas rotas: las
+  muestra todas en un botón de alerta con contador en el pie (`ValidationAlert`, dentro de `EditorShell`), que abre un
+  panel flotante y se abre solo tras un guardado fallido, y pone en rojo los campos afectados con las directivas
+  `appInvalid` (campos de texto) y `appSelectInvalid` (selectores), que no llevan texto de error propio. Se exige el
+  nombre y apellido, el nick, la contraseña y el rol en usuarios, el nombre en modelos BIM (el fichero es opcional), el
+  nombre y el modelo en visualizaciones, y un valor válido en los parámetros de la aplicación. Un fichero que no es
+  `.ifc` se descarta al elegirlo, con un aviso, y no llega al formulario. Estas validaciones no sustituyen a las del API.
 - **Avisos y confirmaciones:** `NotificationService` muestra un toast arriba al centro (3 s) con el color de su nivel
   (peligro en rojo, éxito en verde, aviso con borde blanco, informativo con el borde normal) y
   `ConfirmDialogService.Show(mensaje, tipo)` abre un diálogo según su tipo (`ConfirmDialogType`): `QUESTION` (cancelar
@@ -174,7 +186,7 @@ La guía completa está en [`Documentation/UI/[Diseño] Cliso.UI - Guía de esti
   del navegador. Hoy ningún model del front las usa (`BimModel` ignora la fecha de creación, que la UI no muestra),
   pero la utilidad queda lista.
 - El diseño de pantallas está en los diagramas `.drawio` de `Documentation/UI/` (barra de herramientas, editor, editor de
-  visualizaciones, home, inicio de sesión, parámetros y usuarios). Cada uno incluye páginas «(móvil)» de ≈ 360 px que sirven de referencia de responsividad: la
+  visualizaciones, home, inicio de sesión, parámetros, usuarios y validación de formularios). Cada uno incluye páginas «(móvil)» de ≈ 360 px que sirven de referencia de responsividad: la
   barra lateral pasa a barra superior con menú desplegable, el Home muestra las fichas en una columna con los paneles
   apilados, los editores ocupan la pantalla completa con lista y detalle en dos pasos y el inicio de sesión es una
   tarjeta centrada a ancho completo menos el margen.
@@ -298,7 +310,8 @@ Implementado hasta ahora (`Cliso.UI/src/app`):
     Editar y borrar dependen de los permisos (`VISUALIZATIONS_*_OWN` o `_ANY`). Se abre más alto que los demás editores.
 - **Directivas** (`shared/directives`): `ReadOnlyDirective` (`appReadOnly`), `SelectReadOnlyDirective`
   (`appSelectReadOnly`) y `CheckboxReadOnlyDirective` (`appCheckboxReadOnly`, para casillas e interruptores), ver
-  «Campos en solo lectura».
+  «Campos en solo lectura»; y `InvalidDirective` (`appInvalid`) y `SelectInvalidDirective` (`appSelectInvalid`), que
+  marcan en rojo un campo de texto o un selector con una regla rota, ver «Validación de formularios».
 - **Visor 3D reutilizable** (`shared/components/bimViewer`, motor en `BimViewerManager`): carga un IFC (`Blob`) con
   ThatOpen, lo encuadra, permite orbitar y acercar y emite lo que se alcanza al hacer clic sobre el modelo (`BimViewerHit`:
   el punto en coordenadas del mundo y el elemento que hay bajo él). Pinta los marcadores de las visualizaciones
@@ -330,7 +343,7 @@ Implementado hasta ahora (`Cliso.UI/src/app`):
   `LocalStorageManager` (clave `LAST_BIM_MODEL_CONFIGURATION`, sin cifrar): el JSON es la propia clase
   (`JSON.stringify`) y `Convert` hace el camino inverso, dejando el valor por defecto en lo que falte o no sea válido.
 - **Componentes compartidos** (`shared/components`): `EditorShell` (esqueleto de los editores), `EditorCard` (la ficha de
-  las listas de los editores), `ConfirmDialog`, el visor 3D (`BimViewer`), la previsualización de un modelo
+  las listas de los editores), `ValidationAlert` (botón de alerta y panel con los errores de un formulario), `ConfirmDialog`, el visor 3D (`BimViewer`), la previsualización de un modelo
   (`BimModelPreview`: descarga su IFC con barra de progreso y lo muestra en el visor, con marcadores opcionales) y el
   visor con barra de herramientas y panel de carga (`BimViewerPanel`, `BimViewerToolbar` y `BimViewerLoadingPanel`).
 - **Acceso al API:** `DataAccessService` agrupa las llamadas por concepto; hoy `Auth` (iniciar y cerrar sesión, y

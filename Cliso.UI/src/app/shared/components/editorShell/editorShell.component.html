@@ -89,6 +89,7 @@
 	</div>
 	<footer class="es_footer">
 		@if (IsEditing) {
+			<app-validation-alert [Messages]="ErrorMessages" />
 			<button mat-icon-button
 				matTooltip="{{ SAVE_TEXT }}"
 				[attr.aria-label]="SAVE_TEXT"

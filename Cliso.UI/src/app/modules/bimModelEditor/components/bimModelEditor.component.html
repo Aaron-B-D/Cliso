@@ -1,5 +1,6 @@
 <app-editor-shell class="bimModelEditorDir"
 	[CanDelete]="CanDelete"
+	[ErrorMessages]="ErrorMessages"
 	[HasSelection]="HasSelection"
 	[IsBusy]="IsBusy"
 	[IsEditing]="IsEditing"
@@ -50,14 +51,12 @@
 						<mat-form-field appearance="outline" subscriptSizing="dynamic">
 							<mat-label>{{ NAME_TEXT }}</mat-label>
 							<input matInput
+								[appInvalid]="NameInvalid"
 								[appReadOnly]="IsReadOnly"
 								[ngModel]="Draft.Name"
 								(ngModelChange)="OnNameChanged($event)"
 							/>
 						</mat-form-field>
-						@if (NameError) {
-							<p class="bme_error" role="alert">{{ NAME_REQUIRED_TEXT }}</p>
-						}
 						<mat-form-field appearance="outline" subscriptSizing="dynamic">
 							<mat-label>{{ DESCRIPTION_TEXT }}</mat-label>
 							<textarea class="bme_description" matInput

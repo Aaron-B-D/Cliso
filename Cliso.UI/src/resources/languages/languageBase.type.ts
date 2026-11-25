@@ -12,9 +12,6 @@ export type LanguageBase = {
 	/** Valor por defecto de un parámetro, con el valor en `{0}` (ApplicationSettingsEditor). */
 	ASE_DEFAULT_VALUE: string;
 
-	/** Aviso de que la carpeta de los modelos no puede estar vacía (ApplicationSettingsEditor). */
-	ASE_DIRECTORY_REQUIRED: string;
-
 	/** Texto cuando no hay ningún parámetro en la lista (ApplicationSettingsEditor). */
 	ASE_EMPTY: string;
 
@@ -23,12 +20,6 @@ export type LanguageBase = {
 
 	/** Texto cuando no hay ningún parámetro seleccionado (ApplicationSettingsEditor). */
 	ASE_NO_SELECTION: string;
-
-	/** Aviso de que el valor debe ser un número entero mayor que cero (ApplicationSettingsEditor). */
-	ASE_NUMBER_INVALID: string;
-
-	/** Aviso de que el número está fuera de los límites, con el mínimo en `{0}` y el máximo en `{1}` (ApplicationSettingsEditor). */
-	ASE_NUMBER_RANGE: string;
 
 	/** Mensaje tras guardar: los cambios se aplican al recargar la página (ApplicationSettingsEditor). */
 	ASE_RELOAD_NOTICE: string;
@@ -105,12 +96,6 @@ export type LanguageBase = {
 	/** Texto de la zona donde se suelta o se elige el fichero IFC (BimModelEditor). */
 	BME_DROP_FILE: string;
 
-	/** Aviso de que el fichero elegido no es un IFC (BimModelEditor). */
-	BME_FILE_INVALID: string;
-
-	/** Nombre provisional de un modelo que aún no se ha guardado (BimModelEditor). */
-	BME_NEW_MODEL: string;
-
 	/** Texto de un modelo que todavía no tiene fichero IFC (BimModelEditor). */
 	BME_NO_FILE: string;
 
@@ -129,11 +114,11 @@ export type LanguageBase = {
 	/** Aviso de que el modelo se ha modificado correctamente (BimModelEditor). */
 	BME_UPDATED: string;
 
-	/** Aviso de que el modelo se ha guardado pero no se ha podido subir su fichero (BimModelEditor). */
-	BME_UPLOAD_ERROR: string;
-
 	/** Mensaje mientras se sube el fichero IFC, con el porcentaje en `{0}` (BimModelEditor). */
 	BME_UPLOADING: string;
+
+	/** Aviso de que el modelo se ha guardado pero no se ha podido subir su fichero (BimModelEditor). */
+	BME_UPLOAD_ERROR: string;
 
 	/** Aviso de que no se ha podido descargar el modelo para previsualizarlo (BimModelPreview). */
 	BMP_DOWNLOAD_ERROR: string;
@@ -159,6 +144,9 @@ export type LanguageBase = {
 	/** Aviso de que se ha fijado la vista actual como vista inicial (BimViewerPanel). */
 	BVP_DEFAULT_VIEW_SET: string;
 
+	/** Botón de mostrar u ocultar la rejilla (BimViewerPanel). */
+	BVP_GRID: string;
+
 	/** Color de la rejilla en el menú de estilos (BimViewerPanel). */
 	BVP_GRID_COLOR: string;
 
@@ -168,14 +156,11 @@ export type LanguageBase = {
 	/** Tamaño de las cuadrículas de la rejilla primaria en el menú de estilos (BimViewerPanel). */
 	BVP_GRID_SIZE: string;
 
-	/** Botón de mostrar u ocultar la rejilla (BimViewerPanel). */
-	BVP_GRID: string;
+	/** Botón de activar o desactivar el resaltado de elementos al hacer clic (BimViewerPanel). */
+	BVP_HIGHLIGHT: string;
 
 	/** Color del resaltado de elementos en el menú de estilos (BimViewerPanel). */
 	BVP_HIGHLIGHT_COLOR: string;
-
-	/** Botón de activar o desactivar el resaltado de elementos al hacer clic (BimViewerPanel). */
-	BVP_HIGHLIGHT: string;
 
 	/** Botón de volver con la cámara a la vista inicial (BimViewerPanel). */
 	BVP_RESET_VIEW: string;
@@ -369,6 +354,30 @@ export type LanguageBase = {
 	/** Aviso de que el usuario se ha modificado correctamente (UserEditor). */
 	UE_UPDATED: string;
 
+	/** Regla rota: un fichero con extensión no admitida; con el nombre del fichero en `{0}` y la extensión esperada en `{1}` (validadores). */
+	VALIDATION_FILE_EXTENSION: string;
+
+	/** Regla rota: un campo debería coincidir con otro; con el nombre del campo en `{0}` y el del otro en `{1}` (validadores). */
+	VALIDATION_MISMATCH: string;
+
+	/** Regla rota: un texto que no es un número entero; con el nombre del campo en `{0}` (validadores). */
+	VALIDATION_NOT_A_NUMBER: string;
+
+	/** Regla rota: un número fuera de rango; con el nombre del campo en `{0}`, el mínimo en `{1}`, el máximo en `{2}` y el valor en `{3}` (validadores). */
+	VALIDATION_OUT_OF_RANGE: string;
+
+	/** Regla rota: un campo obligatorio vacío; con el nombre del campo en `{0}` (validadores). */
+	VALIDATION_REQUIRED: string;
+
+	/** Número de errores de un formulario cuando son varios, con el número en `{0}` (ValidationAlert). */
+	VA_COUNT_MANY: string;
+
+	/** Número de errores de un formulario cuando es uno solo (ValidationAlert). */
+	VA_COUNT_ONE: string;
+
+	/** Título del panel de errores, con el número de errores (`VA_COUNT_*`) en `{0}` (ValidationAlert). */
+	VA_TITLE: string;
+
 	/** Aviso de que la visualización se ha añadido correctamente (VisualizationEditor). */
 	VE_ADDED: string;
 
@@ -386,9 +395,6 @@ export type LanguageBase = {
 
 	/** Etiqueta del modelo BIM sobre el que trabaja una visualización (VisualizationEditor). */
 	VE_MODEL: string;
-
-	/** Aviso de que hay que elegir el modelo BIM de la visualización (VisualizationEditor). */
-	VE_MODEL_REQUIRED: string;
 
 	/** Texto cuando no hay ninguna visualización (VisualizationEditor). */
 	VE_NO_ITEMS: string;
@@ -426,6 +432,15 @@ export type LanguageBase = {
 	/** Etiqueta del color de un marcador (VisualizationMarkerPanel). */
 	VMP_COLOR: string;
 
+	/** Etiqueta de la descripción de un marcador (VisualizationMarkerPanel). */
+	VMP_DESCRIPTION: string;
+
+	/** Interruptor que atenúa un marcador mientras el ratón no está encima (VisualizationMarkerPanel). */
+	VMP_DIM_WHEN_IDLE: string;
+
+	/** Interruptor que resalta el elemento anclado al pulsar un marcador (VisualizationMarkerPanel). */
+	VMP_HIGHLIGHT_ON_SELECT: string;
+
 	/** Etiqueta del icono de un marcador (VisualizationMarkerPanel). */
 	VMP_ICON: string;
 
@@ -444,27 +459,6 @@ export type LanguageBase = {
 	/** Nombre del icono de aviso (VisualizationMarkerPanel). */
 	VMP_ICON_WARNING: string;
 
-	/** Texto del desplegable de anclaje cuando ningún elemento coincide con lo escrito (VisualizationMarkerPanel). */
-	VMP_NO_RESULTS: string;
-
-	/** Botón que quita el anclaje de un marcador (VisualizationMarkerPanel). */
-	VMP_RELEASE: string;
-
-	/** Etiqueta del tamaño de un marcador (VisualizationMarkerPanel). */
-	VMP_SIZE: string;
-
-	/** Etiqueta del título de un marcador (VisualizationMarkerPanel). */
-	VMP_TITLE: string;
-
-	/** Etiqueta de la descripción de un marcador (VisualizationMarkerPanel). */
-	VMP_DESCRIPTION: string;
-
-	/** Interruptor que atenúa un marcador mientras el ratón no está encima (VisualizationMarkerPanel). */
-	VMP_DIM_WHEN_IDLE: string;
-
-	/** Interruptor que resalta el elemento anclado al pulsar un marcador (VisualizationMarkerPanel). */
-	VMP_HIGHLIGHT_ON_SELECT: string;
-
 	/** Etiqueta del enlace de un marcador (VisualizationMarkerPanel). */
 	VMP_LINK: string;
 
@@ -477,8 +471,14 @@ export type LanguageBase = {
 	/** Opción de abrir el enlace en una ventana nueva (VisualizationMarkerPanel). */
 	VMP_LINK_TARGET_NEW_WINDOW: string;
 
+	/** Texto del desplegable de anclaje cuando ningún elemento coincide con lo escrito (VisualizationMarkerPanel). */
+	VMP_NO_RESULTS: string;
+
 	/** Etiqueta de la opacidad de un marcador, en porcentaje (VisualizationMarkerPanel). */
 	VMP_OPACITY: string;
+
+	/** Botón que quita el anclaje de un marcador (VisualizationMarkerPanel). */
+	VMP_RELEASE: string;
 
 	/** Título de la sección de aspecto del marcador (VisualizationMarkerPanel). */
 	VMP_SECTION_APPEARANCE: string;
@@ -492,8 +492,14 @@ export type LanguageBase = {
 	/** Título de la sección de posición y anclaje del marcador (VisualizationMarkerPanel). */
 	VMP_SECTION_POSITION: string;
 
+	/** Etiqueta del tamaño de un marcador (VisualizationMarkerPanel). */
+	VMP_SIZE: string;
+
 	/** Etiqueta del color del título de un marcador (VisualizationMarkerPanel). */
 	VMP_TEXT_COLOR: string;
+
+	/** Etiqueta del título de un marcador (VisualizationMarkerPanel). */
+	VMP_TITLE: string;
 
 	/** Etiqueta de la posición del título de un marcador (VisualizationMarkerPanel). */
 	VMP_TITLE_POSITION: string;
@@ -588,15 +594,6 @@ export type LanguageBase = {
 	/** Pregunta de confirmación para descartar cambios sin guardar (se usa en más de un sitio). */
 	WEB_DISCARD_CONFIRM: string;
 
-	/** Descripción del tipo de pieza marcador: qué es y para qué sirve (se usa en más de un sitio). */
-	WEB_PIECE_MARKER_DESCRIPTION: string;
-
-	/** Nombre del tipo de pieza marcador (se usa en más de un sitio). */
-	WEB_PIECE_MARKER_NAME: string;
-
-	/** Aviso de que un campo obligatorio está vacío (se usa en más de un sitio). */
-	WEB_FIELD_REQUIRED: string;
-
 	/** Pestaña con los datos generales de un elemento (se usa en más de un sitio). */
 	WEB_GENERAL: string;
 
@@ -621,9 +618,6 @@ export type LanguageBase = {
 	/** Nombre de un modelo o de un usuario (se usa en más de un sitio). */
 	WEB_NAME: string;
 
-	/** Aviso de que el nombre es obligatorio (se usa en más de un sitio). */
-	WEB_NAME_REQUIRED: string;
-
 	/** Etiqueta del nombre de usuario (nick) con el que se inicia sesión (se usa en más de un sitio). */
 	WEB_NICK: string;
 
@@ -636,11 +630,14 @@ export type LanguageBase = {
 	/** Etiqueta de la contraseña de un usuario (se usa en más de un sitio). */
 	WEB_PASSWORD: string;
 
-	/** Aviso de que la contraseña y su repetición no coinciden (se usa en más de un sitio). */
-	WEB_PASSWORD_MISMATCH: string;
-
 	/** Etiqueta del campo que repite la contraseña (se usa en más de un sitio). */
 	WEB_PASSWORD_REPEAT: string;
+
+	/** Descripción del tipo de pieza marcador: qué es y para qué sirve (se usa en más de un sitio). */
+	WEB_PIECE_MARKER_DESCRIPTION: string;
+
+	/** Nombre del tipo de pieza marcador (se usa en más de un sitio). */
+	WEB_PIECE_MARKER_NAME: string;
 
 	/** Pestaña de previsualización 3D (se usa en más de un sitio). */
 	WEB_PREVIEW: string;

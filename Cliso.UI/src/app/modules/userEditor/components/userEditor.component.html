@@ -1,5 +1,6 @@
 <app-editor-shell class="userEditorDir"
 	[CanDeleteSelection]="CanDeleteSelection"
+	[ErrorMessages]="ErrorMessages"
 	[HasSelection]="HasSelection"
 	[IsBusy]="IsBusy"
 	[IsEditing]="IsEditing"
@@ -49,44 +50,39 @@
 				<mat-form-field appearance="outline" subscriptSizing="dynamic">
 					<mat-label>{{ NICK_TEXT }}</mat-label>
 					<input matInput autocomplete="off"
-						[maxLength]="NICK_MAX_LENGTH"
+						[appInvalid]="NickInvalid"
 						[appReadOnly]="IsNickReadOnly"
+						[maxLength]="NICK_MAX_LENGTH"
 						[ngModel]="Draft.Nick"
 						(ngModelChange)="OnNickChanged($event)"
 					/>
 				</mat-form-field>
-				@if (NickError) {
-					<p class="ue_error" role="alert">{{ FIELD_REQUIRED_TEXT }}</p>
-				}
 				<mat-form-field appearance="outline" subscriptSizing="dynamic">
 					<mat-label>{{ NAME_TEXT }}</mat-label>
 					<input matInput autocomplete="off"
-						[maxLength]="NAME_MAX_LENGTH"
+						[appInvalid]="NameInvalid"
 						[appReadOnly]="IsReadOnly"
+						[maxLength]="NAME_MAX_LENGTH"
 						[ngModel]="Draft.Name"
 						(ngModelChange)="OnNameChanged($event)"
 					/>
 				</mat-form-field>
-				@if (NameError) {
-					<p class="ue_error" role="alert">{{ FIELD_REQUIRED_TEXT }}</p>
-				}
 				<mat-form-field appearance="outline" subscriptSizing="dynamic">
 					<mat-label>{{ SURNAME_TEXT }}</mat-label>
 					<input matInput autocomplete="off"
-						[maxLength]="SURNAME_MAX_LENGTH"
+						[appInvalid]="SurnameInvalid"
 						[appReadOnly]="IsReadOnly"
+						[maxLength]="SURNAME_MAX_LENGTH"
 						[ngModel]="Draft.Surname"
 						(ngModelChange)="OnSurnameChanged($event)"
 					/>
 				</mat-form-field>
-				@if (SurnameError) {
-					<p class="ue_error" role="alert">{{ FIELD_REQUIRED_TEXT }}</p>
-				}
 				<mat-form-field appearance="outline" subscriptSizing="dynamic"
 					[appSelectReadOnly]="IsRoleReadOnly"
 				>
 					<mat-label>{{ ROLE_TEXT }}</mat-label>
 					<mat-select
+						[appSelectInvalid]="RoleInvalid"
 						[value]="Draft.Role"
 						(selectionChange)="OnRoleChanged($event)"
 					>
@@ -97,23 +93,19 @@
 				</mat-form-field>
 				@if (ShowPasswordFields) {
 					<app-user-editor-password-field
+						[IsInvalid]="PasswordInvalid"
 						[Label]="PASSWORD_TEXT"
 						[Value]="Password"
 						(valueChanged)="OnPasswordChanged($event)"
 					></app-user-editor-password-field>
 				}
-				@if (PasswordError) {
-					<p class="ue_error" role="alert">{{ FIELD_REQUIRED_TEXT }}</p>
-				}
 				@if (ShowPasswordFields) {
 					<app-user-editor-password-field
+						[IsInvalid]="PasswordRepeatInvalid"
 						[Label]="PASSWORD_REPEAT_TEXT"
 						[Value]="PasswordRepeat"
 						(valueChanged)="OnPasswordRepeatChanged($event)"
 					></app-user-editor-password-field>
-				}
-				@if (PasswordMismatchError) {
-					<p class="ue_error" role="alert">{{ PASSWORD_MISMATCH_TEXT }}</p>
 				}
 				@if (ShowPasswordButton) {
 					<div class="ue_password">

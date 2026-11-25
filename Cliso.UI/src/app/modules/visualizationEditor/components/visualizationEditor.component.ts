@@ -24,7 +24,9 @@ import {
 	VISUALIZATION_LOGICAL_DELETE
 } from 'src/app/shared/definitions/visualization.definitions';
 import { CheckboxReadOnlyDirective } from 'src/app/shared/directives/checkboxReadOnly.directive';
+import { InvalidDirective } from 'src/app/shared/directives/invalid.directive';
 import { ReadOnlyDirective } from 'src/app/shared/directives/readOnly.directive';
+import { SelectInvalidDirective } from 'src/app/shared/directives/selectInvalid.directive';
 import { SelectReadOnlyDirective } from 'src/app/shared/directives/selectReadOnly.directive';
 import { BimModel } from 'src/app/shared/models/bimModel/bimModel.models';
 import { TryGetResult } from 'src/app/shared/models/common/tryGetResult.models';
@@ -43,6 +45,8 @@ import { VisualizationMapper } from 'src/app/shared/utils/mappers/visualizationM
 import { RequestUtils } from 'src/app/shared/utils/request.utils';
 import { LoggedUserManager } from 'src/app/shared/utils/session/loggedUserManager.utils';
 import { StringUtils } from 'src/app/shared/utils/string.utils';
+import { ValidationResult } from 'src/app/validators/common/validationResult/validationResult.models';
+import { VisualizationValidator } from 'src/app/validators/visualization/visualization.validator';
 
 /** Ficha de una visualización en la lista del editor, con lo que la plantilla necesita ya calculado. */
 type VisualizationListItem = {
@@ -67,7 +71,9 @@ type VisualizationListItem = {
 		MatSelectModule,
 		MatTabsModule,
 		CheckboxReadOnlyDirective,
+		InvalidDirective,
 		ReadOnlyDirective,
+		SelectInvalidDirective,
 		SelectReadOnlyDirective,
 		VisualizationPieceWorkspaceComponent
 	],
@@ -88,14 +94,8 @@ export class VisualizationEditorComponent implements OnDestroy, OnInit {
 	/** Texto mientras se carga la lista. */
 	public readonly LOADING_TEXT: string = LanguageManager.GetText('WEB_LOADING');
 
-	/** Aviso de que hay que elegir el modelo BIM. */
-	public readonly MODEL_REQUIRED_TEXT: string = LanguageManager.GetText('VE_MODEL_REQUIRED');
-
 	/** Etiqueta del modelo BIM sobre el que trabaja la visualización. */
 	public readonly MODEL_TEXT: string = LanguageManager.GetText('VE_MODEL');
-
-	/** Aviso de que el nombre es obligatorio. */
-	public readonly NAME_REQUIRED_TEXT: string = LanguageManager.GetText('WEB_NAME_REQUIRED');
 
 	/** Etiqueta del nombre. */
 	public readonly NAME_TEXT: string = LanguageManager.GetText('WEB_NAME');
@@ -189,6 +189,9 @@ export class VisualizationEditorComponent implements OnDestroy, OnInit {
 	/** Datos de la visualización abierta: son los que se editan, y solo se guardan al pulsar guardar. */
 	public Draft: Visualization = this.createEmptyVisualization();
 
+	/** Mensajes de las reglas rotas en la última validación. Una lista nueva abre el panel de errores. */
+	public ErrorMessages: string[] = [];
+
 	/** `true` si hay una visualización abierta (seleccionada o nueva): se muestra su detalle. */
 	public HasDetail: boolean = false;
 
@@ -219,14 +222,14 @@ export class VisualizationEditorComponent implements OnDestroy, OnInit {
 	/** Fichas de la lista, ya filtradas por el buscador. */
 	public ListItems: VisualizationListItem[] = [];
 
-	/** `true` si hay que avisar de que falta elegir el modelo BIM. */
-	public ModelError: boolean = false;
+	/** `true` si falta elegir el modelo BIM. */
+	public ModelInvalid: boolean = false;
 
 	/** Modelos BIM entre los que se elige, ordenados por nombre. */
 	public Models: BimModel[] = [];
 
-	/** `true` si hay que avisar de que falta el nombre. */
-	public NameError: boolean = false;
+	/** `true` si falta el nombre. */
+	public NameInvalid: boolean = false;
 
 	/** Modelo BIM de la visualización abierta, para la previsualización. Es `null` si no hay modelo elegido. */
 	public PreviewModel: BimModel | null = null;
@@ -264,6 +267,9 @@ export class VisualizationEditorComponent implements OnDestroy, OnInit {
 
 	/** Visualización seleccionada en la lista. Es `null` si no hay ninguna, o si se está añadiendo una nueva. */
 	private _Selected: Visualization | null = null;
+
+	/** Valida los datos de la visualización al guardar. */
+	private readonly _Validator: VisualizationValidator = new VisualizationValidator();
 
 	/** Todas las visualizaciones, sin filtrar. */
 	private _Visualizations: Visualization[] = [];
@@ -368,14 +374,14 @@ export class VisualizationEditorComponent implements OnDestroy, OnInit {
 
 	public OnModelChanged(modelId: number): void {
 		this.Draft.BimModelId = modelId;
-		this.ModelError = false;
+		this.ModelInvalid = false;
 		this._IsDirty = true;
 		this.refreshPreviewModel();
 	}
 
 	public OnNameChanged(name: string): void {
 		this.Draft.Name = name;
-		this.NameError = false;
+		this.NameInvalid = false;
 		this._IsDirty = true;
 	}
 
@@ -394,13 +400,16 @@ export class VisualizationEditorComponent implements OnDestroy, OnInit {
 	}
 
 	public async OnSaveClicked(): Promise<void> {
-		this.NameError = CheckUtils.IsEmptyString(this.Draft.Name);
-		this.ModelError = this.Draft.BimModelId === ID_NUMERIC_UNDEFINED;
+		const validation: ValidationResult = this._Validator.Validate(this.Draft);
 
-		if (!this.NameError && !this.ModelError) {
+		this.ErrorMessages = validation.GetMessages();
+		this.ModelInvalid = validation.HasField(VisualizationValidator.MODEL);
+		this.NameInvalid = validation.HasField(VisualizationValidator.NAME);
+
+		if (validation.IsValid()) {
 			await this.saveVisualization();
 		} else {
-			// Faltan datos obligatorios: se avisa en el propio campo
+			// Hay reglas rotas: se muestran en el panel de errores y no se guarda
 		}
 	}
 
@@ -612,8 +621,9 @@ export class VisualizationEditorComponent implements OnDestroy, OnInit {
 		this._Selected = visualization;
 		this.Draft = CheckUtils.IsNull(visualization) ? this.createEmptyVisualization() : this.cloneVisualization(visualization);
 		this.IsLoadingPieces = false;
-		this.ModelError = false;
-		this.NameError = false;
+		this.ErrorMessages = [];
+		this.ModelInvalid = false;
+		this.NameInvalid = false;
 		this.setEditing(false);
 		this.refreshDetail();
 		this.refreshList();

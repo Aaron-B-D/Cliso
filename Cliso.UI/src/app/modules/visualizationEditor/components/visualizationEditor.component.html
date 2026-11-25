@@ -1,6 +1,7 @@
 <app-editor-shell class="visualizationEditorDir"
 	[CanDelete]="CanDelete"
 	[CanEdit]="CanEdit"
+	[ErrorMessages]="ErrorMessages"
 	[HasSelection]="HasSelection"
 	[IsBusy]="IsBusy"
 	[IsEditing]="IsEditing"
@@ -51,6 +52,7 @@
 						>
 							<mat-label>{{ MODEL_TEXT }}</mat-label>
 							<mat-select
+								[appSelectInvalid]="ModelInvalid"
 								[value]="Draft.BimModelId"
 								(selectionChange)="OnModelChanged($event.value)"
 							>
@@ -59,20 +61,15 @@
 								}
 							</mat-select>
 						</mat-form-field>
-						@if (ModelError) {
-							<p class="ve_error" role="alert">{{ MODEL_REQUIRED_TEXT }}</p>
-						}
 						<mat-form-field appearance="outline" subscriptSizing="dynamic">
 							<mat-label>{{ NAME_TEXT }}</mat-label>
 							<input matInput
+								[appInvalid]="NameInvalid"
 								[appReadOnly]="IsReadOnly"
 								[ngModel]="Draft.Name"
 								(ngModelChange)="OnNameChanged($event)"
 							/>
 						</mat-form-field>
-						@if (NameError) {
-							<p class="ve_error" role="alert">{{ NAME_REQUIRED_TEXT }}</p>
-						}
 						<mat-form-field appearance="outline" subscriptSizing="dynamic">
 							<mat-label>{{ DESCRIPTION_TEXT }}</mat-label>
 							<textarea class="ve_description" matInput

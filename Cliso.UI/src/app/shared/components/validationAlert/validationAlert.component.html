@@ -1,0 +1,36 @@
+@if (HasMessages) {
+	<div class="validationAlertDir">
+		<button class="va_button" mat-icon-button
+			#alertOrigin="cdkOverlayOrigin"
+			cdkOverlayOrigin
+			matTooltip="{{ CountText }}"
+			[attr.aria-expanded]="IsPanelOpen"
+			[attr.aria-label]="CountText"
+			(click)="OnPanelToggled()"
+		>
+			<img class="va_icon" alt=""
+				[src]="AlertIcon"
+			/>
+			<span class="va_badge" aria-hidden="true">{{ MessageCount }}</span>
+		</button>
+		<ng-template
+			cdkConnectedOverlay
+			cdkConnectedOverlayBackdropClass="cdk-overlay-transparent-backdrop"
+			[cdkConnectedOverlayHasBackdrop]="true"
+			[cdkConnectedOverlayOpen]="IsPanelOpen"
+			[cdkConnectedOverlayOrigin]="alertOrigin"
+			[cdkConnectedOverlayPositions]="PanelPositions"
+			(backdropClick)="OnPanelClosed()"
+			(overlayKeydown)="OnPanelKeyDown($event)"
+		>
+			<section class="va_panel floating-panel" role="alert">
+				<h2 class="va_title">{{ TitleText }}</h2>
+				<ul class="va_list">
+					@for (message of Messages; track $index) {
+						<li>{{ message }}</li>
+					}
+				</ul>
+			</section>
+		</ng-template>
+	</div>
+}

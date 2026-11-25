@@ -4,17 +4,21 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 
 import { STRING_UNDEFINED } from 'src/app/shared/definitions/constants.definitions';
+import { InvalidDirective } from 'src/app/shared/directives/invalid.directive';
 import { ReadOnlyDirective } from 'src/app/shared/directives/readOnly.directive';
 
-/** Panel con el que se edita el valor de un parámetro de texto libre, sin ninguna comprobación. */
+/** Panel con el que se edita el valor de un parámetro de texto libre; quien lo usa valida el contenido. */
 @Component({
 	selector: 'app-application-settings-editor-text-panel',
-	imports: [FormsModule, MatFormFieldModule, MatInputModule, ReadOnlyDirective],
+	imports: [FormsModule, InvalidDirective, MatFormFieldModule, MatInputModule, ReadOnlyDirective],
 	templateUrl: './textPanel.component.html',
 	styleUrl: './textPanel.component.scss'
 })
 export class ApplicationSettingsEditorTextPanelComponent implements OnDestroy {
 	//#region DECORATORS
+
+	/** `true` si el valor tiene una regla rota y debe verse en rojo. */
+	@Input() public IsInvalid: boolean = false;
 
 	/** `true` si el valor solo se puede leer. */
 	@Input() public IsReadOnly: boolean = true;

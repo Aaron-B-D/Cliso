@@ -1,0 +1,53 @@
+.validationAlertDir {
+	display: inline-flex;
+}
+
+// La insignia con el número de errores se coloca sobre la esquina del botón
+.va_badge {
+	background: var(--color-danger);
+	border-radius: var(--radius-pill);
+	color: var(--color-white);
+	font-size: var(--font-size-small);
+	line-height: var(--space-4);
+	min-width: var(--space-4);
+	padding-inline: var(--space-1);
+	position: absolute;
+	right: 0;
+	text-align: center;
+	top: 0;
+}
+
+.va_button {
+	position: relative;
+}
+
+.va_icon {
+	height: 1.5rem;
+	width: 1.5rem;
+}
+
+.va_list {
+	display: flex;
+	flex-direction: column;
+	gap: var(--space-1);
+	margin: 0;
+	padding-left: var(--space-4);
+}
+
+// Es un panel flotante con el borde en rojo; el ancho se adapta al contenido sin salirse de la pantalla
+.va_panel {
+	background: var(--color-surface);
+	border-color: var(--color-danger);
+	display: flex;
+	flex-direction: column;
+	gap: var(--space-2);
+	max-width: 90vw;
+	padding: var(--space-3);
+	width: 26rem;
+}
+
+.va_title {
+	color: var(--color-danger);
+	font-size: var(--font-size-base);
+	margin: 0;
+}

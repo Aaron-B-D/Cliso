@@ -7,18 +7,22 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 
 import { STRING_UNDEFINED } from 'src/app/shared/definitions/constants.definitions';
 import { IconName } from 'src/app/shared/definitions/icons.definitions';
+import { InvalidDirective } from 'src/app/shared/directives/invalid.directive';
 import { IconsUtils } from 'src/app/shared/utils/icons.utils';
 import { LanguageManager } from 'src/app/shared/utils/language/languageManager.utils';
 
 /** Campo de contraseña con su propio botón para verla en claro u ocultarla. */
 @Component({
 	selector: 'app-user-editor-password-field',
-	imports: [FormsModule, MatButtonModule, MatFormFieldModule, MatInputModule, MatTooltipModule],
+	imports: [FormsModule, InvalidDirective, MatButtonModule, MatFormFieldModule, MatInputModule, MatTooltipModule],
 	templateUrl: './passwordField.component.html',
 	styleUrl: './passwordField.component.scss'
 })
 export class UserEditorPasswordFieldComponent implements OnDestroy {
 	//#region DECORATORS
+
+	/** `true` si la contraseña tiene una regla rota y el campo debe verse en rojo. */
+	@Input() public IsInvalid: boolean = false;
 
 	/** Etiqueta del campo. */
 	@Input() public Label: string = STRING_UNDEFINED;

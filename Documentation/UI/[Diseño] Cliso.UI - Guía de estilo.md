@@ -73,6 +73,29 @@ texto secundario de tamaño normal o mayor.
   cambia el cursor a `not-allowed`; un selector en solo lectura no se abre ni con el ratón ni con el teclado.
 - **Error:** texto y borde en `--color-danger`.
 
+## Validación de formularios (diagrama «Validación»)
+
+Los formularios de los editores (usuarios, modelos, visualizaciones...) se comprueban con su validador antes de guardar.
+Si se rompe alguna regla, no se guarda y se muestra:
+
+- **Campos marcados:** borde y etiqueta en `--color-danger` (estado «Error»). Los campos no llevan texto de error
+  propio: lo dice el panel. El marcado de un campo se quita al editarlo.
+- **Botón de alerta** en el pie, a la izquierda de *Guardar*, solo mientras hay errores: icono de aviso con una
+  insignia en `--color-danger` con el número de errores y un tooltip («3 errores»).
+- **Panel de errores:** panel flotante (`floating-panel`) anclado al botón de alerta y abierto hacia arriba
+  (`cdkConnectedOverlay`). **Se abre solo cuando falla el guardado**; después se abre y se cierra con el botón, y
+  también se cierra con un clic fuera o con Escape. Borde en `--color-danger`, un título con el número de errores
+  («No se puede guardar: hay 3 errores») y una línea por regla rota con el formato «Campo: qué se ha roto». Los
+  mensajes están en el idioma actual y, si la regla lo necesita, dicen qué se esperaba y qué se ha introducido. Es un
+  `role="alert"`, así que los lectores de pantalla lo anuncian al abrirse. Es único para todo el editor y recoge los errores de todas las
+  pestañas.
+- **Lo que no se puede aceptar ni siquiera se carga:** un fichero que no es del tipo esperado (un modelo que no es
+  `.ifc`) se descarta al elegirlo o soltarlo y se avisa con un toast de nivel «aviso» (qué fichero era y qué se
+  esperaba). Nunca llega al formulario, así que no marca campos ni entra en el panel.
+- El botón y el panel desaparecen al volver a validar con todo correcto, al descartar o al cambiar de ficha.
+- **Excepción, el submodal de contraseña de usuarios:** no tiene botón de alerta ni panel. Pinta los campos en rojo y
+  lista los errores justo debajo de ellos, dentro del propio submodal.
+
 ## Mobile-first y rejilla
 
 - Se diseña primero para móvil (≈ 360 px) y se amplía hacia arriba: solo media queries `min-width`, con los

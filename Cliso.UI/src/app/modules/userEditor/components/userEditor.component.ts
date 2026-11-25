@@ -14,7 +14,9 @@ import { EditorShellComponent } from 'src/app/shared/components/editorShell/edit
 import { ID_NUMERIC_UNDEFINED, STRING_UNDEFINED } from 'src/app/shared/definitions/constants.definitions';
 import { ConfirmDialogType } from 'src/app/shared/definitions/dialogs.definitions';
 import { UserDto } from 'src/app/shared/definitions/dtos.definitions';
+import { InvalidDirective } from 'src/app/shared/directives/invalid.directive';
 import { ReadOnlyDirective } from 'src/app/shared/directives/readOnly.directive';
+import { SelectInvalidDirective } from 'src/app/shared/directives/selectInvalid.directive';
 import { SelectReadOnlyDirective } from 'src/app/shared/directives/selectReadOnly.directive';
 import { IconName } from 'src/app/shared/definitions/icons.definitions';
 import { NotificationLevel } from 'src/app/shared/definitions/notifications.definitions';
@@ -33,6 +35,9 @@ import { UserMapper } from 'src/app/shared/utils/mappers/userMapper.utils';
 import { RequestUtils } from 'src/app/shared/utils/request.utils';
 import { LoggedUserManager } from 'src/app/shared/utils/session/loggedUserManager.utils';
 import { StringUtils } from 'src/app/shared/utils/string.utils';
+import { ValidationResult } from 'src/app/validators/common/validationResult/validationResult.models';
+import { UserForm } from 'src/app/validators/user/userForm.models';
+import { UserFormValidator } from 'src/app/validators/user/userForm.validator';
 
 /** Ficha de un usuario en la lista del editor, con lo que la plantilla necesita ya calculado. */
 type UserListItem = {
@@ -53,12 +58,14 @@ type UserRoleOption = {
 	imports: [
 		EditorShellComponent,
 		FormsModule,
+		InvalidDirective,
 		MatButtonModule,
 		MatFormFieldModule,
 		MatInputModule,
 		MatProgressBarModule,
 		MatSelectModule,
 		ReadOnlyDirective,
+		SelectInvalidDirective,
 		SelectReadOnlyDirective,
 		UserEditorPasswordFieldComponent
 	],
@@ -82,9 +89,6 @@ export class UserEditorComponent implements OnDestroy, OnInit {
 	/** Texto del botón que abre el submodal para cambiar la contraseña. */
 	public readonly CHANGE_PASSWORD_TEXT: string = LanguageManager.GetText('UE_CHANGE_PASSWORD');
 
-	/** Aviso de que un campo obligatorio está vacío. */
-	public readonly FIELD_REQUIRED_TEXT: string = LanguageManager.GetText('WEB_FIELD_REQUIRED');
-
 	/** Texto mientras se carga la lista. */
 	public readonly LOADING_TEXT: string = LanguageManager.GetText('WEB_LOADING');
 
@@ -99,9 +103,6 @@ export class UserEditorComponent implements OnDestroy, OnInit {
 
 	/** Texto cuando no hay ningún usuario en la lista. */
 	public readonly NO_USERS_TEXT: string = LanguageManager.GetText('UE_NO_USERS');
-
-	/** Aviso de que la contraseña y su repetición no coinciden. */
-	public readonly PASSWORD_MISMATCH_TEXT: string = LanguageManager.GetText('WEB_PASSWORD_MISMATCH');
 
 	/** Aviso de que hay una contraseña nueva que se guardará con el resto de datos. */
 	public readonly PASSWORD_PENDING_TEXT: string = LanguageManager.GetText('UE_PASSWORD_PENDING');
@@ -209,6 +210,9 @@ export class UserEditorComponent implements OnDestroy, OnInit {
 	/** Datos del usuario abierto: son los que se editan, y solo se guardan al pulsar guardar. */
 	public Draft: User = this.createEmptyUser();
 
+	/** Mensajes de las reglas rotas en la última validación. Una lista nueva abre el panel de errores. */
+	public ErrorMessages: string[] = [];
+
 	/** `true` si hay un usuario abierto (seleccionado o nuevo): se muestra su detalle. */
 	public HasDetail: boolean = false;
 
@@ -245,26 +249,29 @@ export class UserEditorComponent implements OnDestroy, OnInit {
 	/** Fichas de la lista, ya filtradas por el buscador. */
 	public ListItems: UserListItem[] = [];
 
-	/** `true` si hay que avisar de que falta el nombre. */
-	public NameError: boolean = false;
+	/** `true` si el nombre tiene una regla rota y debe verse en rojo. */
+	public NameInvalid: boolean = false;
 
-	/** `true` si hay que avisar de que falta el nick. */
-	public NickError: boolean = false;
+	/** `true` si el nick tiene una regla rota y debe verse en rojo. */
+	public NickInvalid: boolean = false;
 
 	/** Contraseña escrita al añadir un usuario. */
 	public Password: string = STRING_UNDEFINED;
 
-	/** `true` si hay que avisar de que falta la contraseña (obligatoria al añadir). */
-	public PasswordError: boolean = false;
-
-	/** `true` si hay que avisar de que la contraseña y su repetición no coinciden. */
-	public PasswordMismatchError: boolean = false;
+	/** `true` si la contraseña tiene una regla rota y debe verse en rojo. */
+	public PasswordInvalid: boolean = false;
 
 	/** Repetición de la contraseña al añadir un usuario, que debe coincidir con ella para poder guardar. */
 	public PasswordRepeat: string = STRING_UNDEFINED;
 
+	/** `true` si la repetición de la contraseña tiene una regla rota y debe verse en rojo. */
+	public PasswordRepeatInvalid: boolean = false;
+
 	/** Textos de los requisitos que no cumple la contraseña, según el API. */
 	public PasswordRequirementTexts: string[] = [];
+
+	/** `true` si el rol tiene una regla rota y debe verse en rojo. */
+	public RoleInvalid: boolean = false;
 
 	/** `true` si se muestra el botón que cambia la contraseña: al editar un usuario existente. */
 	public ShowPasswordButton: boolean = false;
@@ -272,8 +279,8 @@ export class UserEditorComponent implements OnDestroy, OnInit {
 	/** `true` si se muestran los campos de la contraseña: al añadir un usuario. */
 	public ShowPasswordFields: boolean = false;
 
-	/** `true` si hay que avisar de que faltan los apellidos. */
-	public SurnameError: boolean = false;
+	/** `true` si los apellidos tienen una regla rota y deben verse en rojo. */
+	public SurnameInvalid: boolean = false;
 
 	//#endregion PUBLIC PROPERTIES
 
@@ -314,6 +321,9 @@ export class UserEditorComponent implements OnDestroy, OnInit {
 
 	/** Todos los usuarios, sin filtrar. */
 	private _Users: User[] = [];
+
+	/** Valida los datos del formulario. */
+	private readonly _Validator: UserFormValidator = new UserFormValidator();
 
 	//#endregion PRIVATE PROPERTIES
 
@@ -411,20 +421,20 @@ export class UserEditorComponent implements OnDestroy, OnInit {
 
 	public OnNameChanged(name: string): void {
 		this.Draft.Name = name;
-		this.NameError = false;
+		this.NameInvalid = false;
 		this._IsDirty = true;
 	}
 
 	public OnNickChanged(nick: string): void {
 		this.Draft.Nick = nick;
-		this.NickError = false;
+		this.NickInvalid = false;
 		this._IsDirty = true;
 	}
 
 	public OnPasswordChanged(value: string): void {
 		this.Password = value;
-		this.PasswordError = false;
-		this.PasswordMismatchError = false;
+		this.PasswordInvalid = false;
+		this.PasswordRepeatInvalid = false;
 		this._IsDirty = true;
 	}
 
@@ -444,12 +454,13 @@ export class UserEditorComponent implements OnDestroy, OnInit {
 
 	public OnPasswordRepeatChanged(value: string): void {
 		this.PasswordRepeat = value;
-		this.PasswordMismatchError = false;
+		this.PasswordRepeatInvalid = false;
 		this._IsDirty = true;
 	}
 
 	public OnRoleChanged(event: MatSelectChange): void {
 		this.Draft.Role = event.value as UserRole;
+		this.RoleInvalid = false;
 		this._IsDirty = true;
 	}
 
@@ -457,7 +468,7 @@ export class UserEditorComponent implements OnDestroy, OnInit {
 		if (this.validate()) {
 			await this.saveUser();
 		} else {
-			// Faltan datos: los avisos ya se muestran junto a cada campo
+			// Hay reglas rotas: se muestran en el panel de errores y no se guarda
 		}
 	}
 
@@ -468,7 +479,7 @@ export class UserEditorComponent implements OnDestroy, OnInit {
 
 	public OnSurnameChanged(surname: string): void {
 		this.Draft.Surname = surname;
-		this.SurnameError = false;
+		this.SurnameInvalid = false;
 		this._IsDirty = true;
 	}
 
@@ -654,15 +665,17 @@ export class UserEditorComponent implements OnDestroy, OnInit {
 		this._PendingPassword = null;
 		this.Draft = CheckUtils.IsNull(user) ? this.createEmptyUser() : this.cloneUser(user);
 		this.HasPasswordRequirements = false;
+		this.ErrorMessages = [];
 		this.HasPendingPassword = false;
-		this.NameError = false;
-		this.NickError = false;
+		this.NameInvalid = false;
+		this.NickInvalid = false;
 		this.Password = STRING_UNDEFINED;
-		this.PasswordError = false;
-		this.PasswordMismatchError = false;
+		this.PasswordInvalid = false;
 		this.PasswordRepeat = STRING_UNDEFINED;
+		this.PasswordRepeatInvalid = false;
 		this.PasswordRequirementTexts = [];
-		this.SurnameError = false;
+		this.RoleInvalid = false;
+		this.SurnameInvalid = false;
 		this.setEditing(false);
 		this.refreshList();
 	}
@@ -774,19 +787,31 @@ export class UserEditorComponent implements OnDestroy, OnInit {
 	}
 
 	/**
-	 * Comprueba que están los datos obligatorios y marca los que faltan.
+	 * Valida el formulario, muestra los errores en el panel y marca los campos con una regla rota.
 	 * @returns `true` si se puede guardar.
 	 */
 	private validate(): boolean {
-		this.NickError = CheckUtils.IsEmptyString(this.Draft.Nick);
-		this.NameError = CheckUtils.IsEmptyString(this.Draft.Name);
-		this.SurnameError = CheckUtils.IsEmptyString(this.Draft.Surname);
 		// Los campos de la contraseña solo están al añadir: al modificar, se cambia en el submodal, que ya la comprueba
-		this.PasswordError = this._IsNew && CheckUtils.IsEmptyString(this.Password);
-		// Solo se avisa de la repetición cuando hay contraseña: si falta, ya se avisa de eso
-		this.PasswordMismatchError = this._IsNew && !this.PasswordError && this.Password !== this.PasswordRepeat;
+		const form: UserForm = new UserForm(
+			this.Draft.Nick,
+			this.Draft.Name,
+			this.Draft.Surname,
+			this.Draft.Role,
+			this._IsNew,
+			this.Password,
+			this.PasswordRepeat
+		);
+		const validation: ValidationResult = this._Validator.Validate(form);
 
-		return !this.NickError && !this.NameError && !this.SurnameError && !this.PasswordError && !this.PasswordMismatchError;
+		this.ErrorMessages = validation.GetMessages();
+		this.NameInvalid = validation.HasField(UserFormValidator.NAME);
+		this.NickInvalid = validation.HasField(UserFormValidator.NICK);
+		this.PasswordInvalid = validation.HasField(UserFormValidator.PASSWORD);
+		this.PasswordRepeatInvalid = validation.HasField(UserFormValidator.PASSWORD_REPEAT);
+		this.RoleInvalid = validation.HasField(UserFormValidator.ROLE);
+		this.SurnameInvalid = validation.HasField(UserFormValidator.SURNAME);
+
+		return validation.IsValid();
 	}
 
 	//#endregion PRIVATE METHODS

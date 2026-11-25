@@ -209,7 +209,8 @@ Cliso.UI/src/
 │   ├── app.ts, app.config.ts, app.routes.ts   # Componente raíz, configuración y rutas
 │   ├── core/        # Lo que se carga una vez al arrancar: interceptores, servicios de arranque
 │   ├── modules/     # Una carpeta por pantalla o función: <módulo>/components/ (y interfaces/, events/...)
-│   └── shared/      # Lo que usan varios módulos: components/, definitions/, directives/, models/, pipes/, services/, utils/
+│   ├── shared/      # Lo que usan varios módulos: components/, definitions/, directives/, models/, pipes/, services/, utils/
+│   └── validators/  # common/ (base, reglas rotas y resultado) y una carpeta por tema con su *.validator.ts
 ├── resources/       # img/ (estáticos) y languages/ (textos)
 └── styles/          # Parciales SCSS
 ```
@@ -223,6 +224,28 @@ Cliso.UI/src/
   (`modules/home/components/home.component.ts`); los hijos no repiten el contexto que ya da la ruta
   (`modules/home/components/card/card.component.ts`) y su carpeta va dentro de la del componente que lo usa. La clase
   y el selector, en cambio, son globales y llevan el nombre completo (`HomeCardComponent`, `app-home-card`).
+- **`validators/`:** `common/` (`ValidatorBase`, las `BrokenRule`, `ValidationResult`, `validation.definitions.ts`) y una
+  carpeta por tema con su `*.validator.ts` (sufijo propio de los validadores). La clase de datos que valida un formulario
+  vive junto a su validador (`user/userForm.models.ts`).
+
+## Validación de formularios
+
+- **Un validador por clase o formulario:** `NombreClaseValidator` (`UserFormValidator`), hereda de `ValidatorBase` y su
+  `Validate(...)` devuelve un `ValidationResult`. Las comprobaciones comunes (`checkRequired`, `checkMismatch`...) están en la base.
+- **Cada regla rota es una `BrokenRule`** con su `BrokenRuleType` y un `GetMessage()` multidioma: plantilla `VALIDATION_*` del
+  i18n con marcadores `{0}`... sustituidos con `StringUtils.Format`.
+- **Ids de campo:** constantes públicas estáticas del validador (`UserFormValidator.NICK`); el editor las usa para saber qué campo falló.
+- **En el editor:** se valida en `OnSaveClicked`. Se guarda `ErrorMessages` (`validation.GetMessages()`: una lista nueva en cada
+  validación, lo que abre el panel de `validationAlert` en `EditorShell`) y un booleano `XxxInvalid` por campo
+  (`validation.HasField(...)`), que el campo recibe con `[appInvalid]` (`matInput`) o `[appSelectInvalid]` (`mat-select`).
+- **Reinicio y desmarcado:** al abrir otro elemento o descartar, `ErrorMessages` se vacía y todos los `XxxInvalid` pasan a
+  `false`; al editar un campo se desmarca solo ese.
+- **El campo no lleva texto de error propio:** solo se pone en rojo; el mensaje va en el panel de alertas.
+- **Lo que no se puede aceptar** (por ejemplo, un fichero de tipo equivocado) se descarta con un toast y no entra al formulario.
+- **No sustituye al API:** las validaciones del cliente no reemplazan a las del API; sus errores siguen su propio flujo.
+- **Excepción acordada:** `appInvalid` y `appSelectInvalid` implementan `isErrorState` con ese nombre (en camelCase), porque lo impone
+  Angular Material (`ErrorStateMatcher`).
+
 ## Control de flujo
 
 - **Sin `return` anticipado**, tampoco en métodos que devuelven valor: se asigna a una variable `result` y hay un

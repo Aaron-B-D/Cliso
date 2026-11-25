@@ -28,6 +28,8 @@ import { IconsUtils } from 'src/app/shared/utils/icons.utils';
 import { LanguageManager } from 'src/app/shared/utils/language/languageManager.utils';
 import { RequestUtils } from 'src/app/shared/utils/request.utils';
 import { StringUtils } from 'src/app/shared/utils/string.utils';
+import { ApplicationSettingsValidator } from 'src/app/validators/applicationSettings/applicationSettings.validator';
+import { ValidationResult } from 'src/app/validators/common/validationResult/validationResult.models';
 
 /** Panel con el que se edita el valor de un parámetro: cada tipo de parámetro usa el que le corresponde. */
 enum ApplicationSettingsPanel {
@@ -108,20 +110,11 @@ export class ApplicationSettingsEditorComponent implements OnDestroy, OnInit {
 	/** Texto del valor por defecto, con el valor en `{0}`. */
 	private readonly _DEFAULT_VALUE_TEXT: string = LanguageManager.GetText('ASE_DEFAULT_VALUE');
 
-	/** Aviso de que la carpeta de los modelos no puede estar vacía. */
-	private readonly _DIRECTORY_REQUIRED_TEXT: string = LanguageManager.GetText('ASE_DIRECTORY_REQUIRED');
-
 	/** Pregunta de confirmación para descartar los cambios sin guardar. */
 	private readonly _DISCARD_CONFIRM_TEXT: string = LanguageManager.GetText('WEB_DISCARD_CONFIRM');
 
 	/** Aviso de que no se han podido cargar los parámetros. */
 	private readonly _LOAD_ERROR_TEXT: string = LanguageManager.GetText('ASE_LOAD_ERROR');
-
-	/** Aviso de que el valor debe ser un número entero mayor que cero. */
-	private readonly _NUMBER_INVALID_TEXT: string = LanguageManager.GetText('ASE_NUMBER_INVALID');
-
-	/** Aviso de que el número está fuera de los límites, con el mínimo en `{0}` y el máximo en `{1}`. */
-	private readonly _NUMBER_RANGE_TEXT: string = LanguageManager.GetText('ASE_NUMBER_RANGE');
 
 	/** Mensaje de que los cambios se aplican al recargar la página. */
 	private readonly _RELOAD_NOTICE_TEXT: string = LanguageManager.GetText('ASE_RELOAD_NOTICE');
@@ -162,14 +155,11 @@ export class ApplicationSettingsEditorComponent implements OnDestroy, OnInit {
 	/** Valor que se está editando: solo se guarda al pulsar guardar. */
 	public DraftValue: string = STRING_UNDEFINED;
 
-	/** Aviso del último intento de guardar; vacío si no hay. */
-	public ErrorText: string = STRING_UNDEFINED;
+	/** Mensajes de las reglas rotas en el último intento de guardar. Una lista nueva abre el panel de errores. */
+	public ErrorMessages: string[] = [];
 
 	/** `true` si hay un parámetro abierto: se muestra su detalle. */
 	public HasDetail: boolean = false;
-
-	/** `true` si hay un aviso del último intento de guardar. */
-	public HasError: boolean = false;
 
 	/** `true` si hay algún parámetro que mostrar en la lista. */
 	public HasItems: boolean = false;
@@ -207,6 +197,9 @@ export class ApplicationSettingsEditorComponent implements OnDestroy, OnInit {
 	/** Icono del botón que restaura el valor por defecto. */
 	public RestoreIcon: string = IconsUtils.GetUrl(IconName.RESTART_ALT);
 
+	/** `true` si el valor tiene una regla rota y debe verse en rojo. */
+	public ValueInvalid: boolean = false;
+
 	//#endregion PUBLIC PROPERTIES
 
 	//#region PRIVATE PROPERTIES
@@ -237,6 +230,9 @@ export class ApplicationSettingsEditorComponent implements OnDestroy, OnInit {
 
 	/** Parámetro seleccionado en la lista. Es `null` si no hay ninguno. */
 	private _Selected: ApplicationSettingsParameterBase | null = null;
+
+	/** Valida el valor que se edita. */
+	private readonly _Validator: ApplicationSettingsValidator = new ApplicationSettingsValidator();
 
 	//#endregion PRIVATE PROPERTIES
 
@@ -315,7 +311,7 @@ export class ApplicationSettingsEditorComponent implements OnDestroy, OnInit {
 	public OnRestoreDefaultClicked(): void {
 		if (!CheckUtils.IsNull(this._Selected)) {
 			this.DraftValue = this._Selected.DefaultValue;
-			this.setErrorText(STRING_UNDEFINED);
+			this.ValueInvalid = false;
 			this._IsDirty = true;
 		} else {
 			// No hay ningún parámetro abierto
@@ -323,12 +319,15 @@ export class ApplicationSettingsEditorComponent implements OnDestroy, OnInit {
 	}
 
 	public async OnSaveClicked(): Promise<void> {
-		this.setErrorText(this.getValidationError());
+		const validation: ValidationResult = this.validateDraft();
 
-		if (!this.HasError) {
+		this.ErrorMessages = validation.GetMessages();
+		this.ValueInvalid = validation.HasField(ApplicationSettingsValidator.VALUE);
+
+		if (validation.IsValid()) {
 			await this.saveParameter();
 		} else {
-			// El valor no es válido: el aviso ya está en pantalla
+			// Hay reglas rotas: se muestran en el panel de errores y no se guarda
 		}
 	}
 
@@ -339,7 +338,7 @@ export class ApplicationSettingsEditorComponent implements OnDestroy, OnInit {
 
 	public OnValueChanged(value: string): void {
 		this.DraftValue = value;
-		this.setErrorText(STRING_UNDEFINED);
+		this.ValueInvalid = false;
 		this._IsDirty = true;
 	}
 
@@ -392,49 +391,24 @@ export class ApplicationSettingsEditorComponent implements OnDestroy, OnInit {
 
 	/**
 	 * Comprueba el valor que se edita antes de guardarlo. El resto de comprobaciones las hace el API.
-	 * @returns El aviso si el valor no es válido; vacío si lo es.
+	 * @returns Las reglas rotas; vacío si el valor es válido.
 	 */
-	private getValidationError(): string {
-		let result: string = STRING_UNDEFINED;
+	private validateDraft(): ValidationResult {
+		let result: ValidationResult = new ValidationResult();
 
 		switch (this.Panel) {
 			case ApplicationSettingsPanel.NUMBER:
-				if (!/^[0-9]+$/.test(this.DraftValue) || Number(this.DraftValue) <= 0) {
-					result = this._NUMBER_INVALID_TEXT;
-				} else {
-					result = this.getRangeError(Number(this.DraftValue));
-				}
+				result = this._Validator.ValidateNumber(this.DetailName, this.DraftValue, this.NumberMin, this.NumberMax);
 				break;
 			case ApplicationSettingsPanel.TEXT:
-				if (this.DraftValue.trim() === STRING_UNDEFINED) {
-					result = this._DIRECTORY_REQUIRED_TEXT;
-				} else {
-					// Tiene contenido; el API no pide nada más
-				}
+				result = this._Validator.ValidateRequiredText(this.DetailName, this.DraftValue);
 				break;
 			case ApplicationSettingsPanel.LANGUAGE:
 				// Se elige de una lista cerrada: no hay nada que comprobar
 				break;
 			default:
-				console.warn('ApplicationSettingsEditor.getValidationError() => panel sin comprobación: ' + String(this.Panel));
+				console.warn('ApplicationSettingsEditor.validateDraft() => panel sin comprobación: ' + String(this.Panel));
 				break;
-		}
-
-		return result;
-	}
-
-	/**
-	 * Comprueba que un número está entre los límites del parámetro abierto, si el parámetro los tiene.
-	 * @param value Valor numérico que se edita.
-	 * @returns El aviso si está fuera de los límites; vacío si está dentro o el parámetro no tiene límites.
-	 */
-	private getRangeError(value: number): string {
-		let result: string = STRING_UNDEFINED;
-
-		if (!CheckUtils.IsNull(this.NumberMax) && (value < this.NumberMin || value > this.NumberMax)) {
-			result = StringUtils.Format(this._NUMBER_RANGE_TEXT, [String(this.NumberMin), String(this.NumberMax)]);
-		} else {
-			// Está dentro de los límites o el parámetro no tiene máximo: el resto lo valida el API
 		}
 
 		return result;
@@ -470,7 +444,8 @@ export class ApplicationSettingsEditorComponent implements OnDestroy, OnInit {
 	private openParameter(parameter: ApplicationSettingsParameterBase | null): void {
 		this._IsDirty = false;
 		this._Selected = parameter;
-		this.setErrorText(STRING_UNDEFINED);
+		this.ErrorMessages = [];
+		this.ValueInvalid = false;
 
 		if (!CheckUtils.IsNull(parameter)) {
 			this.DefaultValueText = StringUtils.Format(this._DEFAULT_VALUE_TEXT, [parameter.DefaultValue]);
@@ -567,7 +542,8 @@ export class ApplicationSettingsEditorComponent implements OnDestroy, OnInit {
 				}
 			} catch (error) {
 				if (error instanceof HttpErrorResponse && error.status === HttpStatusCode.BadRequest) {
-					this.setErrorText(this._VALUE_REJECTED_TEXT);
+					this.ErrorMessages = [this._VALUE_REJECTED_TEXT];
+					this.ValueInvalid = true;
 				} else {
 					this._Notification.Send(this._SAVE_ERROR_TEXT, NotificationLevel.DANGER);
 				}
@@ -657,15 +633,6 @@ export class ApplicationSettingsEditorComponent implements OnDestroy, OnInit {
 		this.IsEditing = isEditing;
 		this.IsReadOnly = !isEditing;
 		this.IsRestoreDisabled = !isEditing || this.IsBusy;
-	}
-
-	/**
-	 * Cambia el aviso del último intento de guardar.
-	 * @param text Aviso; vacío para quitarlo.
-	 */
-	private setErrorText(text: string): void {
-		this.ErrorText = text;
-		this.HasError = text !== STRING_UNDEFINED;
 	}
 
 	//#endregion PRIVATE METHODS

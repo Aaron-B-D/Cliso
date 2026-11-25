@@ -5,6 +5,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
+import { ValidationAlertComponent } from 'src/app/shared/components/validationAlert/validationAlert.component';
 import { STRING_UNDEFINED } from 'src/app/shared/definitions/constants.definitions';
 import { IconName } from 'src/app/shared/definitions/icons.definitions';
 import { IconsUtils } from 'src/app/shared/utils/icons.utils';
@@ -17,7 +18,7 @@ import { LanguageManager } from 'src/app/shared/utils/language/languageManager.u
  */
 @Component({
 	selector: 'app-editor-shell',
-	imports: [FormsModule, MatButtonModule, MatFormFieldModule, MatInputModule, MatTooltipModule],
+	imports: [FormsModule, MatButtonModule, MatFormFieldModule, MatInputModule, MatTooltipModule, ValidationAlertComponent],
 	templateUrl: './editorShell.component.html',
 	styleUrl: './editorShell.component.scss'
 })
@@ -54,11 +55,14 @@ export class EditorShellComponent implements OnChanges, OnDestroy {
 	/** Se emite al pulsar editar. */
 	@Output() public editClicked: EventEmitter<void> = new EventEmitter<void>();
 
-	/** Alto inicial de la ventana desde `md`, como valor CSS. Vacío para el de por defecto. */
-	@Input() public Height: string = STRING_UNDEFINED;
+	/** Mensajes de los errores del formulario tras validarlo. Una lista nueva con errores abre el panel de errores; vacía, lo quita. */
+	@Input() public ErrorMessages: string[] = [];
 
 	/** `true` si hay un elemento seleccionado: solo entonces se puede editar o borrar. */
 	@Input() public HasSelection: boolean = false;
+
+	/** Alto inicial de la ventana desde `md`, como valor CSS. Vacío para el de por defecto. */
+	@Input() public Height: string = STRING_UNDEFINED;
 
 	/** `true` si hay una operación en curso: se desactivan los botones del pie. */
 	@Input() public IsBusy: boolean = false;

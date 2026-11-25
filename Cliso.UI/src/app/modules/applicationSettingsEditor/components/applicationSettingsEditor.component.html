@@ -1,6 +1,7 @@
 <app-editor-shell class="applicationSettingsEditorDir"
 	[CanAdd]="false"
 	[CanDelete]="false"
+	[ErrorMessages]="ErrorMessages"
 	[HasSelection]="HasSelection"
 	[Height]="EDITOR_HEIGHT"
 	[IsBusy]="IsBusy"
@@ -60,6 +61,7 @@
 					}
 					@case (PANEL_NUMBER) {
 						<app-application-settings-editor-number-panel class="ase_value_panel"
+							[IsInvalid]="ValueInvalid"
 							[IsReadOnly]="IsReadOnly"
 							[Label]="VALUE_TEXT"
 							[Max]="NumberMax"
@@ -70,6 +72,7 @@
 					}
 					@case (PANEL_TEXT) {
 						<app-application-settings-editor-text-panel class="ase_value_panel"
+							[IsInvalid]="ValueInvalid"
 							[IsReadOnly]="IsReadOnly"
 							[Label]="VALUE_TEXT"
 							[Value]="DraftValue"
@@ -96,9 +99,6 @@
 					<img class="ase_icon" alt="" [src]="RestoreIcon" />
 				</button>
 			</div>
-			@if (HasError) {
-				<p class="ase_error" role="alert">{{ ErrorText }}</p>
-			}
 			<p class="ase_text ase_text-muted">{{ DefaultValueText }}</p>
 		} @else {
 			<p class="ase_empty">{{ NO_SELECTION_TEXT }}</p>

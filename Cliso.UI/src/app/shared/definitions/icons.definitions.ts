@@ -32,7 +32,8 @@ enum IconName {
 	MY_LOCATION = 'my-location',
 	PUBLIC = 'public',
 	VISIBILITY = 'visibility',
-	VISIBILITY_OFF = 'visibility-off'
+	VISIBILITY_OFF = 'visibility-off',
+	WARNING = 'warning'
 }
 
 //#endregion ENUMS

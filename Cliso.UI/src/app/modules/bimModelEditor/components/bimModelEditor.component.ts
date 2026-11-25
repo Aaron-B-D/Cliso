@@ -12,6 +12,7 @@ import { EditorShellComponent } from 'src/app/shared/components/editorShell/edit
 import { ID_NUMERIC_UNDEFINED, STRING_UNDEFINED } from 'src/app/shared/definitions/constants.definitions';
 import { BimModelDto } from 'src/app/shared/definitions/dtos.definitions';
 import { ConfirmDialogType } from 'src/app/shared/definitions/dialogs.definitions';
+import { InvalidDirective } from 'src/app/shared/directives/invalid.directive';
 import { ReadOnlyDirective } from 'src/app/shared/directives/readOnly.directive';
 import { IconName } from 'src/app/shared/definitions/icons.definitions';
 import { NotificationLevel } from 'src/app/shared/definitions/notifications.definitions';
@@ -30,6 +31,8 @@ import { RequestUtils } from 'src/app/shared/utils/request.utils';
 import { StringUtils } from 'src/app/shared/utils/string.utils';
 import { LoggedUserManager } from 'src/app/shared/utils/session/loggedUserManager.utils';
 import { TryGetResult } from 'src/app/shared/models/common/tryGetResult.models';
+import { BimModelValidator } from 'src/app/validators/bimModel/bimModel.validator';
+import { ValidationResult } from 'src/app/validators/common/validationResult/validationResult.models';
 
 /** Ficha de un modelo en la lista del editor, con lo que la plantilla necesita ya calculado. */
 type BimModelListItem = {
@@ -46,6 +49,7 @@ type BimModelListItem = {
 		EditorCardComponent,
 		EditorShellComponent,
 		FormsModule,
+		InvalidDirective,
 		MatFormFieldModule,
 		MatInputModule,
 		MatProgressBarModule,
@@ -74,9 +78,6 @@ export class BimModelEditorComponent implements OnDestroy, OnInit {
 
 	/** Etiqueta del nombre. */
 	public readonly NAME_TEXT: string = LanguageManager.GetText('WEB_NAME');
-
-	/** Aviso de que el nombre es obligatorio. */
-	public readonly NAME_REQUIRED_TEXT: string = LanguageManager.GetText('WEB_NAME_REQUIRED');
 
 	/** Texto mientras se carga la lista o el visor. */
 	public readonly LOADING_TEXT: string = LanguageManager.GetText('WEB_LOADING');
@@ -131,9 +132,6 @@ export class BimModelEditorComponent implements OnDestroy, OnInit {
 	/** Pregunta de confirmación para descartar los cambios sin guardar. */
 	private readonly _DISCARD_CONFIRM_TEXT: string = LanguageManager.GetText('WEB_DISCARD_CONFIRM');
 
-	/** Aviso de que el fichero elegido no es un IFC. */
-	private readonly _FILE_INVALID_TEXT: string = LanguageManager.GetText('BME_FILE_INVALID');
-
 	/** Aviso de que no se han podido cargar los modelos. */
 	private readonly _LOAD_ERROR_TEXT: string = LanguageManager.GetText('WEB_BIM_MODELS_LOAD_ERROR');
 
@@ -164,6 +162,9 @@ export class BimModelEditorComponent implements OnDestroy, OnInit {
 	/** Datos del modelo abierto: son los que se editan, y solo se guardan al pulsar guardar. */
 	public Draft: BimModel = this.createEmptyModel();
 
+	/** Mensajes de las reglas rotas en la última validación. Una lista nueva abre el panel de errores. */
+	public ErrorMessages: string[] = [];
+
 	/** `true` si hay un modelo seleccionado en la lista. */
 	public HasSelection: boolean = false;
 
@@ -191,8 +192,8 @@ export class BimModelEditorComponent implements OnDestroy, OnInit {
 	/** Fichas de la lista, ya filtradas por el buscador. */
 	public ListItems: BimModelListItem[] = [];
 
-	/** `true` si hay que avisar de que falta el nombre. */
-	public NameError: boolean = false;
+	/** `true` si el nombre tiene una regla rota y debe verse en rojo. */
+	public NameInvalid: boolean = false;
 
 	/** Texto del fichero elegido que se subirá al guardar. Vacío si no hay ninguno. */
 	public PendingFileText: string = STRING_UNDEFINED;
@@ -263,6 +264,9 @@ export class BimModelEditorComponent implements OnDestroy, OnInit {
 
 	/** Modelo seleccionado en la lista. Es `null` si no hay ninguno, o si se está añadiendo uno nuevo. */
 	private _Selected: BimModel | null = null;
+
+	/** Valida los datos del modelo y el fichero que se elige. */
+	private readonly _Validator: BimModelValidator = new BimModelValidator();
 
 	//#endregion PRIVATE PROPERTIES
 
@@ -394,7 +398,7 @@ export class BimModelEditorComponent implements OnDestroy, OnInit {
 
 	public OnNameChanged(name: string): void {
 		this.Draft.Name = name;
-		this.NameError = false;
+		this.NameInvalid = false;
 		this._IsDirty = true;
 	}
 
@@ -412,10 +416,15 @@ export class BimModelEditorComponent implements OnDestroy, OnInit {
 	}
 
 	public async OnSaveClicked(): Promise<void> {
-		if (CheckUtils.IsEmptyString(this.Draft.Name)) {
-			this.NameError = true;
-		} else {
+		const validation: ValidationResult = this._Validator.Validate(this.Draft);
+
+		this.ErrorMessages = validation.GetMessages();
+		this.NameInvalid = validation.HasField(BimModelValidator.NAME);
+
+		if (validation.IsValid()) {
 			await this.saveModel();
+		} else {
+			// Hay reglas rotas: se muestran en el panel de errores y no se guarda
 		}
 	}
 
@@ -573,7 +582,8 @@ export class BimModelEditorComponent implements OnDestroy, OnInit {
 		this._PreviewModelId = ID_NUMERIC_UNDEFINED;
 		this._Selected = model;
 		this.Draft = CheckUtils.IsNull(model) ? this.createEmptyModel() : this.cloneModel(model);
-		this.NameError = false;
+		this.ErrorMessages = [];
+		this.NameInvalid = false;
 		this.PendingFileText = STRING_UNDEFINED;
 		this.PreviewContent = null;
 		this.PreviewProgress = null;
@@ -697,16 +707,18 @@ export class BimModelEditorComponent implements OnDestroy, OnInit {
 	}
 
 	/**
-	 * Valida el fichero elegido y lo deja pendiente de subir.
+	 * Valida el fichero elegido y lo deja pendiente de subir. Si no es válido, lo descarta y avisa al usuario.
 	 * @param file Fichero elegido o soltado.
 	 */
 	private selectFile(file: File): void {
-		if (file.name.toLowerCase().endsWith(this.FILE_EXTENSION)) {
+		const validation: ValidationResult = this._Validator.ValidateFile(file.name, this.FILE_EXTENSION);
+
+		if (validation.IsValid()) {
 			this._PendingFile = file;
 			this._IsDirty = true;
 			this.PendingFileText = StringUtils.Format(this._PENDING_FILE_TEXT, [file.name]);
 		} else {
-			this._Notification.Send(this._FILE_INVALID_TEXT, NotificationLevel.WARNING);
+			this._Notification.Send(validation.GetMessages().join(' '), NotificationLevel.WARNING);
 		}
 	}
 
